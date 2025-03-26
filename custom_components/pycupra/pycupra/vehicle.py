@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-"""Vehicle class for Seat Connect."""
+"""Vehicle class for pycupra."""
 import re
 import logging
 import asyncio
@@ -1467,7 +1467,7 @@ class Vehicle:
     def is_secondary_drive_supported(self):
         if self.attrs.get('mycar', False):
             if 'engines' in self.attrs.get('mycar', {}):
-                if 'primary' in self.attrs.get('mycar')['engines']:
+                if 'secondary' in self.attrs.get('mycar')['engines']:
                     if 'fuelType' in self.attrs.get('mycar')['engines']['secondary']:
                         return True
         return False
