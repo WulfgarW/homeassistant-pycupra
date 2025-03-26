@@ -1,8 +1,9 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-"""Communicate with Seat Connect."""
+"""Communicate with the My Cupra portal."""
 """First fork from https://github.com/robinostlund/volkswagencarnet where it was modified to support also Skoda Connect"""
 """Then forked from https://github.com/lendy007/skodaconnect for adaptation to Seat Connect"""
+"""Then forked from https://github.com/Farfar/seatconnect for adaptation to the new API of My Cupra and My Seat"""
 import re
 import os
 import json
@@ -219,6 +220,8 @@ class Connection:
         #self._session_nonce = self._getNonce()
         #self._session_state = self._getState()
 
+        if data.get('apiKey',None)!=None:
+            self._googleApiKey=data.get('apiKey')
         if data.get('tokenFile',None)!=None:
             self._tokenFile=data.get('tokenFile')
             loop = asyncio.get_running_loop()
@@ -833,9 +836,9 @@ class Connection:
 
  #### API get data functions ####
    # Profile related functions
-    async def getConsentInfo(self):
+    #async def getConsentInfo(self):
         """Get consent information for user."""
-        try:
+        """try:
             await self.set_token(self._session_auth_brand)
             atoken = self._session_tokens[self._session_auth_brand]['access_token']
             # Try old pyJWT syntax first
@@ -864,7 +867,7 @@ class Connection:
                 _LOGGER.info('Unhandled error while trying to fetch consent information')
         except Exception as error:
             _LOGGER.debug(f'Could not get consent information, error {error}')
-        return False
+        return False"""
 
     async def getBasicCarData(self, vin, baseurl):
         """Get car information from customer profile, VIN, nickname, etc."""
@@ -1010,14 +1013,14 @@ class Connection:
                     'findCarResponse': response,
                     'isMoving': False
                 }
-                apiKeyForGoogle= 'AIzaSyBmSskEPdkfCQtscfd15qFhqa4WiaI4aOw'
-                lat= response.get('lat', 0)
-                lon= response.get('lon', 0)
-                test = eval(f"f'{API_POS_TO_ADDRESS}'")
-                response = await self.get(eval(f"f'{API_POS_TO_ADDRESS}'"))
-                if response.get('routes', []):
-                    if response.get('routes', [])[0].get('legs', False):
-                        data['findCarResponse']['position_to_address'] = response.get('routes', [])[0].get('legs',[])[0].get('start_address','')
+                if hasattr(self, '_googleApiKey'):
+                    apiKeyForGoogle= self._googleApiKey
+                    lat= response.get('lat', 0)
+                    lon= response.get('lon', 0)
+                    response = await self.get(eval(f"f'{API_POS_TO_ADDRESS}'"))
+                    if response.get('routes', []):
+                        if response.get('routes', [])[0].get('legs', False):
+                            data['findCarResponse']['position_to_address'] = response.get('routes', [])[0].get('legs',[])[0].get('start_address','')
                 return data
             elif response.get('status_code', {}):
                 if response.get('status_code', 0) == 204:
@@ -1379,10 +1382,6 @@ class Connection:
                 if aud == CLIENT_LIST[client].get('CLIENT_ID', ''):
                     req = await self._session.get(url = AUTH_TOKENKEYS)
                     break
-
-            # If no match for "BRAND" clients, assume token is issued from https://mbboauth-1d.prd.ece.vwg-connect.com/mbbcoauth
-            #if req is None:
-            #    req = await self._session.get(url = 'https://mbboauth-1d.prd.ece.vwg-connect.com/mbbcoauth/public/jwk/v1')
 
             # Fetch key list
             keys = await req.json()
