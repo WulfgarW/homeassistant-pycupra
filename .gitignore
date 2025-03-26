@@ -1,0 +1,7 @@
+
+.eggs/
+build/
+dist/
+__pycache__/
+cupra*.json
+www/

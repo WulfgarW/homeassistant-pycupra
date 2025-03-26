@@ -1,0 +1,72 @@
+{
+  "title": "PyCupra",
+  "config": {
+    "step": {
+      "user": {
+        "title": "PyCupra Konfiguration",
+        "description": "Fülle die My Cupra Kontoinformationen aus",
+        "data": {
+          "brand": "Marke",
+          "username": "E-Mail",
+          "password": "Passwort"
+        }
+      },
+      "vehicle": {
+        "title": "Fahrzeugeinstellungen",
+        "description": "Das/die folgende(n) Fahrzeug(e) wurde/wurden gefunden. Bitte wähle das zu überwachende Fahrzeug und dessen Einstellungen aus.\n\nDie S-PIN wird nur für bestimmte Vorgänge benötigt, wie zum Beispiel das Sperren/Entsperren und das Aktivieren der Heizung des Verbrennungsmotors\nDu kannst das Feld leer lassen.",
+        "data": {
+          "vehicle": "FIN Nummer",
+          "spin": "S-PIN",
+          "mutable": "Erlaube Interaktionen mit dem Auto (Aktionen). Deaktivieren um das Auto 'schreibgeschützt' zu machen"
+        }
+      },
+      "monitoring": {
+        "title": "Überwachungseinstellungen",
+        "description": "Lege zusätzliche Überwachungseinstellungen fest.",
+        "data": {
+          "resources": "Zu überwachende Ressourcen.",
+          "convert": "Wähle Entfernungs-/Einheitsumwandlungen aus.",
+          "update_interval": "Abfragehäufigkeit (Sekunden).",
+          "debug": "Vollständiges API Debug Logging (erfordert die Aktivierung von Debug Logging im configuration.yaml)"
+        }
+      },
+      "reauth_confirm": {
+        "description": "Authentifiziere dich erneut mit deinem My Cupra Konto.\nStelle sicher, dass du alle neuen EULAs im My Cupra Portal (https://cupraofficial.de) akzeptierst, bevor du fortfährst.",
+        "data": {
+          "brand": "Marke",
+          "username": "E-Mail",
+          "password": "Passwort"
+        }
+      }
+    },
+    "abort": {
+      "already_configured": "Auto mit dieser FIN ist bereits konfiguriert",
+      "reauth_successful": "Die erneute Authentifizierung war erfolgreich"
+    },
+    "error": {
+      "cannot_connect": "Anmeldung bei My Cupra nicht möglich, bitte überprüfe deine Zugangsdaten und vergewissern dich, dass der Dienst funktioniert",
+      "cannot_update": "Aktualisierung von My Cupra konnte nicht abgefragt werden",
+      "unknown": "[%key:common::config_flow::error::unknown%]"
+    },
+    "progress": {
+      "task_login": "Anmeldung bei My Cupra",
+      "task_update": "Fahrzeuge abfragen"
+    }
+  },
+  "options": {
+    "step": {
+      "user": {
+        "title": "Optionen für PyCupra",
+        "description": "Einstellungen konfigurieren",
+        "data": {
+          "update_interval": "Abfragehäufigkeit (Minuten)",
+          "spin": "S-PIN",
+          "mutable": "Erlaube Interaktionen mit dem Auto (Aktionen). Deaktivieren um das Auto 'schreibgeschützt' zu machen.",
+          "convert": "Wähle Entfernungs-/Einheitsumwandlungen aus.",
+          "resources": "Zu überwachende Ressourcen.",
+          "debug": "Vollständiges API Debug Logging (erfordert die Aktivierung von Debug Logging im configuration.yaml)"
+        }
+      }
+    }
+  }
+}

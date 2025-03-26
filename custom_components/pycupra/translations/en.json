@@ -1,0 +1,72 @@
+{
+  "title": "PyCupra",
+  "config": {
+    "step": {
+      "user": {
+        "title": "PyCupra Configuration",
+        "description": "Fill in My Cupra/My Seat account information",
+        "data": {
+          "brand": "Brand",
+          "username": "Email",
+          "password": "Password"
+        }
+      },
+      "vehicle": {
+        "title": "Vehicle Settings",
+        "description": "The following vehicle(s) was found. Please select the vehicle you wish to monitor and it's settings.\n\nThe S-PIN is only required for some specific operations such as lock/unlock and operations that activates the combustion engine heating.\nYou can leave it blank.",
+        "data": {
+          "vehicle": "VIN Number",
+          "spin": "S-PIN",
+          "mutable": "Allow interactions with car (actions). Uncheck to make the car 'read only'."
+        }
+      },
+      "monitoring": {
+        "title": "Monitoring Settings",
+        "description": "Specify additional monitoring settings.",
+        "data": {
+          "resources": "Resources to monitor.",
+          "convert": "Select distance/unit conversions.",
+          "update_interval": "Poll frequency (seconds).",
+          "debug": "Full API debug logging (requires debug logging enabled in configuration.yaml)"
+        }
+      },
+      "reauth_confirm": {
+        "description": "Re-authenticate with your My Cupra/My Seat account.\nMake sure to accept any new EULA in the My Cupra portal (https://cupraofficial.de) before proceeding.",
+        "data": {
+          "brand": "Brand",
+          "username": "Email",
+          "password": "Password"
+        }
+      }
+    },
+    "abort": {
+      "already_configured": "Car with this VIN is already configured",
+      "reauth_successful": "Re-authentication was successful"
+    },
+    "error": {
+      "cannot_connect": "Could not login to My Cupra, please check your credentials and verify that the service is working",
+      "cannot_update": "Could not query update from My Cupra/My Seat",
+      "unknown": "[%key:common::config_flow::error::unknown%]"
+    },
+    "progress": {
+      "task_login": "Logging in to My Cupra/My Seat",
+      "task_update": "Fetching vehicles"
+    }
+  },
+  "options": {
+    "step": {
+      "user": {
+        "title": "Options for PyCupra",
+        "description": "Configure settings",
+        "data": {
+          "update_interval": "Poll frequency (minutes)",
+          "spin": "S-PIN",
+          "mutable": "Allow interactions with car (actions). Uncheck to make the car 'read only'.",
+          "convert": "Select distance/unit conversions.",
+          "resources": "Resources to monitor.",
+          "debug": "Full API debug logging (requires debug logging enabled in configuration.yaml)"
+        }
+      }
+    }
+  }
+}
