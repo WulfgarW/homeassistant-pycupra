@@ -1,5 +1,5 @@
 # Utilities for integration with Home Assistant
-# Thanks to molobrakos
+# Thanks to molobrakos and Farfar
 
 import logging
 from datetime import datetime

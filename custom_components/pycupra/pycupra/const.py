@@ -1,4 +1,4 @@
-"""Constants for Seat Connect library."""
+"""Constants for pycupra library."""
 
 BASE_SESSION = 'https://ola.prod.code.seat.cloud.vwgroup.com'
 BASE_AUTH = 'https://identity.vwgroup.io'
@@ -166,6 +166,7 @@ API_ACCESS = '{baseurl}//v1/vehicles/{vin}/access/{action}'                     
 API_REQUESTS = '{baseurl}/vehicles/{vin}/{capability}/requests'
 API_REFRESH = '{baseurl}/v1/vehicles/{vin}/vehicle-wakeup/request'
 API_SECTOKEN = '{baseurl}/v2/users/{self._user_id}/spin/verify'
+API_DESTINATION = '{baseurl}/v1/users/vehicles/{vin}/destination'
 API_LITERALS= '{APP_URI}/v1/content/apps/my-cupra/literals/{language}'                               # Message texts in different langauages, e.g. 'en_GB'
 
 # Still to analyse if needed
@@ -174,9 +175,6 @@ API_LITERALS= '{APP_URI}/v1/content/apps/my-cupra/literals/{language}'          
 #'{baseurl}/v2/subscriptions'
 #'{baseurl}/v1/users/{self._user_id}/vehicles/{vin}/leads/history'
 #'{baseurl}/v1/users/{self._user-id}/vehicles/{vin}/consents/xxcryptickeyxxx?locale=en_DE' #{"userId":"xxxxxxx","locale":"en_DE","error":{"title":"Consent failed to load.","detail":"CUPRAApp_ME3_Vehicle_VehiclePermissions_MainViewAccepted_Low_Type1_Wrong"}}
-
-# Send destination to car
-#'{baseurl}/v1/users/vehicles/{vin}/destination[{"address":{"city":"Arendsee (Altmark)","country":"Germany","stateAbbreviation":"Sachsen-Anhalt","street":"Am Lindenpark","houseNumber":"4-7","zipCode":"39619"},"poiProvider":"google","geoCoordinate":{"latitude":52.8865,"longitude":11.50303},"destinationName":"Kinder- und Jugenderholungszentrum Arendsee e.V."}]'
 
 API_CONNECTION= '{APP_URI}/vehicles/{vin}/connection'
 #API_CONSENTS='{APP_URI}/v1/users/{self._user_id}/consents'

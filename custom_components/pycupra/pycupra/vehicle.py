@@ -327,19 +327,18 @@ class Vehicle:
                 while not actionSuccessful and retry < 3:
                     await asyncio.sleep(5)
                     await self.get_charger()
-                    match mode:
-                        case 'start':
-                            if self.charging:
-                                actionSuccessful = True
-                        case 'stop':
-                            if not self.charging:
-                                actionSuccessful = True
-                        case 'settings':
-                            if data.get('settings',0).get('maxChargeCurrentAC','') ==  self.charge_max_ampere:
-                                actionSuccessful = True
-                        case _:
-                            _LOGGER.error(f'Missing code in vehicle._set_charger() for mode {mode}')
-                            raise
+                    if mode == 'start':
+                        if self.charging:
+                            actionSuccessful = True
+                    elif mode == 'stop':
+                        if not self.charging:
+                            actionSuccessful = True
+                    elif mode == 'settings':
+                        if data.get('settings',0).get('maxChargeCurrentAC','') ==  self.charge_max_ampere:
+                            actionSuccessful = True
+                    else:
+                        _LOGGER.error(f'Missing code in vehicle._set_charger() for mode {mode}')
+                        raise
                     retry = retry +1
                 if actionSuccessful:
                     self._requests.get('climatisation', {}).pop('id')
@@ -575,7 +574,7 @@ class Vehicle:
                 if actionSuccessful:
                     self._requests.get('departuretimer', {}).pop('id')
                     return True
-                _LOGGER.error('Response to POST request seemed successful but the climater status did not change as expected.')
+                _LOGGER.error('Response to POST request seemed successful but the departure timers status did not change as expected.')
                 return False
         except (SeatInvalidRequestException, SeatException):
             raise
@@ -583,6 +582,29 @@ class Vehicle:
             _LOGGER.warning(f'Failed to execute departure timer request - {error}')
             self._requests['departuretimer'] = {'status': 'Exception'}
         raise SeatException('Failed to set departure timer schedule')
+
+    # Send a destination to vehicle
+    async def send_destination(self, destination=None):
+        """ Send destination to vehicle. """
+
+        if destination==None:
+            _LOGGER.error('No destination provided')
+            raise
+        else:
+            data=[]
+            data.append(destination)
+        try:
+            response = await self._connection.sendDestination(self.vin, self._apibase, data, spin=False)
+            if not response:
+                _LOGGER.error('Failed to execute send destination request')
+                raise SeatException('Failed to execute send destination request')
+            else:
+                return True
+        except (SeatInvalidRequestException, SeatException):
+            raise
+        except Exception as error:
+            _LOGGER.warning(f'Failed to execute send destination request - {error}')
+        raise SeatException('Failed to send destination to vehicle')
 
    # Climatisation electric/auxiliary/windows (CLIMATISATION)
     async def set_climatisation_temp(self, temperature=20):
@@ -711,25 +733,24 @@ class Vehicle:
                 while not actionSuccessful and retry < 3:
                     await asyncio.sleep(5)
                     await self.get_climater()
-                    match mode:
-                        case 'start':
-                            if self.electric_climatisation:
-                                actionSuccessful = True
-                        case 'stop':
-                            if not self.electric_climatisation:
-                                actionSuccessful = True
-                        case 'settings':
-                            if data.get('targetTemperature',0)== self.climatisation_target_temperature and data.get('climatisationWithoutExternalPower',False)== self.climatisation_without_external_power:
-                                actionSuccessful = True
-                        case 'windowHeater start':
-                            if self.window_heater:
-                                actionSuccessful = True
-                        case 'windowHeater stop':
-                            if not self.window_heater:
-                                actionSuccessful = True
-                        case _:
-                            _LOGGER.error(f'Missing code in vehicle._set_climater() for mode {mode}')
-                            raise
+                    if mode == 'start':
+                        if self.electric_climatisation:
+                            actionSuccessful = True
+                    elif mode == 'stop':
+                        if not self.electric_climatisation:
+                            actionSuccessful = True
+                    elif mode == 'settings':
+                        if data.get('targetTemperature',0)== self.climatisation_target_temperature and data.get('climatisationWithoutExternalPower',False)== self.climatisation_without_external_power:
+                            actionSuccessful = True
+                    elif mode == 'windowHeater start':
+                        if self.window_heater:
+                            actionSuccessful = True
+                    elif mode == 'windowHeater stop':
+                        if not self.window_heater:
+                            actionSuccessful = True
+                    else:
+                        _LOGGER.error(f'Missing code in vehicle._set_climater() for mode {mode}')
+                        raise
                     retry = retry +1
                 if actionSuccessful:
                     self._requests.get('climatisation', {}).pop('id')

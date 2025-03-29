@@ -45,7 +45,7 @@ import base64
 from oauthlib.oauth2.rfc6749.parameters import parse_authorization_code_response, parse_token_response, prepare_grant_uri
 
 from aiohttp import ClientSession, ClientTimeout
-from aiohttp.hdrs import METH_GET, METH_POST
+from aiohttp.hdrs import METH_GET, METH_POST, METH_PUT
 
 from .const import (
     #BRAND,
@@ -94,6 +94,7 @@ from .const import (
     API_SECTOKEN,
     API_REQUESTS,
     API_REFRESH,
+    API_DESTINATION,
     #MODELVIEWL,
     #MODELVIEWS,
     #MODELAPPID,
@@ -802,11 +803,8 @@ class Connection:
 
                     properties={}
                     for key in vehicle:
-                        match key:
-                            case 'capabilities' | 'vin' | 'specifications' |'connectivities':
-                                pass
-                            case _:
-                                properties[key]=vehicle.get(key)
+                        if not(key in {'capabilities', 'vin', 'specifications', 'connectivities'}):
+                            properties[key]=vehicle.get(key)
 
                     newVehicle = {
                         'vin': vin,
@@ -927,6 +925,7 @@ class Connection:
 
     async def getModelImageURL(self, vin, baseurl):
         """Construct the URL for the model image."""
+        await self.set_token(self._session_auth_brand)
         try:
             try:
                 response = await self.get(
@@ -958,6 +957,7 @@ class Connection:
     async def getVehicleStatusReport(self, vin, baseurl):
         """Get stored vehicle status report (Connect services)."""
         data={}
+        await self.set_token(self._session_auth_brand)
         try:
             response = await self.get(eval(f"f'{API_STATUS}'"))
             if response.get('doors', False):
@@ -975,6 +975,7 @@ class Connection:
     async def getMaintenance(self, vin, baseurl):
         """Get stored vehicle status report (Connect services)."""
         data={}
+        await self.set_token(self._session_auth_brand)
         try:
             response = await self.get(eval(f"f'{API_MAINTENANCE}'"))
             if response.get('inspectionDueDays', {}):
@@ -991,6 +992,7 @@ class Connection:
 
     async def getTripStatistics(self, vin, baseurl):
         """Get short term trip statistics."""
+        await self.set_token(self._session_auth_brand)
         try:
             response = await self.get(eval(f"f'{API_TRIP}'"))
             if response.get('data', []):
@@ -1006,6 +1008,7 @@ class Connection:
 
     async def getPosition(self, vin, baseurl):
         """Get position data."""
+        await self.set_token(self._session_auth_brand)
         try:
             response = await self.get(eval(f"f'{API_POSITION}'"))
             if response.get('lat', {}):
@@ -1040,6 +1043,7 @@ class Connection:
 
     async def getDeparturetimer(self, vin, baseurl):
         """Get departure timers."""
+        await self.set_token(self._session_auth_brand)
         try:
             response = await self.get(eval(f"f'{API_DEPARTURE_TIMERS}'"))
             if response.get('timers', {}):
@@ -1058,6 +1062,7 @@ class Connection:
         """Get climatisation data."""
         data={}
         data['climater']={}
+        await self.set_token(self._session_auth_brand)
         try:
             response = await self.get(eval(f"f'{API_CLIMATER_STATUS}'"))
             if response.get('climatisationStatus', {}):
@@ -1084,6 +1089,7 @@ class Connection:
 
     async def getCharger(self, vin, baseurl):
         """Get charger data."""
+        await self.set_token(self._session_auth_brand)
         try:
             response = await self.get(eval(f"f'{API_CHARGING}/status'"))
             if response.get('battery', {}):
@@ -1119,6 +1125,7 @@ class Connection:
 
     async def getPreHeater(self, vin, baseurl):
         """Get parking heater data."""
+        await self.set_token(self._session_auth_brand)
         try:
             response = await self.get(eval(f"f'URL_not_yet_known'"))
             if response.get('statusResponse', {}):
@@ -1203,6 +1210,7 @@ class Connection:
 
     async def _setViaAPI(self, endpoint, **data):
         """Data call to API to set a value or to start an action."""
+        await self.set_token(self._session_auth_brand)
         try:
             url = endpoint 
             response = await self._data_call(url, **data)
@@ -1249,24 +1257,23 @@ class Connection:
                 _LOGGER.error(f'This action is not yet implemented: {data.get('action', {}).get('settings', {}).get('heaterSource', None)}. Command ignored')
                 #self._session_headers['X-securityToken'] = await self.get_sec_token(vin=vin, spin=spin, action='rclima', baseurl=baseurl)
                 pass
-            match mode:
-                case "stop": # Stop climatisation
-                    capability='climatisation'
-                    return await self._setViaAPI(eval(f"f'{API_REQUESTS}/stop'"))
-                case "settings": # Set target temperature
-                    capability='climatisation'
-                    return await self._setViaAPI(eval(f"f'{API_CLIMATER}/settings'"), json=data)
-                case "windowHeater stop": # Stop window heater
-                    capability='windowheating'
-                    return await self._setViaAPI(eval(f"f'{API_REQUESTS}/stop'"))
-                case "windowHeater start": # Stop window heater
-                    capability='windowheating'
-                    return await self._setViaAPI(eval(f"f'{API_REQUESTS}/start'"))
-                case "start": # Start climatisation
-                    return await self._setViaAPI(eval(f"f'{API_CLIMATER}/start'"), json = data)
-                case _: # Unknown modes
-                    _LOGGER.error(f'Unbekannter setClimater mode: {mode}. Command ignored')
-                    return False
+            if mode == "stop": # Stop climatisation
+                capability='climatisation'
+                return await self._setViaAPI(eval(f"f'{API_REQUESTS}/stop'"))
+            elif mode == "settings": # Set target temperature
+                capability='climatisation'
+                return await self._setViaAPI(eval(f"f'{API_CLIMATER}/settings'"), json=data)
+            elif mode == "windowHeater stop": # Stop window heater
+                capability='windowheating'
+                return await self._setViaAPI(eval(f"f'{API_REQUESTS}/stop'"))
+            elif mode == "windowHeater start": # Stop window heater
+                capability='windowheating'
+                return await self._setViaAPI(eval(f"f'{API_REQUESTS}/start'"))
+            elif mode == "start": # Start climatisation
+                return await self._setViaAPI(eval(f"f'{API_CLIMATER}/start'"), json = data)
+            else: # Unknown modes
+                _LOGGER.error(f'Unbekannter setClimater mode: {mode}. Command ignored')
+                return False
         except:
             raise
         return False
@@ -1280,6 +1287,49 @@ class Connection:
                     url=url+'/settings'
             return await self._setViaAPI(url, json = data)
         except:
+            raise
+        return False
+
+    async def sendDestination(self, vin, baseurl, data, spin):
+        """Send destination to vehicle."""
+
+        await self.set_token(self._session_auth_brand)
+        try:
+            url= eval(f"f'{API_DESTINATION}'")
+            response = await self._session.request(
+                METH_PUT,
+                url,
+                headers=self._session_headers,
+                timeout=ClientTimeout(total=TIMEOUT.seconds),
+                cookies=self._session_cookies,
+                raise_for_status=False,
+                json=data
+                )
+            if response.status==202: #[202 Accepted]
+                _LOGGER.debug(f'Destination {data[0]} successfully sent to API.')
+                return response
+            else:
+                _LOGGER.debug(f'API did not successfully receive destination.')
+                raise SeatException(f'Invalid or no response for endpoint {url}')
+                return response
+        except aiohttp.client_exceptions.ClientResponseError as error:
+            _LOGGER.debug(f'Request failed. Data: {data}, HTTP request headers: {self._session_headers}')
+            if error.status == 401:
+                _LOGGER.error('Unauthorized')
+            elif error.status == 400:
+                _LOGGER.error(f'Bad request')
+            elif error.status == 429:
+                _LOGGER.warning('Too many requests. Further requests can only be made after the end of next trip in order to protect your vehicles battery.')
+                return 429
+            elif error.status == 500:
+                _LOGGER.error('Internal server error, server might be temporarily unavailable')
+            elif error.status == 502:
+                _LOGGER.error('Bad gateway, this function may not be implemented for this vehicle')
+            else:
+                _LOGGER.error(f'Unhandled HTTP exception: {error}')
+            #return False
+        except Exception as error:
+            _LOGGER.error(f'Error: {error}')
             raise
         return False
 
