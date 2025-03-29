@@ -1244,6 +1244,7 @@ class Connection:
     async def setCharger(self, vin, baseurl, mode, data):
         """Start/Stop charger."""
         if mode in {'start', 'stop'}:
+            capability='charging'
             return await self._setViaAPI(eval(f"f'{API_REQUESTS}/{mode}'"))
         else:
             _LOGGER.error(f'Not yet implemented. Mode: {mode}. Command ignored')

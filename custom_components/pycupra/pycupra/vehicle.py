@@ -341,9 +341,9 @@ class Vehicle:
                         raise
                     retry = retry +1
                 if actionSuccessful:
-                    self._requests.get('climatisation', {}).pop('id')
+                    self._requests.get('batterycharge', {}).pop('id')
                     return True
-                _LOGGER.error('Response to POST request seemed successful but the climater status did not change as expected.')
+                _LOGGER.error('Response to POST request seemed successful but the charging status did not change as expected.')
                 return False
         except (SeatInvalidRequestException, SeatException):
             raise
