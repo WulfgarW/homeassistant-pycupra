@@ -239,3 +239,73 @@ set_departure_schedule:
       example: "06:00"
       selector:
         text:
+send_destination:
+  name: Send destination to vehicle
+  description: >
+    Send location as navigation destination to the vehicle.
+  fields:
+    device_id:
+      name: Vehicle
+      description: The vehicle to set climatisation settings for
+      required: true
+      selector:
+        device:
+          integration: pycupra
+    latitude:
+      name: Latitude
+      description: "The latitude of the location"
+      required: true
+      selector:
+        number:
+          unit_of_measurement: °
+    longitude:
+      name: Longitude
+      description: "The longitude of the location"
+      required: true
+      selector:
+        number:
+          unit_of_measurement: °
+    poiProvider:
+      name: POI Provider
+      description: "Provider of the point of interest"
+      required: true
+      example: "google"
+      selector:
+        text:
+    destinationName:
+      name: Name of the destination
+      description: "Meaningful name for the destination"
+      example: "Holiday Home"
+      selector:
+        text:
+    street:
+       name: Street
+       description: "The street of the location"
+       selector:
+          text:
+    houseNumber:
+       name: House number
+       description: "The house number belonging to the location"
+       selector:
+          text:
+    city:
+       name: City
+       description: "The city of the location"
+       selector:
+          text:
+    zipCode:
+       name: Zip Code
+       description: "The zip code of the location"
+       selector:
+          text:
+    country:
+       name: Country
+       description: "The country of the location"
+       selector:
+          text:
+    stateAbbrevation:
+       name: State abrevation
+       description: "The state abbrevation of the location"
+       example: "Hessen"
+       selector:
+          text:

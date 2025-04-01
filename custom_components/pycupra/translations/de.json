@@ -68,5 +68,195 @@
         }
       }
     }
+  },
+  "services": {
+    "set_charge_limit": {
+      "name": "Ladelimit setzen",
+      "description": "Setzt das obere Ladelimit.",
+      "fields": {
+        "device_id": {
+          "name": "Geräte-ID",
+          "description": "Geräte-ID des Fahrzeugs"
+        }, 
+        "limit": {
+          "name": "Ladelimit",
+          "description": "Oberes Ladelimit"
+        }
+      }
+    },
+    "set_charger_max_current": {
+      "name": "Max. Ladestrom setzen",
+      "description": "Setzt den maximalen Ladestrom.",
+      "fields": {
+        "device_id": {
+          "name": "Geräte-ID",
+          "description": "Geräte-ID des Fahrzeugs"
+        }, 
+        "current": {
+          "name": "Strom",
+          "description": "Maximaler Ladestrom. Text (Maximum oder Reduced/Minimum) or Ganzzahl 1-255 (1-32 = Amps, 252 = Reduced, 254 = Maximum)"
+        }
+      }
+    },
+    "set_pheater_duration": {
+      "name": "Vorheizdauer setzen",
+      "description": "Legt die Dauer der Vorheizung fest.",
+      "fields": {
+        "device_id": {
+          "name": "Geräte-ID",
+          "description": "Geräte-ID des Fahrzeugs"
+        }, 
+        "duration": {
+          "name": "Dauer",
+          "description": "Zeitdauer in Minuten"
+        }
+      }
+    },
+    "set_climater": {
+      "name": "Klimatisierung setzen",
+      "description": "Starten/Stoppen der Klimatisierung mit optionalen Parametern.",
+      "fields": {
+        "device_id": {
+          "name": "Geräte-ID",
+          "description": "Geräte-ID des Fahrzeugs"
+        }, 
+        "enabled": {
+          "name": "Aktivieren",
+          "description": "Starten oder Stoppen der Klimatisierung"
+        },
+        "temp": {
+          "name": "Temperatur",
+          "description": "Gewünschte Zieltemperatur für die Klimatisierung"
+        }, 
+        "battery_power": {
+          "name": "Akkunutzung erlauben",
+          "description": "Der elektrischen Klimatisierung die Nutzung des Fahrzeugakkus erlauben (Verzicht auf diesen Parameter nutzt die Einstellung am Fahrzeug)"
+        },
+        "aux_heater": {
+          "name": "Zusatzheizer",
+          "description": "Den Zusatzheizer des Fahrzeugs verwenden (S-Pin zur Aktivierung erforderlich)"
+        }, 
+        "spin": {
+          "name": "S-Pin",
+          "description": "Sicherheits-Pin für das Fahrzeug"
+        }
+      }
+    },
+    "set_departure_schedule": {
+      "name": "Abfahrszeitplan setzen",
+      "description": "Setzen von einem der Abfahrszeitpläne.",
+      "fields": {
+        "device_id": {
+          "name": "Geräte-ID",
+          "description": "Geräte-ID des Fahrzeugs"
+        }, 
+        "id": {
+          "name": "Abfahrtszeitplan-ID",
+          "description": "ID des Abfahrtszeitplans, der geändert werden soll"
+        }, 
+        "time": {
+          "name": "Zeit",
+          "description": "Gewünschte Abfahrtszeit, 24h HH:MM."
+        }, 
+        "enabled": {
+          "name": "Aktivieren",
+          "description": "Soll der Abfahrtszeitplan aktiviert werden oder nicht?"
+        },
+        "recurring": {
+          "name": "Wiederkehrende Abfahrtszeit",
+          "description": "Soll es sich um eine wiederkehrende Abfahrtszeit oder eine einmalige handeln?"
+        }, 
+        "date": {
+          "name": "Datum",
+          "description": "Datum für die einmalige Abfahrtszeit (nur erforderlich bei einmaliger Abfahrtszeit)."
+        }, 
+        "days": {
+          "name": "Tagesmuster",
+          "description": "Wochentagsmuster für eine wiederkehrende Abfahrtszeit, Mon-Son - (nur erforderlich für wiederkehrende Abfahrtszeit)."
+        }, 
+        "temp": {
+          "name": "Zieltemperatur",
+          "description": "Gewünschte Zieltemperatur für die Klimatisierung. (Globale Einstellung, die alle Klimatisierungen betrifft)."
+        }, 
+        "climatisation": {
+          "name": "Klimatisierung",
+          "description": "Soll die Klimatisierung für diesen Abfahrtszeitplan aktiviert werden oder nicht?"
+        },
+        "charging": {
+          "name": "Laden",
+          "description": "Soll das Laden des Fahrzeugakkus für diesen Abfahrtszeitplan aktiviert werden oder nicht?"
+        }, 
+        "charge_current": {
+          "name": "Ladestrom",
+          "description": "Maximaler Ladestrom für diesen Abfahrtszeitplan. (1-254 or maximum/reduced)"
+        }, 
+        "charge_target": {
+          "name": "Ladeziel",
+          "description": "Gewünschtes Ladeziel für diesen Abfahrtszeitplan"
+        }, 
+        "off_peak_active": {
+          "name": "Nachtstromtarif nutzen",
+          "description": "Nutzung eines vergünstigten Stromtarif aktivieren."
+        },
+        "off_peak_start": {
+          "name": "Start des Nachtstromtarifs",
+          "description": "Zeitpunkt, zu dem der vergünstigte Stromtarif beginnt, 24h HH:MM."
+        },
+        "off_peak_end": {
+          "name": "Ende des Nachtstromtarifs",
+          "description": "Zeitpunkt, zu dem der vergünstigte Stromtarif endet, 24h HH:MM."
+        }
+      }
+    },
+    "send_destination": {
+      "name": "Navigationsziel senden",
+      "description": "Sendet ein Navigationsziel an das Fahrzeug.",
+      "fields": {
+        "device_id": {
+          "name": "Geräte-ID",
+          "description": "Geräte-ID des Fahrzeugs"
+        }, 
+        "latitude": {
+          "name": "Breitengrad",
+          "description": "Breitengrad des Ortes"
+        },
+        "longitude": {
+          "name": "Längengrad",
+          "description": "Längengrad des Ortes"
+        },
+        "poiProvider": {
+          "name": "Lieferant der Ortsinformation",
+          "description": "Lieferant der Ortsinformation (z.B. google)"
+        },
+        "destinationName": {
+          "name": "Bezeichnung des Ortes",
+          "description": "Sprechende Bezeichnung für den Ort"
+        },
+        "street": {
+          "name": "Straße",
+          "description": "Straßenname (ohne Hausnummer)"
+        },
+        "houseNumber": {
+          "name": "Hausnummer",
+          "description": "Hausnummer für den Ort"
+        },
+        "city": {
+          "name": "Stadt",
+          "description": "Stadt, in der der Ort liegt"
+        },
+        "zipCode": {
+          "name": "Postleitzahl",
+          "description": "Postleitzahl des Stadt"
+        },
+        "country": {
+          "name": "Land/Staat",
+          "description": "Land/Staat, in dem der Ort liegt"
+        },
+        "stateAbbrevation": {
+          "name": "Bundesland/-staat",
+          "description": "Bundesland/-staat, in dem der Ort liegt"
+        }
+      }
+    }
   }
 }

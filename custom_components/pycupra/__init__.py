@@ -61,6 +61,7 @@ from .const import (
     CONF_IMPERIAL_UNITS,
     SERVICE_SET_SCHEDULE,
     SERVICE_SET_MAX_CURRENT,
+    SERVICE_SEND_DESTINATION,
     SERVICE_SET_CHARGE_LIMIT,
     SERVICE_SET_CLIMATER,
     SERVICE_SET_PHEATER_DURATION,
@@ -101,6 +102,21 @@ SERVICE_SET_CHARGE_LIMIT_SCHEMA = vol.Schema(
     {
         vol.Required("device_id"): vol.All(cv.string, vol.Length(min=32, max=32)),
         vol.Required("limit"): vol.In([0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100]),
+    }
+)
+SERVICE_SEND_DESTINATION_SCHEMA = vol.Schema(
+    {
+        vol.Required("device_id"): vol.All(cv.string, vol.Length(min=32, max=32)),
+        vol.Required("latitude"): vol.All(vol.Coerce(float), vol.Range(min=-90, max=90)),
+        vol.Required("longitude"): vol.Any(vol.Range(min=-180, max=180)),
+        vol.Required("poiProvider"): cv.string,
+        vol.Optional("destinationName"): cv.string,
+        vol.Optional("street"): cv.string,
+        vol.Optional("houseNumber"): cv.string,
+        vol.Optional("city"): cv.string,
+        vol.Optional("zipCode"): cv.string,
+        vol.Optional("country"): cv.string,
+        vol.Optional("stateAbbrevation"): cv.string,
     }
 )
 SERVICE_SET_CLIMATER_SCHEMA = vol.Schema(
@@ -350,6 +366,47 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry):
         except Exception as e:
             raise
 
+    async def send_destination(service_call=None):
+        """Send destination to vehicle."""
+        try:
+            car = await get_car(service_call)
+
+            # Get destination data and execute service call
+            latitude = service_call.data.get("latitude", 0)
+            longitude = service_call.data.get("longitude", 0)
+            destinationName = service_call.data.get("destinationName", '')
+            poiProvider = service_call.data.get("poiProvider", '')
+            street = service_call.data.get("street", '')
+            houseNumber = service_call.data.get("houseNumber", '')
+            city = service_call.data.get("city", '')
+            zipCode = service_call.data.get("zipCode", '')
+            country = service_call.data.get("country", '')
+            stateAbbrevation = service_call.data.get("stateAbbrevation", '')
+            dest = {
+                "poiProvider": poiProvider,                                     	         # poiProvider mandatory
+                "geoCoordinate":{"latitude": latitude,"longitude":longitude},  # geoCoordinate mandatory
+                "destinationName": destinationName
+            }
+            if city != '':
+                dest["address"]= {
+	  "street": street,
+	  "houseNumber": houseNumber,
+	  "city": city,
+	  "zipCode": zipCode,
+	  "country": country,
+	  "stateAbbrevation": stateAbbrevation,
+	  }
+
+            _LOGGER.debug(f"destination dict= {dest}")
+            if True: #await car.send_destination(dest) is True:
+                _LOGGER.debug(f"Service call 'send_destination' executed without error")
+            else:
+                _LOGGER.warning(f"Failed to execute service call 'send_destination' with data '{service_call}'")
+        except (SeatInvalidRequestException) as e:
+            _LOGGER.warning(f"Service call 'send_destination' failed {e}")
+        except Exception as e:
+            raise
+
     async def set_charge_limit(service_call=None):
         """Set minimum charge limit."""
         try:
@@ -438,6 +495,12 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry):
         SERVICE_SET_CHARGE_LIMIT,
         set_charge_limit,
         schema = SERVICE_SET_CHARGE_LIMIT_SCHEMA
+    )
+    hass.services.async_register(
+        DOMAIN,
+        SERVICE_SEND_DESTINATION,
+        send_destination,
+        schema = SERVICE_SEND_DESTINATION_SCHEMA
     )
     hass.services.async_register(
         DOMAIN,

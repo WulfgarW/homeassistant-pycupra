@@ -33,6 +33,7 @@ The car privacy settings must be set to "Share my position" for full functionali
 - Device tracker - entity is set to 'not_home' when car is moving
 - Trigger data refresh - this will trigger a wake up call so the car sends new data
 - Model images (downloaded in www folder; the image url string is to long for home assistant)
+- Send a navigation destination to vehicle
 
 ## Installation
 
@@ -83,11 +84,11 @@ logger:
     custom_components.pycupra.binary_sensor: debug
     custom_components.pycupra.sensor: debug
  ```
-* **pycupra.connection:** Set the debug level for the Connection class of the Seat Connect library. This handles the GET/SET requests towards the API
+* **pycupra.connection:** Set the debug level for the Connection class of the PyCupra library. This handles the GET/SET requests towards the API
 
-* **pycupra.vehicle:** Set the debug level for the Vehicle class of the Seat Connect library. One object created for every vehicle in account and stores all data.
+* **pycupra.vehicle:** Set the debug level for the Vehicle class of the PyCupra library. One object created for every vehicle in account and stores all data.
 
-* **pycupra.dashboard:** Set the debug level for the Dashboard class of the Seat Connect library. A wrapper class between hass component and library.
+* **pycupra.dashboard:** Set the debug level for the Dashboard class of the PyCupra library. A wrapper class between hass component and library.
 
 * **custom_components.pycupra:** Set debug level for the custom component. The communication between hass and library.
 
