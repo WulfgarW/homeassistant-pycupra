@@ -35,6 +35,15 @@ The car privacy settings must be set to "Share my position" for full functionali
 - Model images (downloaded in www folder; the image url string is to long for home assistant)
 - Send a navigation destination to vehicle
 
+### How to use the model images
+The model images of the vehicle are downloaded from the Cupra/Seat cloud and stored in the www folder. The names of the model image files are:
+- image_front.png
+- image_rear.png
+- image_side.png
+- image_top.png
+
+You can use these image files for your HA dashboard (e.g. as image for a picture card). Just add the prefix '/local/' to the file name above and use this as the *image path*.
+
 ## Installation
 
 ### Installation with HACS

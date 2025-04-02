@@ -1809,7 +1809,7 @@ class Vehicle:
     @property
     def is_windows_closed_supported(self):
         """Return true if window state is supported"""
-        response = 0
+        response = ""
         if self.attrs.get('status', False):
             if 'windows' in self.attrs.get('status'):
                 response = self.attrs.get('status')['windows'].get('frontLeft', '')
@@ -1826,7 +1826,7 @@ class Vehicle:
     @property
     def is_window_closed_left_front_supported(self):
         """Return true if window state is supported"""
-        response = 0
+        response = ""
         if self.attrs.get('status', False):
             if 'windows' in self.attrs.get('status'):
                 response = self.attrs.get('status')['windows'].get('frontLeft', '')
@@ -1843,7 +1843,7 @@ class Vehicle:
     @property
     def is_window_closed_right_front_supported(self):
         """Return true if window state is supported"""
-        response = 0
+        response = ""
         if self.attrs.get('status', False):
             if 'windows' in self.attrs.get('status'):
                 response = self.attrs.get('status')['windows'].get('frontRight', '')
@@ -1860,7 +1860,7 @@ class Vehicle:
     @property
     def is_window_closed_left_back_supported(self):
         """Return true if window state is supported"""
-        response = 0
+        response = ""
         if self.attrs.get('status', False):
             if 'windows' in self.attrs.get('status'):
                 response = self.attrs.get('status')['windows'].get('rearLeft', '')
@@ -1877,7 +1877,7 @@ class Vehicle:
     @property
     def is_window_closed_right_back_supported(self):
         """Return true if window state is supported"""
-        response = 0
+        response = ""
         if self.attrs.get('status', False):
             if 'windows' in self.attrs.get('status'):
                 response = self.attrs.get('status')['windows'].get('rearRight', '')
@@ -1885,7 +1885,11 @@ class Vehicle:
 
     @property
     def sunroof_closed(self):
-        response = self.attrs.get('status')['sunroof'].get('open', '')
+        # Due to missing test objects, it is yet unclear, if 'sunroof' is direct subentry of 'status' or a subentry of 'windows'. So both are checked.
+        if 'sunroof' in self.attrs.get('status')['windows']:
+            response = self.attrs.get('status')['windows'].get('sunroof', '')
+        else:
+            response = self.attrs.get('status').get('sunroof', '')
         if response == 'closed':
             return True
         else:
@@ -1894,11 +1898,14 @@ class Vehicle:
     @property
     def is_sunroof_closed_supported(self):
         """Return true if sunroof state is supported"""
-        response = 0
+        # Due to missing test objects, it is yet unclear, if 'sunroof' is direct subentry of 'status' or a subentry of 'windows'. So both are checked.
+        response = ""
         if self.attrs.get('status', False):
             if 'sunroof' in self.attrs.get('status'):
-                response = self.attrs.get('status').get('sunroof', 0)
-        return True if response != 0 else False
+                response = self.attrs.get('status').get('sunroof', '')
+            elif 'sunroof' in self.attrs.get('status')['windows']:
+                response = self.attrs.get('status')['windows'].get('sunroof', '')
+        return True if response != '' else False
 
   # Locks
     @property
