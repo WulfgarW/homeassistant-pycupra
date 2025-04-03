@@ -48,8 +48,6 @@ from aiohttp import ClientSession, ClientTimeout
 from aiohttp.hdrs import METH_GET, METH_POST, METH_PUT
 
 from .const import (
-    #BRAND,
-    #COUNTRY,
     HEADERS_SESSION,
     HEADERS_AUTH,
     TOKEN_HEADERS,
@@ -81,13 +79,13 @@ from .const import (
     API_DEPARTURE_TIMERS,
     API_MILEAGE,
     API_CAPABILITIES,
-    API_CAPABILITIES_MANAGEMENT,
+    #API_CAPABILITIES_MANAGEMENT,
     API_MAINTENANCE,
     API_WARNINGLIGHTS,
     API_MEASUREMENTS,
     API_RELATION_STATUS,
     API_INVITATIONS,
-    API_ACTION,
+    #API_ACTION,
     API_IMAGE,
     API_HONK_AND_FLASH,
     API_ACCESS,
@@ -95,12 +93,6 @@ from .const import (
     API_REQUESTS,
     API_REFRESH,
     API_DESTINATION,
-    #MODELVIEWL,
-    #MODELVIEWS,
-    #MODELAPPID,
-    #MODELAPIKEY,
-    #MODELHOST,
-    #MODELAPI
 )
 
 version_info >= (3, 0) or exit('Python 3 required')
@@ -156,14 +148,17 @@ class Connection:
 
     def readTokenFile(self, brand):
         try:
-            with open(self._tokenFile, "r") as f:
-                tokenString=f.read()
-            tokens=json.loads(tokenString)
-            self._session_tokens[brand]=tokens
-            self._user_id=tokens['user_id']
-            return True
+            if os.path.isfile(self._tokenFile):
+                with open(self._tokenFile, "r") as f:
+                    tokenString=f.read()
+                tokens=json.loads(tokenString)
+                self._session_tokens[brand]=tokens
+                self._user_id=tokens['user_id']
+                return True
+            _LOGGER.info('No token file present. readTokenFile() returns False.')
+            return False
         except:
-            _LOGGER.warning('readTokenFile() not successful. Perhaps no token file present.')
+            _LOGGER.warning('readTokenFile() not successful.')
             return False
 
     def writeTokenFile(self, brand):
@@ -181,10 +176,11 @@ class Connection:
 
     def deleteTokenFile(self):
         if hasattr(self, '_tokenfile'):
-            _LOGGER.info('No token file name provided. Cannot delete token file.')
+            _LOGGER.debug('No token file name provided. Cannot delete token file.')
             return False
         try:
             os.remove(self._tokenFile)
+            _LOGGER.info(f'Deleted token file.')
             return True
         except Exception as e:
             _LOGGER.warning(f'deleteTokenFile() not successful. Error: {e}')
@@ -193,7 +189,6 @@ class Connection:
     def writeImageFile(self, imageName, imageData, imageDict):
         try:
             with open(f'./www/image_{imageName}.png', "wb") as f:
-                #imageString = io.BytesIO(imageData)
                 f.write(imageData)
             imageDict[imageName]=f'/local/image_{imageName}.png'
             return True
@@ -210,16 +205,16 @@ class Connection:
         #        await self.logout()
         #    except:
         #        pass
-        _LOGGER.info('Instead of logout and login, doLogin() tries to read tokens from file and to refresh them.')
+        _LOGGER.info('doLogin() first tries to read tokens from file and to refresh them.')
 
         # Remove cookies and re-init session
         self._clear_cookies()
         self._vehicles.clear()
         self._session_tokens = {}
-        #self._session_headers = HEADERS_SESSION.copy()
-        #self._session_auth_headers = HEADERS_AUTH.copy()
-        #self._session_nonce = self._getNonce()
-        #self._session_state = self._getState()
+        self._session_headers = HEADERS_SESSION.get(self._session_auth_brand).copy()
+        self._session_auth_headers = HEADERS_AUTH.copy()
+        self._session_nonce = self._getNonce()
+        self._session_state = self._getState()
 
         if data.get('apiKey',None)!=None:
             self._googleApiKey=data.get('apiKey')
@@ -230,9 +225,9 @@ class Connection:
             if result:
                 rc=await self.refresh_token(self._session_auth_brand)
                 if rc:
-                    _LOGGER.debug('Successfully read tokens from file and refreshed them')
+                    _LOGGER.info('Successfully read tokens from file and refreshed them.')
                     return True
-        _LOGGER.info('Initiating new login')
+        _LOGGER.info('Initiating new login with user name and password.')
         return await self._authorize(self._session_auth_brand)
 
     async def _authorize(self, client=BRAND_CUPRA):
@@ -246,7 +241,7 @@ class Connection:
 
         # Login/Authorization starts here
         try:
-            #self._session_headers = HEADERS_SESSION.copy()
+            #self._session_headers = HEADERS_SESSION.get(client).copy()
             #self._session_auth_headers = HEADERS_AUTH.copy()
 
             _LOGGER.debug(f'Starting authorization process for client {client}')
@@ -333,9 +328,6 @@ class Connection:
                     if 'user_id' in location: # Get the user_id which is needed for some later requests
                         self._user_id=parse_qs(urlparse(location).query).get('user_id')[0]
                         _LOGGER.debug('Got user_id: %s' % self._user_id)
-                    #if 'userId' in location: # Get the user_id which is needed for some later requests
-                    #    self._user_id=parse_qs(urlparse(location).query).get('userId')[0]
-                    #    _LOGGER.debug('Got user_id: %s' % self._user_id)
                     if self._session_fulldebug:
                         _LOGGER.debug(f'Following redirect to "{location}"')
                     response = await self._session.get(
@@ -368,7 +360,7 @@ class Connection:
             auth_code = parse_qs(urlparse(location).query).get('code')[0]
             # Save access, identity and refresh tokens according to requested client"""
             if client=='cupra':
-                # Fetch_token() does not work in home assistant, using POST request instead
+                # oauthClient.fetch_token() does not work in home assistant, using POST request instead
                 #token_data= oauthClient.fetch_token(token_url=AUTH_TOKEN,  
                 #                       client_id=CLIENT_LIST[client].get('CLIENT_ID'), client_secret=CLIENT_LIST[client].get('CLIENT_SECRET'), authorization_response=location, 
                 #                       code_verifier=code_verifier, code=auth_code)
@@ -428,7 +420,6 @@ class Connection:
                 _LOGGER.warning(f'Token for {client} could not be verified, verification returned {verify}.')
             loop = asyncio.get_running_loop()
             rt = await loop.run_in_executor(None, self.writeTokenFile, client)
-            #rt=self.writeTokenFile(client)
         except (SeatEULAException):
             _LOGGER.warning('Login failed, the terms and conditions might have been updated and need to be accepted. Login to  your local SEAT/Cupra site, e.g. "https://cupraofficial.se/" and accept the new terms before trying again')
             raise
@@ -539,11 +530,11 @@ class Connection:
 
     async def terminate(self):
         """Log out from connect services"""
-        _LOGGER.info(f'Initiating logout')
         await self.logout()
 
     async def logout(self):
         """Logout, revoke tokens."""
+        _LOGGER.info(f'Initiating logout.')
         self._session_headers.pop('Authorization', None)
         self._session_headers.pop('tokentype', None)
         self._session_headers['Content-Type'] = 'application/x-www-form-urlencoded'
@@ -558,7 +549,6 @@ class Connection:
                 self._session_tokens[client][token_type] = None
         loop = asyncio.get_running_loop()
         await loop.run_in_executor(None, self.deleteTokenFile,)
-        #self.deleteTokenFile()
 
   # HTTP methods to API
     async def get(self, url, vin=''):
@@ -609,7 +599,7 @@ class Connection:
         async with self._session.request(
             method,
             url,
-            headers=self._session_headers,
+            headers=self._session_headers if ('prod-ola-public-bucket.s3.eu-central-1.amazonaws.com' not in url) else {},
             timeout=ClientTimeout(total=TIMEOUT.seconds),
             cookies=self._session_cookies,
             raise_for_status=False,
@@ -651,7 +641,10 @@ class Connection:
                 return res
 
             if self._session_fulldebug:
-                _LOGGER.debug(f'Request for "{url}" returned with status code [{response.status}], response: {res}')
+                if 'image/png'  in response.headers.get('Content-Type', ''):
+                    _LOGGER.debug(f'Request for "{url}" returned with status code [{response.status}]. Not showing response for Content-Type image/png.')
+                else:
+                    _LOGGER.debug(f'Request for "{url}" returned with status code [{response.status}], response: {res}')
             else:
                 _LOGGER.debug(f'Request for "{url}" returned with status code [{response.status}]')
             return res
@@ -942,7 +935,6 @@ class Connection:
                             if len(pic)>0:
                                 loop = asyncio.get_running_loop()
                                 await loop.run_in_executor(None, self.writeImageFile, pos,pic, images)
-                                #self.writeImageFile(pos,pic, images)
                     _LOGGER.debug('Read images from web site and wrote them to file.')
                     response['images']=images
                     return response
@@ -1468,7 +1460,6 @@ class Connection:
             if client != 'vwg':
                 body = {
                     'grant_type': 'refresh_token',
-                    #'brand': BRAND,
                     'client_id': CLIENT_LIST[client].get('CLIENT_ID'),
                     'client_secret': CLIENT_LIST[client].get('CLIENT_SECRET'),
                     'refresh_token': self._session_tokens[client]['refresh_token']
@@ -1561,16 +1552,6 @@ class Connection:
                         pass
                 # Assign token to authorization header
                 self._session_headers['Authorization'] = 'Bearer ' + self._session_tokens[client]['access_token']
-                """if client == 'seat':
-                    self._session_headers['tokentype'] = 'IDK_TECHNICAL'
-                elif client == 'skoda':
-                    self._session_headers['tokentype'] = 'IDK_TECHNICAL'
-                elif client == 'connect':
-                    self._session_headers['tokentype'] = 'IDK_CONNECT'
-                elif client == 'smartlink':
-                    self._session_headers['tokentype'] = 'IDK_SMARTLINK'
-                else:
-                    self._session_headers['tokentype'] = 'MBB'"""
             except:
                 raise SeatException(f'Failed to set token for "{client}"')
             return True

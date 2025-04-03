@@ -3,10 +3,6 @@
 BASE_SESSION = 'https://ola.prod.code.seat.cloud.vwgroup.com'
 BASE_AUTH = 'https://identity.vwgroup.io'
 
-#BRAND = 'cupra'
-#BRAND = 'seat' # You should also be able to use BRAND=cupra even with a seat
-#COUNTRY = 'ES'
-
 # Data used in communication
 CLIENT_LIST = {
     'seat': {
@@ -115,18 +111,9 @@ TOKEN_HEADERS = {
     }
 }
 
-ERROR_CODES = {
-    '11': 'Charger not connected'
-}
-
-# Constants related to model image URL construction
-#MODELVIEWL = 'w1080'                                     # Related to image size, 1080 wide
-#MODELVIEWS = 'main'                                     # Related to image size, smaller
-#MODELAPPID = 'ModcwpMobile'                             # Client, other option is 'Connectedmod' from web client
-#MODELAPPIDS = 'Connectedmod'
-#MODELAPIKEY = b'P{+!!H:+I#6)SJS_?[_wh6puD#UH*%l:'       # Key used to sign message
-#MODELAPI = 'ms/GetMODCWPImage'                          # API base path
-#MODELHOST = 'https://iaservices.skoda-auto.com/'        # API host
+#ERROR_CODES = {
+#    '11': 'Charger not connected'
+#}
 
 ### API Endpoints below, not yet in use ###
 # API AUTH endpoints
@@ -155,11 +142,11 @@ API_MEASUREMENTS = '{baseurl}/v1/vehicles/{vin}/measurements/engines'           
 API_STATUS = '{baseurl}/v2/vehicles/{vin}/status'                                                    # Status information like locks and windows
 API_WARNINGLIGHTS = '{baseurl}/v3/vehicles/{vin}/warninglights'                                      # ???
 API_SHOP = '{baseurl}/v1/shop/vehicles/{vin}/articles'                                               # ???
-API_ACTION = '{baseurl}/v1/vehicles/{vin}/{action}/requests/{command}'                               # Actions (e.g. ActionCharge="charging", ActionChargeStart="start",ActionChargeStop="stop")
+#API_ACTION = '{baseurl}/v1/vehicles/{vin}/{action}/requests/{command}'                               # Actions (e.g. ActionCharge="charging", ActionChargeStart="start",ActionChargeStop="stop")
 API_RELATION_STATUS = '{baseurl}/v1/users/{self._user_id}/vehicles/{vin}/relation-status'            # ???
 API_INVITATIONS = '{baseurl}/v1/user/{self._user_id}/invitations'                                    # ???
 API_CAPABILITIES = '{APP_URI}/v1/user/{self._user_id}/vehicle/{vin}/capabilities'                    # ???
-API_CAPABILITIES_MANAGEMENT = '{API_CAPABILITIES}/management'                                        # ???
+#API_CAPABILITIES_MANAGEMENT = '{API_CAPABILITIES}/management'                                        # ???
 API_IMAGE = '{baseurl}/v1/vehicles/{vin}/renders'
 API_HONK_AND_FLASH = '{baseurl}//v1/vehicles/{vin}/honk-and-flash'
 API_ACCESS = '{baseurl}//v1/vehicles/{vin}/access/{action}'                                          # to lock or unlock vehicle
@@ -190,11 +177,3 @@ REQ_STATUS = {
     'vsr': 'fs-car/bs/vsr/v1/{BRAND}/{COUNTRY}/vehicles/{vin}/requests/{id}/jobstatus',
     'default': 'fs-car/bs/{section}/v1/{BRAND}/{COUNTRY}/vehicles/{vin}/requests/{id}/status'
 }
-
-# API security pin endpoints
-#PIN_LOCK = '/api/rolesrights/authorization/v2/vehicles/$vin/services/rlu_v1/operations/LOCK/security-pin-auth-requested'
-#PIN_UNLOCK = '/api/rolesrights/authorization/v2/vehicles/$vin/services/rlu_v1/operations/UNLOCK/security-pin-auth-requested'
-#PIN_HEATING = '/api/rolesrights/authorization/v2/vehicles/$vin/services/rheating_v1/operations/P_QSACT/security-pin-auth-requested'
-#PIN_TIMER = '/api/rolesrights/authorization/v2/vehicles/$vin/services/timerprogramming_v1/operations/P_SETTINGS_AU/security-pin-auth-requested'
-#PIN_RCLIMA = '/api/rolesrights/authorization/v2/vehicles/$vin/services/rclima_v1/operations/P_START_CLIMA_AU/security-pin-auth-requested'
-#PIN_COMPLETE = '/api/rolesrights/authorization/v2/security-pin-auth-completed'
