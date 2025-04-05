@@ -93,6 +93,8 @@ from .const import (
     API_REQUESTS,
     API_REFRESH,
     API_DESTINATION,
+
+    PUBLIC_MODEL_IMAGES_SERVER,
 )
 
 version_info >= (3, 0) or exit('Python 3 required')
@@ -599,7 +601,7 @@ class Connection:
         async with self._session.request(
             method,
             url,
-            headers=self._session_headers if ('prod-ola-public-bucket.s3.eu-central-1.amazonaws.com' not in url) else {},
+            headers=self._session_headers if (PUBLIC_MODEL_IMAGES_SERVER not in url) else {}, # Set headers to {} when reading from PUBLIC_MODEL_IMAGES_SERVER
             timeout=ClientTimeout(total=TIMEOUT.seconds),
             cookies=self._session_cookies,
             raise_for_status=False,
@@ -983,17 +985,28 @@ class Connection:
         return data
 
     async def getTripStatistics(self, vin, baseurl):
-        """Get short term trip statistics."""
+        """Get short term and cyclic trip statistics."""
         await self.set_token(self._session_auth_brand)
         try:
+            data={'tripstatistics': {}}
+            dataType='CYCLIC'
             response = await self.get(eval(f"f'{API_TRIP}'"))
             if response.get('data', []):
-                data = {'tripstatistics': response.get('data', [])}
-                return data
+                data['tripstatistics']['cyclic']= response.get('data', [])
             elif response.get('status_code', {}):
                 _LOGGER.warning(f'Could not fetch trip statistics, HTTP status code: {response.get("status_code")}')
             else:
                 _LOGGER.info(f'Unhandled error while trying to fetch trip statistics')
+            dataType='SHORT'
+            response = await self.get(eval(f"f'{API_TRIP}'"))
+            if response.get('data', []):
+                data['tripstatistics']['short']= response.get('data', [])
+            elif response.get('status_code', {}):
+                _LOGGER.warning(f'Could not fetch trip statistics, HTTP status code: {response.get("status_code")}')
+            else:
+                _LOGGER.info(f'Unhandled error while trying to fetch trip statistics')
+            if data.get('tripstatistics',{}) != {}:
+                return data
         except Exception as error:
             _LOGGER.warning(f'Could not fetch trip statistics, error: {error}')
         return False

@@ -26,7 +26,7 @@ The car privacy settings must be set to "Share my position" for full functionali
 - Odometer and service info
 - Fuel level, range, adblue level
 - Lock, windows, trunk, hood, sunroof and door status
-- Last trip info
+- Last trip info and last cycle info (for cars with combustion engine 'last cycle' means 'since refuel')
 - Position - gps coordinates, if vehicle is moving, time parked
 - Start/stop auxiliary climatisation for PHEV cars (untested)
 - Lock and unlock car
@@ -64,7 +64,7 @@ Setup multiple vehicles by adding the integration multiple times.
 The integration options can be changed after setup by clicking on the "CONFIGURE" text on the integration.
 The options available are:
 
-* **Poll frequency** The interval (in seconds) that the servers are polled for updated data(1000 Requests per day limitation by VWGROUP. so min 120 seconds).
+* **Poll frequency** The interval (in seconds) that the servers are polled for updated data(1000 Requests per day limitation by VWGROUP. so min 120 seconds, but better 600 or 900 seconds).
 
 * **S-PIN** The S-PIN for the vehicle. This is optional and is only needed for certain vehicle requests/actions (auxiliary heater, lock etc).
 
@@ -104,4 +104,4 @@ logger:
 * **custom_components.pycupra.XYZ** Sets debug level for individual entity types in the custom component.
 
 ## Further help or contributions
-For questions, further help or contributions you can join the (Skoda Connect) Discord server at https://discord.gg/826X9jEtCh
+For questions, further help or contributions you can join the (V.A.G. Connected Cars) Discord server at https://discord.gg/826X9jEtCh

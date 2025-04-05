@@ -2147,7 +2147,7 @@ class Vehicle:
   # Trip data
     @property
     def trip_last_entry(self):
-        return self.attrs.get('tripstatistics', [{},{}])[-1]
+        return self.attrs.get('tripstatistics', {}).get('short', [{},{}])[-1]
 
     @property
     def trip_last_average_speed(self):
@@ -2254,6 +2254,118 @@ class Vehicle:
     def is_trip_last_total_electric_consumption_supported(self):
         #Not implemented
         response = self.trip_last_entry
+        if response and type(response.get('totalElectricConsumption', None)) in (float, int):
+            return True
+
+    @property
+    def trip_last_cycle_entry(self):
+        return self.attrs.get('tripstatistics', {}).get('cyclic', [{},{}])[-1]
+
+    @property
+    def trip_last_cycle_average_speed(self):
+        return self.trip_last_cycle_entry.get('averageSpeedKmph')
+
+    @property
+    def is_trip_last_cycle_average_speed_supported(self):
+        response = self.trip_last_cycle_entry
+        if response and type(response.get('averageSpeedKmph', None)) in (float, int):
+            return True
+
+    @property
+    def trip_last_cycle_average_electric_consumption(self):
+        return self.trip_last_cycle_entry.get('averageElectricConsumption')
+
+    @property
+    def is_trip_last_cycle_average_electric_consumption_supported(self):
+        response = self.trip_last_cycle_entry
+        if response and type(response.get('averageElectricConsumption', None)) in (float, int):
+            return True
+
+    @property
+    def trip_last_cycle_average_fuel_consumption(self):
+        return self.trip_last_cycle_entry.get('averageFuelConsumption')
+
+    @property
+    def is_trip_last_cycle_average_fuel_consumption_supported(self):
+        response = self.trip_last_cycle_entry
+        if response and type(response.get('averageFuelConsumption', None)) in (float, int):
+            return True
+
+    @property
+    def trip_last_cycle_average_auxillary_consumption(self):
+        return self.trip_last_cycle_entry.get('averageAuxConsumption')
+
+    @property
+    def is_trip_last_cycle_average_auxillary_consumption_supported(self):
+        response = self.trip_last_cycle_entry
+        if response and type(response.get('averageAuxConsumption', None)) in (float, int):
+            return True
+
+    @property
+    def trip_last_cycle_average_aux_consumer_consumption(self):
+        value = self.trip_last_cycle_entry.get('averageAuxConsumerConsumption')
+        return value
+
+    @property
+    def is_trip_last_cycle_average_aux_consumer_consumption_supported(self):
+        response = self.trip_last_cycle_entry
+        if response and type(response.get('averageAuxConsumerConsumption', None)) in (float, int):
+            return True
+
+    @property
+    def trip_last_cycle_duration(self):
+        return self.trip_last_cycle_entry.get('travelTime')
+
+    @property
+    def is_trip_last_cycle_duration_supported(self):
+        response = self.trip_last_cycle_entry
+        if response and type(response.get('travelTime', None)) in (float, int):
+            return True
+
+    @property
+    def trip_last_cycle_length(self):
+        return self.trip_last_cycle_entry.get('mileageKm')
+
+    @property
+    def is_trip_last_cycle_length_supported(self):
+        response = self.trip_last_cycle_entry
+        if response and type(response.get('mileageKm', None)) in (float, int):
+            return True
+
+    @property
+    def trip_last_cycle_recuperation(self):
+        #Not implemented
+        return self.trip_last_cycle_entry.get('recuperation')
+
+    @property
+    def is_trip_last_cycle_recuperation_supported(self):
+        #Not implemented
+        response = self.trip_last_cycle_entry
+        if response and type(response.get('recuperation', None)) in (float, int):
+            return True
+
+    @property
+    def trip_last_cycle_average_recuperation(self):
+        #Not implemented
+        value = self.trip_last_cycle_entry.get('averageRecuperation')
+        return value
+
+    @property
+    def is_trip_last_cycle_average_recuperation_supported(self):
+        #Not implemented
+        response = self.trip_last_cycle_entry
+        if response and type(response.get('averageRecuperation', None)) in (float, int):
+            return True
+
+    @property
+    def trip_last_cycle_total_electric_consumption(self):
+        #Not implemented
+        return self.trip_last_cycle_entry.get('totalElectricConsumption')
+
+    @property
+    def is_trip_last_cycle_total_electric_consumption_supported(self):
+        #Not implemented
+        response = self.trip_last_cycle_entry
         if response and type(response.get('totalElectricConsumption', None)) in (float, int):
             return True
 
