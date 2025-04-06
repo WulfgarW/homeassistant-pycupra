@@ -134,8 +134,8 @@ class Sensor(Instrument):
         elif val and self.unit and "°F" in self.unit and self.convert is True:
             temp = round((val * 9 / 5) + 32, 1)
             return temp
-        elif val and self.unit in ['mil', 'mil/h']:
-            return val / 10
+        #elif val and self.unit in ['mil', 'mil/h']:
+        #    return val / 10
         else:
             return val
 
