@@ -28,9 +28,9 @@ from homeassistant.helpers.entity import Entity
 from homeassistant.helpers.icon import icon_for_battery_level
 from homeassistant.helpers.update_coordinator import DataUpdateCoordinator, UpdateFailed
 
-from .pycupra.connection import Connection
-from .pycupra.vehicle import Vehicle
-from .pycupra.exceptions import (
+from pycupra.connection import Connection
+from pycupra.vehicle import Vehicle
+from pycupra.exceptions import (
     SeatConfigException,
     SeatAuthenticationException,
     SeatAccountLockedException,
