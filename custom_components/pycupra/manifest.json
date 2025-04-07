@@ -1,15 +1,15 @@
 {
     "domain": "pycupra",
     "name": "PyCupra",
-    "documentation": "https://github.com/WulfgarW/homeassistant-pycupra/README.md",
-    "issue_tracker": "https://github.com/WulfgarW/homeassistant-pycupra/issues",
-    "dependencies": [],
-    "config_flow": true,
     "codeowners": ["@WulfgarW"],
+    "config_flow": true,
+    "dependencies": [],
+    "documentation": "https://github.com/WulfgarW/homeassistant-pycupra/README.md",
+    "iot_class": "cloud_polling",
+    "issue_tracker": "https://github.com/WulfgarW/homeassistant-pycupra/issues",
     "requirements": [
         "pycupra>=0.0.1",
         "homeassistant>=2025.1.0"
     ],
-    "version": "0.0.1",
-    "iot_class": "cloud_polling"
+    "version": "0.0.1"
 }

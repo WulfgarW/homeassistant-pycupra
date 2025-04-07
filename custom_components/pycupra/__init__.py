@@ -107,7 +107,7 @@ SERVICE_SET_CHARGE_LIMIT_SCHEMA = vol.Schema(
 SERVICE_SEND_DESTINATION_SCHEMA = vol.Schema(
     {
         vol.Required("device_id"): vol.All(cv.string, vol.Length(min=32, max=32)),
-        vol.Required("latitude"): vol.All(vol.Coerce(float), vol.Range(min=-90, max=90)),
+        vol.Required("latitude"): vol.Any(vol.Range(min=-90, max=90)),
         vol.Required("longitude"): vol.Any(vol.Range(min=-180, max=180)),
         vol.Required("poiProvider"): cv.string,
         vol.Optional("destinationName"): cv.string,
