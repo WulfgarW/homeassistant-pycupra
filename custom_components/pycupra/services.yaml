@@ -257,6 +257,9 @@ send_destination:
       required: true
       selector:
         number:
+          min: -90
+          max: 90
+          mode: box
           unit_of_measurement: °
     longitude:
       name: Longitude
@@ -264,6 +267,9 @@ send_destination:
       required: true
       selector:
         number:
+          min: -180
+          max: 180
+          mode: box
           unit_of_measurement: °
     poiProvider:
       name: POI Provider
