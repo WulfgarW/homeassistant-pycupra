@@ -47,7 +47,7 @@ from .const import (
     PLATFORMS,
     CONF_BRAND,
     CONF_MUTABLE,
-    CONF_SCANDINAVIAN_MILES,
+    #CONF_SCANDINAVIAN_MILES,
     CONF_SPIN,
     CONF_VEHICLE,
     CONF_INSTRUMENTS,
@@ -598,13 +598,14 @@ async def _async_update_listener(hass: HomeAssistant, entry: ConfigEntry):
 
 
 def get_convert_conf(entry: ConfigEntry):
-    return CONF_SCANDINAVIAN_MILES if entry.options.get(
-        CONF_SCANDINAVIAN_MILES,
-        entry.data.get(
-            CONF_SCANDINAVIAN_MILES,
-            False
-        )
-    ) else CONF_NO_CONVERSION
+#    return CONF_SCANDINAVIAN_MILES if entry.options.get(
+#        CONF_SCANDINAVIAN_MILES,
+#        entry.data.get(
+#            CONF_SCANDINAVIAN_MILES,
+#            False
+#        )
+#    ) else CONF_NO_CONVERSION
+    return CONF_NO_CONVERSION
 
 async def async_migrate_entry(hass: HomeAssistant, entry: ConfigEntry):
     """Migrate configuration from old version to new."""
@@ -831,21 +832,21 @@ class PyCupraCoordinator(DataUpdateCoordinator):
             raise UpdateFailed("No vehicles found.")
 
         # Backward compatibility
-        default_convert_conf = get_convert_conf(self.entry)
+        #default_convert_conf = get_convert_conf(self.entry)
 
-        convert_conf = self.entry.options.get(
-            CONF_CONVERT,
-            self.entry.data.get(
-                CONF_CONVERT,
-                default_convert_conf
-            )
-        )
+        #convert_conf = self.entry.options.get(
+        #    CONF_CONVERT,
+        #    self.entry.data.get(
+        #        CONF_CONVERT,
+        #        default_convert_conf
+        #    )
+        #)
 
         dashboard = vehicle.dashboard(
             mutable=self.entry.options.get(CONF_MUTABLE),
             spin=self.entry.options.get(CONF_SPIN),
-            miles=convert_conf == CONF_IMPERIAL_UNITS,
-            scandinavian_miles=convert_conf == CONF_SCANDINAVIAN_MILES,
+            #miles=convert_conf == CONF_IMPERIAL_UNITS,
+            #scandinavian_miles=convert_conf == CONF_SCANDINAVIAN_MILES,
         )
 
         return dashboard.instruments

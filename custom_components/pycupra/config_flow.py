@@ -16,8 +16,8 @@ from pycupra.connection import Connection
 from . import get_convert_conf
 from .const import (
     CONF_CONVERT,
-    CONF_SCANDINAVIAN_MILES,
-    CONF_IMPERIAL_UNITS,
+    #CONF_SCANDINAVIAN_MILES,
+    #CONF_IMPERIAL_UNITS,
     CONF_NO_CONVERSION,
     CONF_DEBUG,
     CONVERT_DICT,
@@ -149,7 +149,7 @@ class PyCupraConnectConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
     async def async_step_monitoring(self, user_input=None):
         if user_input is not None:
             self._options[CONF_RESOURCES] = user_input[CONF_RESOURCES]
-            self._options[CONF_CONVERT] = user_input[CONF_CONVERT]
+            #self._options[CONF_CONVERT] = user_input[CONF_CONVERT]
             self._options[CONF_SCAN_INTERVAL] = user_input[CONF_SCAN_INTERVAL]
             self._options[CONF_DEBUG] = user_input[CONF_DEBUG]
 
@@ -176,9 +176,9 @@ class PyCupraConnectConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                     vol.Required(
                         CONF_RESOURCES, default=list(self._data[CONF_INSTRUMENTS].keys())
                     ): cv.multi_select(self._data[CONF_INSTRUMENTS]),
-                    vol.Required(
-                        CONF_CONVERT, default=CONF_NO_CONVERSION
-                    ): vol.In(CONVERT_DICT),
+                    #vol.Required(
+                    #    CONF_CONVERT, default=CONF_NO_CONVERSION
+                    #): vol.In(CONVERT_DICT),
                     vol.Required(
                         CONF_SCAN_INTERVAL, default=DEFAULT_SCAN_INTERVAL
                     ): vol.All(
@@ -334,9 +334,9 @@ class PyCupraConnectConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
             return False
         if "spin" in yaml:
             self._options[CONF_SPIN] = yaml["spin"]
-        if "scandinavian_miles" in yaml:
-            if yaml["scandinavian_miles"]:
-                self._options[CONF_CONVERT] = "scandinavian_miles"
+        #if "scandinavian_miles" in yaml:
+        #    if yaml["scandinavian_miles"]:
+        #        self._options[CONF_CONVERT] = "scandinavian_miles"
         if "scan_interval" in yaml:
             seconds = 60
             minutes = 0
@@ -436,7 +436,7 @@ class PyCupraConnectOptionsFlowHandler(config_entries.OptionsFlow):
             options[CONF_MUTABLE] = user_input.get(CONF_MUTABLE, True)
             options[CONF_DEBUG] = user_input.get(CONF_DEBUG, False)
             options[CONF_RESOURCES] = user_input.get(CONF_RESOURCES, [])
-            options[CONF_CONVERT] = user_input.get(CONF_CONVERT, CONF_NO_CONVERSION)
+            #options[CONF_CONVERT] = user_input.get(CONF_CONVERT, CONF_NO_CONVERSION)
             return self.async_create_entry(
                 title=self._config_entry,
                 data={
@@ -446,9 +446,9 @@ class PyCupraConnectOptionsFlowHandler(config_entries.OptionsFlow):
 
         instruments = self._config_entry.data.get(CONF_INSTRUMENTS, {})
         # Backwards compability
-        convert = self._config_entry.options.get(CONF_CONVERT, self._config_entry.data.get(CONF_CONVERT, None))
-        if convert == None:
-            convert = "no_conversion"
+        #convert = self._config_entry.options.get(CONF_CONVERT, self._config_entry.data.get(CONF_CONVERT, None))
+        #if convert == None:
+        #    convert = "no_conversion"
 
         instruments_dict = dict(sorted(
             self._config_entry.data.get(
@@ -497,11 +497,11 @@ class PyCupraConnectOptionsFlowHandler(config_entries.OptionsFlow):
                         default=self._config_entry.options.get(CONF_RESOURCES,
                             self._config_entry.data.get(CONF_RESOURCES, [])
                         )
-                    ): cv.multi_select(instruments_dict),
-                    vol.Required(
-                        CONF_CONVERT,
-                        default=convert
-                    ): vol.In(CONVERT_DICT)
+                    ): cv.multi_select(instruments_dict) #,
+                    #vol.Required(
+                    #    CONF_CONVERT,
+                    #    default=convert
+                    #): vol.In(CONVERT_DICT)
                 }
             ),
         )
