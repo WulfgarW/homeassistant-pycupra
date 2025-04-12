@@ -42,12 +42,12 @@ The model images of the vehicle are downloaded from the Cupra/Seat cloud and sto
 - image_side.png
 - image_top.png
 
-You can use these image files for your HA dashboard (e.g. as image for a picture card). Just add the prefix '/local/' to the file name above and use this as the *image path*.
+You can use these image files for your HA dashboard (e.g. as image for a picture card). Just add the prefix '/local/' to the file name above and use this as the *image path*. A cropped image of the front view is used as the icon of the vehicle on the Home Assistant map
 
 ## Installation
 
 ### Installation with HACS
-No supported yet. I'm sorry.
+If you have HACS (Home Assistant Community Store) installed, add this github repo as a custom repository and install. HACS will keep track of updates and you can easly upgrade to the latest version when a new release is available.
 
 ### Manual installation
 Clone or copy the repository and copy the folder 'homeassistant-pycupra/custom_components/pycupra' into '<config dir>/custom_components'
@@ -73,9 +73,6 @@ The options available are:
 * **Full API debug logging** Enable full debug logging. This will print the full respones from API to homeassistant.log. Only enable for troubleshooting since it will generate a lot of logs.
 
 * **Resources to monitor** Select which resources you wish to monitor for the vehicle.
-
-* **Distance/unit conversions** Select if you want to convert distance/units.
-
 
 ## Enable debug logging
 For comprehensive debug logging you can add this to your `<config dir>/configuration.yaml`:
@@ -105,3 +102,4 @@ logger:
 
 ## Further help or contributions
 For questions, further help or contributions you can join the (V.A.G. Connected Cars) Discord server at https://discord.gg/826X9jEtCh
+And I would be glad for help on the translation of the messages and forms of PyCupra to other languages.
