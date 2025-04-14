@@ -22,7 +22,7 @@ The car privacy settings must be set to "Share my position" for full functionali
 - Start/stop charging
 - Start/stop Electric climatisation, window_heater and information
 - Change charge current (maximum or reduced)
-- Set departure timers
+- Show and set departure timers and departure profiles respectively (until now, no set schedule for departure profiles)
 - Odometer and service info
 - Fuel level, range, adblue level
 - Lock, windows, trunk, hood, sunroof and door status
