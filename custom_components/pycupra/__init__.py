@@ -519,10 +519,11 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry):
 
 
 def update_callback(hass, coordinator):
-    _LOGGER.debug("CALLBACK!")
-    hass.async_create_task(
-        coordinator.async_request_refresh()
-    )
+    _LOGGER.debug("In _init__.py.update_callback(). async_request_refresh() was commented out to reduce calls of API.")
+    #_LOGGER.debug("CALLBACK!")
+    #hass.async_create_task(
+    #    coordinator.async_request_refresh()
+    #)
 
 
 async def async_setup(hass: HomeAssistant, config: dict):
