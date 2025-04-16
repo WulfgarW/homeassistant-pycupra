@@ -51,7 +51,9 @@ class PyCupraLock(PyCupraEntity, LockEntity):
     async def async_lock(self, **kwargs):
         """Lock the car."""
         await self.instrument.lock()
+        self.async_write_ha_state()
 
     async def async_unlock(self, **kwargs):
         """Unlock the car."""
         await self.instrument.unlock()
+        self.async_write_ha_state()
