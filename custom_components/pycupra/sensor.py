@@ -57,6 +57,14 @@ class PyCupraSensor(PyCupraEntity, SensorEntity):
         return self.instrument.unit
 
     @property
+    def suggested_unit_of_measurement(self):
+        """Return the unit of measurement."""
+        if self.instrument.unit in ('km', 'km/h'):
+            return self.instrument.unit
+        else:
+            return None
+
+    @property
     def device_class(self):
         """Return the class of this sensor, from DEVICE_CLASSES."""
         if self.instrument.device_class in DEVICE_CLASSES:
