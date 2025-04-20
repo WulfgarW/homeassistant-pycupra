@@ -123,7 +123,7 @@ set_climater:
 set_departure_schedule:
   name: Set departure schedule
   description: >
-    Set the departure for one of the departure schedules.
+    Set the departure schedule for one of the departure timers.
   fields:
     device_id:
       name: Vehicle
@@ -158,7 +158,7 @@ set_departure_schedule:
         boolean:
     recurring:
       name: Recurring schedule
-      description: "[Required] Wether the schedule should be recurring or one off."
+      description: "[Required] Whether the schedule should be recurring or one off."
       required: true
       example: false
       selector:
@@ -188,14 +188,14 @@ set_departure_schedule:
           mode: slider
     climatisation:
       name: Climatisation
-      description: "[Optional] Wether or not to enable climatisation for this departure."
+      description: "[Optional] Whether or not to enable climatisation for this departure."
       advanced: true
       example: true
       selector:
         boolean:
     charging:
       name: Charging
-      description: "[Optional] Wether or not to enable charging for this departure."
+      description: "[Optional] Whether or not to enable charging for this departure."
       advanced: true
       example: true
       selector:
@@ -315,3 +315,68 @@ send_destination:
        example: "Hessen"
        selector:
           text:
+set_departure_profile_schedule:
+  name: Set departure profile schedule (not tested!)
+  description: >
+    Set the departure profile schedule for one of the departure profiles. (Not tested. Still under development.)
+  fields:
+    device_id:
+      name: Vehicle
+      description: "[Required] The vehicle to set departure profile schedule for."
+      required: true
+      selector:
+        device:
+          integration: pycupra
+    id:
+      name: ID
+      description: "[Required] Which departure profile chedule to change."
+      required: true
+      example: "1"
+      selector:
+        number:
+          min: 1
+          max: 3
+          mode: slider
+    time:
+      name: Time
+      description: "[Required] The time for departure profile, 24h HH:MM."
+      required: true
+      example: "17:00"
+      selector:
+        text:
+    enabled:
+      name: Activated
+      description: "[Required] If the departure profile should be activated."
+      required: true
+      example: true
+      selector:
+        boolean:
+    recurring:
+      name: Recurring schedule
+      description: "[Required] Whether the schedule should be recurring or one off."
+      required: true
+      example: false
+      selector:
+        boolean:
+    date:
+      name: Date
+      description: "The date for departure (required for single schedule, not recurring)."
+      example: "2021-06-31"
+      selector:
+        text:
+    days:
+      name: Days
+      description: "Weekday mask for recurring schedule, mon-sun - (required for recurring schedule, not single)."
+      example: "yyynnnn"
+      selector:
+        text:
+    chargingProgramId:
+      name: Charging program id
+      description: "Id of the charging program to be used by the departure profile"
+      required: true
+      example: 1
+      selector:
+        number:
+          min: 1
+          max: 10
+          mode: slider

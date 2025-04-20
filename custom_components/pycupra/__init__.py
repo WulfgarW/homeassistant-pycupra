@@ -60,6 +60,7 @@ from .const import (
     UNDO_UPDATE_LISTENER, UPDATE_CALLBACK, CONF_DEBUG, DEFAULT_DEBUG, CONF_CONVERT, CONF_NO_CONVERSION,
     CONF_IMPERIAL_UNITS,
     SERVICE_SET_SCHEDULE,
+    SERVICE_SET_DEPARTURE_PROFILE_SCHEDULE,
     SERVICE_SET_MAX_CURRENT,
     SERVICE_SEND_DESTINATION,
     SERVICE_SET_CHARGE_LIMIT,
@@ -87,6 +88,18 @@ SERVICE_SET_SCHEDULE_SCHEMA = vol.Schema(
         vol.Optional("off_peak_active"): cv.boolean,
         vol.Optional("off_peak_start"): cv.string,
         vol.Optional("off_peak_end"): cv.string,
+    }
+)
+SERVICE_SET_DEPARTURE_PROFILE_SCHEDULE_SCHEMA = vol.Schema(
+    {
+        vol.Required("device_id"): vol.All(cv.string, vol.Length(min=32, max=32)),
+        vol.Required("id"): vol.In([1,2,3]),
+        vol.Required("time"): cv.string,
+        vol.Required("enabled"): cv.boolean,
+        vol.Required("recurring"): cv.boolean,
+        vol.Optional("date"): cv.string,
+        vol.Optional("days"): cv.string,
+        vol.Required("chargingProgramId"): vol.In([1,2,3,4,5,6,7,8,9,10]),
     }
 )
 SERVICE_SET_MAX_CURRENT_SCHEMA = vol.Schema(
@@ -366,6 +379,46 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry):
         except Exception as e:
             raise
 
+    async def set_departure_profile_schedule(service_call=None):
+        """Set departure profile schedule."""
+        try:
+            # Prepare data
+            id = service_call.data.get("id", 0)
+            temp = None
+
+            # Convert datetime objects to simple strings or check that strings are correctly formatted
+            try:
+                time = service_call.data.get("time").strftime("%H:%M")
+            except:
+                if re.match('^[0-9]{2}:[0-9]{2}$', service_call.data.get('time', '')):
+                    time = service_call.data.get("time", "08:00")
+                else:
+                    raise SeatInvalidRequestException(f"Invalid time string: {service_call.data.get('time')}")
+
+            # Convert to parseable data
+            schedule = {
+                "id": service_call.data.get("id", 1),
+                "enabled": service_call.data.get("enabled"),
+                "recurring": service_call.data.get("recurring"),
+                "date": service_call.data.get("date"),
+                "time": time,
+                "days": service_call.data.get("days", "nnnnnnn"),
+                "chargingProgramId": service_call.data.get("chargingProgramId", 1),
+            }
+
+            # Find the correct car and execute service call
+            car = await get_car(service_call)
+            _LOGGER.info(f'Set departure profile schedule {id} with data {schedule} for car {car.vin}')
+            if await car.set_departure_profile_schedule(id, schedule) is True:
+                _LOGGER.debug(f"Service call 'set_departure_profile_schedule' executed without error")
+                await coordinator.async_request_refresh()
+            else:
+                _LOGGER.warning(f"Failed to execute service call 'set_departure_profile_schedule' with data '{service_call}'")
+        except (SeatInvalidRequestException) as e:
+            _LOGGER.warning(f"Service call 'set_departure_profile_schedule' failed {e}")
+        except Exception as e:
+            raise
+
     async def send_destination(service_call=None):
         """Send destination to vehicle."""
         try:
@@ -483,6 +536,12 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry):
         SERVICE_SET_SCHEDULE,
         set_schedule,
         schema = SERVICE_SET_SCHEDULE_SCHEMA
+    )
+    hass.services.async_register(
+        DOMAIN,
+        SERVICE_SET_DEPARTURE_PROFILE_SCHEDULE,
+        set_departure_profile_schedule,
+        schema = SERVICE_SET_DEPARTURE_PROFILE_SCHEDULE_SCHEMA
     )
     hass.services.async_register(
         DOMAIN,

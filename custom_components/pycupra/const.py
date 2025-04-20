@@ -18,6 +18,7 @@ CONF_DEBUG = "debug"
 
 # Service definitions
 SERVICE_SET_SCHEDULE = "set_departure_schedule"
+SERVICE_SET_DEPARTURE_PROFILE_SCHEDULE = "set_departure_profile_schedule"
 SERVICE_SET_MAX_CURRENT = "set_charger_max_current"
 SERVICE_SEND_DESTINATION = "send_destination"
 SERVICE_SET_CHARGE_LIMIT = "set_charge_limit"

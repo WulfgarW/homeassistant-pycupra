@@ -257,6 +257,44 @@
           "description": "Bundesland/-staat, in dem der Ort liegt"
         }
       }
+    },
+    "set_departure_profile_schedule": {
+      "name": "Abfahrszeitplan (Departure Profile) setzen",
+      "description": "Setzen von einem der Abfahrszeitpläne (Departure Profile).",
+      "fields": {
+        "device_id": {
+          "name": "Geräte-ID",
+          "description": "Geräte-ID des Fahrzeugs"
+        }, 
+        "id": {
+          "name": "Abfahrtszeitplan-ID",
+          "description": "ID des Abfahrtszeitplans, der geändert werden soll"
+        }, 
+        "time": {
+          "name": "Zeit",
+          "description": "Gewünschte Abfahrtszeit, 24h HH:MM."
+        }, 
+        "enabled": {
+          "name": "Aktivieren",
+          "description": "Soll der Abfahrtszeitplan aktiviert werden oder nicht?"
+        },
+        "recurring": {
+          "name": "Wiederkehrende Abfahrtszeit",
+          "description": "Soll es sich um eine wiederkehrende Abfahrtszeit oder eine einmalige handeln?"
+        }, 
+        "date": {
+          "name": "Datum",
+          "description": "Datum für die einmalige Abfahrtszeit (nur erforderlich bei einmaliger Abfahrtszeit)."
+        }, 
+        "days": {
+          "name": "Tagesmuster",
+          "description": "Wochentagsmuster für eine wiederkehrende Abfahrtszeit, Mon-Son - (nur erforderlich für wiederkehrende Abfahrtszeit)."
+        }, 
+        "chargingProgramId": {
+          "name": "Ladeprogramm-Id",
+          "description": "Id des Ladeprogramms, das für den Abfahrtszeitplan verwendet werden soll."
+        }
+      }
     }
   }
 }
