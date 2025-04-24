@@ -264,18 +264,21 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry):
         data.instruments.add(instrument)
         components.add(PLATFORMS[instrument.component])
 
-    for component in components:
-        coordinator.platforms.append(component)
-        #await hass.config_entries.async_forward_entry_setups(entry, [component])
-        hass.async_create_task(
-            hass.config_entries.async_forward_entry_setups(entry, [component])
-        )
-
     hass.data[DOMAIN][entry.entry_id] = {
         UPDATE_CALLBACK: update_callback,
         DATA: data,
         UNDO_UPDATE_LISTENER: entry.add_update_listener(_async_update_listener),
     }
+
+    for component in components:
+        coordinator.platforms.append(component)
+        #await hass.config_entries.async_forward_entry_setups(entry, [component])
+        #hass.async_create_task(
+        #    hass.config_entries.async_forward_entry_setups(entry, [component])
+        #)
+    hass.async_create_task(
+        hass.config_entries.async_forward_entry_setups(entry, components)
+    )
 
     # Service functions
     async def get_car(service_call):
@@ -618,6 +621,8 @@ async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry):
     hass.services.async_remove(DOMAIN, SERVICE_SET_CHARGE_LIMIT)
     hass.services.async_remove(DOMAIN, SERVICE_SET_CLIMATER)
     hass.services.async_remove(DOMAIN, SERVICE_SET_PHEATER_DURATION)
+    hass.services.async_remove(DOMAIN, SERVICE_SET_DEPARTURE_PROFILE_SCHEDULE)
+    hass.services.async_remove(DOMAIN, SERVICE_SEND_DESTINATION)
 
     _LOGGER.debug("Unloading update listener")
     hass.data[DOMAIN][entry.entry_id][UNDO_UPDATE_LISTENER]()
