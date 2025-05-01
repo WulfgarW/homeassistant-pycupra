@@ -4,35 +4,35 @@
     "step": {
       "user": {
         "title": "Configurazione PyCupra",
-        "description": "Inserisci le informazioni del tuo account My Cupra/My Seat",
+        "description": "Inserisci i dati di accesso del tuo account My Cupra/My Seat",
         "data": {
-          "username": "Email",
+          "username": "E-mail",
           "password": "Password"
         }
       },
       "vehicle": {
-        "title": "Impostazione Veicolo",
-        "description": "Trovati i seguenti veicoli. Per favore scegli il veicolo che vuoi monitorare e la sua configurazione.\n\nL'S-PIN è richiesto solo per operazioni specifiche come l'Apertura/Chiusura e l'attivazione del riscaldamento\nPuoi lasciare il campo vuoto.",
+        "title": "Impostazioni veicolo",
+        "description": "Sono stati trovati i seguenti veicoli. Scegli quello che vuoi monitorare e configura le relative impostazioni.\n\nL'S-PIN è richiesto solo per operazioni specifiche come l'apertura/chiusura dell'auto e l'attivazione della climatizzazione. Puoi lasciare il campo vuoto.",
         "data": {
           "vehicle": "Numero VIN",
           "spin": "S-PIN",
-          "mutable": "Permetti interazione con l'auto (azioni). Deseleziona se vuoi solo monitorare."
+          "mutable": "Permetti l'interazione con l'auto (azioni). Deseleziona questa opzione se desideri solo monitorare lo stato dei sensori."
         }
       },
       "monitoring": {
         "title": "Impostazioni monitoraggio",
-        "description": "Specifica impostazioni aggiuntive per il monitoraggio.",
+        "description": "Specifica impostazioni aggiuntive per il monitoraggio",
         "data": {
-          "resources": "Risorse da monitorare.",
-          "convert": "Scegli la conversione di distanza/unità.",
-          "update_interval": "Frequenza di aggiornamento (secondi).",
+          "resources": "Risorse da monitorare",
+          "convert": "Scegli la conversione di distanza/unità",
+          "update_interval": "Frequenza di aggiornamento (secondi)",
           "debug": "API debug logging completo (richiede che il debug logging sia abilitato in configuration.yaml)"
         }
       },
       "reauth_confirm": {
-        "description": "Ri-autenticati con il tuo account My Cupra/My Seat.\nAccertati di aver accettato le nuove condizione (EULA) nel portale My Cupra/My Seat (https://cupraofficial.de) prima di procedere. ",
+        "description": "Ri-autenticati con il tuo account My Cupra/My Seat.\nAssicurati di aver accettato le nuove condizioni (EULA) nel portale My Cupra/My Seat (https://cupraofficial.de) prima di procedere.",
         "data": {
-          "username": "Email",
+          "username": "E-mail",
           "password": "Password"
         }
       }
@@ -42,7 +42,7 @@
       "reauth_successful": "Ri-autenticazione riuscita"
     },
     "error": {
-      "cannot_connect": "Non riesco ad accedere a My Cupra/My Seat, per favore controlla le tue credenziali e verifica che il servizio funzioni",
+      "cannot_connect": "Non riesco ad accedere a My Cupra/My Seat, controlla le tue credenziali e verifica che il servizio funzioni",
       "cannot_update": "Richiesta aggiornamento a My Cupra/My Seat non riuscita",
       "unknown": "[%key:common::config_flow::error::unknown%]"
     },
@@ -57,11 +57,11 @@
         "title": "Opzioni per PyCupra",
         "description": "Configura impostazioni",
         "data": {
-          "update_interval": "Frequenza di aggiornamento (minuti)",
+          "update_interval": "Frequenza di aggiornamento (secondi)",
           "spin": "S-PIN",
-          "mutable": "Permetti interazione con l'auto(azioni). Deseleziona se vuoi sono monitorare..",
-          "convert": "Scegli la conversione di distanza/unità.",
-          "resources": "Risorse da monitorare.",
+          "mutable": "Permetti l'interazione con l'auto (azioni). Deseleziona questa opzione se desideri solo monitorare lo stato dei sensori.",
+          "convert": "Scegli la conversione di distanza/unità",
+          "resources": "Risorse da monitorare",
           "debug": "API debug logging completo (richiede che il debug logging sia abilitato in configuration.yaml)"
         }
       }
