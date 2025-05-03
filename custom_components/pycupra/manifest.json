@@ -4,11 +4,11 @@
     "codeowners": ["@WulfgarW"],
     "config_flow": true,
     "dependencies": [],
-    "documentation": "https://github.com/WulfgarW/homeassistant-pycupra/README.md",
+    "documentation": "https://github.com/WulfgarW/homeassistant-pycupra/blob/main/README.md",
     "iot_class": "cloud_polling",
     "issue_tracker": "https://github.com/WulfgarW/homeassistant-pycupra/issues",
     "requirements": [
-        "pycupra>=0.0.13",
+        "pycupra>=0.0.14",
         "homeassistant>=2025.1.0"
     ],
     "version": "0.0.5"

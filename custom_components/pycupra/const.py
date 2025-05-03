@@ -15,6 +15,7 @@ CONF_CONVERT = "convert"
 CONF_VEHICLE = "vehicle"
 CONF_INSTRUMENTS = "instruments"
 CONF_DEBUG = "debug"
+CONF_NIGHTLY_UPDATE_REDUCTION = "nightly_update_reduction"
 
 # Service definitions
 SERVICE_SET_SCHEDULE = "set_departure_schedule"

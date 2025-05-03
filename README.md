@@ -60,11 +60,25 @@ Click on the "ADD INTEGRATION" button in the bottom right corner and search/sele
 Follow the steps and enter the required information. Because of how the data is stored and handled in Home Assistant, there will be one integration per vehicle.
 Setup multiple vehicles by adding the integration multiple times.
 
+### Data update concept of PyCupra
+The MyCupra/MySeat portal has a per day limitation for the API calls (about 1.500 request per day, including the calls from the MyCupra/MySeat app and other systems that read from the API). If you go above this limit, PyCupra will get not data updates from the API until the portal resets the limit counter at about 02:00 a.m. So the task is to find a good compromise between up-to-date data in HA and the number of API calls.
+As some data of your vehicle change faster or more often than others, the reading API calls in PyCupra are divided in three buckets:
+- Bucket 1: status of doors and windows, range information and status of charging and climatisation. This bucket uses the INTERVAL setting (poll frequency) described in the configuration options section below. 
+- Bucket 2: everything that is not in the buckets 1 or 3 (e.g. mileage, parking position, full charging climatisation information, departure timers/profile). This bucket is updated about every 20 minutes. (An update for the data in bucket 2 is done, when HA initiates an update (of bucket 1) and the last update of bucket 2 is more than 1100 seconds ago.)
+- Bucket 3: the model images. This bucket is updated only every 2 hours. 
+
+You can initiate an update of all data in the buckets 1 and 2 by activating the switch "Request full update".
+
 ### Configuration options
 The integration options can be changed after setup by clicking on the "CONFIGURE" text on the integration.
 The options available are:
 
-* **Poll frequency** The interval (in seconds) that the servers are polled for updated data(1000 Requests per day limitation by VWGROUP. so min 120 seconds, but better 600 or 900 seconds).
+* **Poll frequency** The interval (in seconds) that the servers are polled for updated data (only bucket 1 as described above). Please don't use values below 300 seconds, better 600 or 900 seconds.
+ 
+
+* **Nightly update reduction** To stay within the daily limitation of API calls, you can activate nightly reduction of updates in the time frame of 22:00 to 05:00 (local time). With activated 'nightly update reduction', the data in the buckets 1 and 2 are updated about once per every 20 minutes in the time frame of 22:00 to 05:00.
+
+Recommendation: Activate 'nightly update reduction' and set poll frequency to 600.
 
 * **S-PIN** The S-PIN for the vehicle. This is optional and is only needed for certain vehicle requests/actions (auxiliary heater, lock etc).
 

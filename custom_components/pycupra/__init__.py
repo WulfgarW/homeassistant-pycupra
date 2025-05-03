@@ -51,6 +51,7 @@ from .const import (
     CONF_SPIN,
     CONF_VEHICLE,
     CONF_INSTRUMENTS,
+    CONF_NIGHTLY_UPDATE_REDUCTION,
     DATA,
     DATA_KEY,
     MIN_SCAN_INTERVAL,
@@ -885,7 +886,8 @@ class PyCupraCoordinator(DataUpdateCoordinator):
             username=self.entry.data[CONF_USERNAME],
             password=self.entry.data[CONF_PASSWORD],
             fulldebug=self.entry.options.get(CONF_DEBUG, self.entry.data.get(CONF_DEBUG, DEFAULT_DEBUG)),
-        )
+            nightlyUpdateReduction=self.entry.options.get(CONF_NIGHTLY_UPDATE_REDUCTION, self.entry.data.get(CONF_NIGHTLY_UPDATE_REDUCTION, False)),
+       )
 
         super().__init__(hass, _LOGGER, name=DOMAIN, update_interval=update_interval)
 

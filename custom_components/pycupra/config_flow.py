@@ -26,6 +26,7 @@ from .const import (
     CONF_SPIN,
     CONF_VEHICLE,
     CONF_INSTRUMENTS,
+    CONF_NIGHTLY_UPDATE_REDUCTION,
     MIN_SCAN_INTERVAL,
     DEFAULT_SCAN_INTERVAL,
     DOMAIN,
@@ -73,6 +74,7 @@ class PyCupraConnectConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                 CONF_SCAN_INTERVAL: DEFAULT_SCAN_INTERVAL,
                 CONF_DEBUG: False,
                 CONF_SPIN: None,
+                CONF_NIGHTLY_UPDATE_REDUCTION: False,
                 CONF_RESOURCES: []
             }
 
@@ -82,7 +84,8 @@ class PyCupraConnectConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                 brand=self._data[CONF_BRAND],
                 username=self._data[CONF_USERNAME],
                 password=self._data[CONF_PASSWORD],
-                fulldebug=False
+                fulldebug=False,
+                nightlyUpdateReduction= False,
             )
 
             return await self.async_step_login()
@@ -151,6 +154,7 @@ class PyCupraConnectConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
             self._options[CONF_RESOURCES] = user_input[CONF_RESOURCES]
             #self._options[CONF_CONVERT] = user_input[CONF_CONVERT]
             self._options[CONF_SCAN_INTERVAL] = user_input[CONF_SCAN_INTERVAL]
+            self._options[CONF_NIGHTLY_UPDATE_REDUCTION] = user_input[CONF_NIGHTLY_UPDATE_REDUCTION]
             self._options[CONF_DEBUG] = user_input[CONF_DEBUG]
 
             await self.async_set_unique_id(self._data[CONF_VEHICLE])
@@ -185,6 +189,10 @@ class PyCupraConnectConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                         vol.Coerce(int),
                         vol.Range(min=MIN_SCAN_INTERVAL, max=900)
                     ),
+                    vol.Optional(
+                        CONF_NIGHTLY_UPDATE_REDUCTION,
+                        default=False
+                    ): cv.boolean,
                     vol.Required(
                         CONF_DEBUG, default=False
                     ): cv.boolean
@@ -261,6 +269,7 @@ class PyCupraConnectConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                 username=user_input[CONF_USERNAME],
                 password=user_input[CONF_PASSWORD],
                 fulldebug=self.entry.options.get(CONF_DEBUG, self.entry.data.get(CONF_DEBUG, DEFAULT_DEBUG)),
+                nightlyUpdateReduction=self.entry.options.get(CONF_NIGHTLY_UPDATE_REDUCTION, self.entry.data.get(CONF_NIGHTLY_UPDATE_REDUCTION, False)),
             )
 
             # noinspection PyBroadException
@@ -317,6 +326,7 @@ class PyCupraConnectConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
             CONF_SCAN_INTERVAL: DEFAULT_SCAN_INTERVAL,
             CONF_DEBUG: False,
             CONF_SPIN: None,
+            CONF_NIGHTLY_UPDATE_REDUCTION: False,
             CONF_RESOURCES: []
         }
         self._init_info = {}
@@ -358,7 +368,8 @@ class PyCupraConnectConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
             brand=self._data[CONF_BRAND],
             username=self._data[CONF_USERNAME],
             password=self._data[CONF_PASSWORD],
-            fulldebug=False
+            fulldebug=False,
+            nightlyUpdateReduction=False,
         )
         try:
             await self._connection.doLogin(tokenFile=TOKEN_FILE_NAME_AND_PATH)
@@ -432,6 +443,7 @@ class PyCupraConnectOptionsFlowHandler(config_entries.OptionsFlow):
 
             options = self._config_entry.options.copy()
             options[CONF_SCAN_INTERVAL] = user_input.get(CONF_SCAN_INTERVAL, 1)
+            options[CONF_NIGHTLY_UPDATE_REDUCTION] = user_input.get(CONF_NIGHTLY_UPDATE_REDUCTION, False)
             options[CONF_SPIN] = user_input.get(CONF_SPIN, None)
             options[CONF_MUTABLE] = user_input.get(CONF_MUTABLE, True)
             options[CONF_DEBUG] = user_input.get(CONF_DEBUG, False)
@@ -474,6 +486,12 @@ class PyCupraConnectOptionsFlowHandler(config_entries.OptionsFlow):
                         vol.Coerce(int),
                         vol.Range(min=MIN_SCAN_INTERVAL, max=900)
                     ),
+                    vol.Optional(
+                        CONF_NIGHTLY_UPDATE_REDUCTION,
+                        default=self._config_entry.options.get(CONF_NIGHTLY_UPDATE_REDUCTION,
+                            self._config_entry.data.get(CONF_NIGHTLY_UPDATE_REDUCTION, False)
+                        )
+                    ): cv.boolean,
                     vol.Optional(
                         CONF_SPIN,
                         default=self._config_entry.options.get(CONF_SPIN,

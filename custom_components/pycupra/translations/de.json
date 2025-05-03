@@ -26,7 +26,9 @@
         "data": {
           "resources": "Zu überwachende Ressourcen.",
           "convert": "Wähle Entfernungs-/Einheitsumwandlungen aus.",
+          "scan_interval": "Abfragehäufigkeit (Sekunden).",
           "update_interval": "Abfragehäufigkeit (Sekunden).",
+          "nightly_update_reduction": "Nächtliche Reduktion der Abfragehäufigkeit (zwischen 22:00 und 05:00).",
           "debug": "Vollständiges API Debug Logging (erfordert die Aktivierung von Debug Logging im configuration.yaml)"
         }
       },
@@ -59,7 +61,9 @@
         "title": "Optionen für PyCupra",
         "description": "Einstellungen konfigurieren",
         "data": {
-          "update_interval": "Abfragehäufigkeit (Minuten)",
+          "scan_interval": "Abfragehäufigkeit (Sekunden).",
+          "update_interval": "Abfragehäufigkeit (Sekunden)",
+          "nightly_update_reduction": "Nächtliche Reduktion der Abfragehäufigkeit (zwischen 22:00 und 05:00).",
           "spin": "S-PIN",
           "mutable": "Erlaube Interaktionen mit dem Auto (Aktionen). Deaktivieren um das Auto 'schreibgeschützt' zu machen.",
           "convert": "Wähle Entfernungs-/Einheitsumwandlungen aus.",

@@ -26,7 +26,9 @@
         "data": {
           "resources": "Resources to monitor.",
           "convert": "Select distance/unit conversions.",
+          "scan_interval": "Poll frequency (seconds).",
           "update_interval": "Poll frequency (seconds).",
+          "nightly_update_reduction": "Nightly reduction of the poll frequency (between 22:00 and 05:00).",
           "debug": "Full API debug logging (requires debug logging enabled in configuration.yaml)"
         }
       },
@@ -59,7 +61,9 @@
         "title": "Options for PyCupra",
         "description": "Configure settings",
         "data": {
-          "update_interval": "Poll frequency (minutes)",
+          "scan_interval": "Poll frequency (seconds).",
+          "update_interval": "Poll frequency (seconds).",
+          "nightly_update_reduction": "Nightly reduction of the poll frequency (between 22:00 and 05:00).",
           "spin": "S-PIN",
           "mutable": "Allow interactions with car (actions). Uncheck to make the car 'read only'.",
           "convert": "Select distance/unit conversions.",

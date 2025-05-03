@@ -25,7 +25,8 @@
         "data": {
           "resources": "Elementos a monitorizar.",
           "convert": "Selecciona la conversión de distancia/unidades.",
-          "update_interval": "Frequencia de actualización (minutos).",
+          "scan_interval": "Frequencia de actualización (segundos).",
+          "update_interval": "Frequencia de actualización (segundos).",
           "debug": "Registro de depuración completo de API (requiere que el registro de depuración este activado en configuration.yaml)"
         }
       },
@@ -57,7 +58,8 @@
         "title": "Opciones para PyCupra",
         "description": "Configurar ajustes",
         "data": {
-          "update_interval": "Frequencia de actualización (minutos)",
+          "scan_interval": "Frequencia de actualización (segundos).",
+          "update_interval": "Frequencia de actualización (segundos).",
           "spin": "S-PIN",
           "mutable": "Permite interacciones con el vehículo (acciones). Desmarca para que el vehículo sea 'solo lectura'.",
           "convert": "Selecciona la conversión de distancia/unidades.",
