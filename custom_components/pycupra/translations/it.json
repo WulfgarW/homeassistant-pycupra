@@ -6,6 +6,7 @@
         "title": "Configurazione PyCupra",
         "description": "Inserisci i dati di accesso del tuo account My Cupra/My Seat",
         "data": {
+          "brand": "Marca",
           "username": "E-mail",
           "password": "Password"
         }
@@ -25,13 +26,16 @@
         "data": {
           "resources": "Risorse da monitorare",
           "convert": "Scegli la conversione di distanza/unità",
+          "scan_interval": "Frequenza di aggiornamento (secondi)",
           "update_interval": "Frequenza di aggiornamento (secondi)",
+          "nightly_update_reduction": "Riduzione notturna della frequenza di aggiornamento (tra le 22:00 e le 05:00)",
           "debug": "API debug logging completo (richiede che il debug logging sia abilitato in configuration.yaml)"
         }
       },
       "reauth_confirm": {
         "description": "Ri-autenticati con il tuo account My Cupra/My Seat.\nAssicurati di aver accettato le nuove condizioni (EULA) nel portale My Cupra/My Seat (https://cupraofficial.de) prima di procedere.",
         "data": {
+          "brand": "Marca",
           "username": "E-mail",
           "password": "Password"
         }
@@ -57,7 +61,9 @@
         "title": "Opzioni per PyCupra",
         "description": "Configura impostazioni",
         "data": {
+          "scan_interval": "Frequenza di aggiornamento (secondi)",
           "update_interval": "Frequenza di aggiornamento (secondi)",
+          "nightly_update_reduction": "Riduzione notturna della frequenza di aggiornamento (tra le 22:00 e le 05:00)",
           "spin": "S-PIN",
           "mutable": "Permetti l'interazione con l'auto (azioni). Deseleziona questa opzione se desideri solo monitorare lo stato dei sensori.",
           "convert": "Scegli la conversione di distanza/unità",
