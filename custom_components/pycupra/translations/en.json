@@ -28,6 +28,7 @@
           "convert": "Select distance/unit conversions.",
           "scan_interval": "Poll frequency (seconds).",
           "update_interval": "Poll frequency (seconds).",
+          "use_push_notifications": "use push notifications",
           "nightly_update_reduction": "Nightly reduction of the poll frequency (between 22:00 and 05:00).",
           "debug": "Full API debug logging (requires debug logging enabled in configuration.yaml)"
         }
@@ -63,6 +64,7 @@
         "data": {
           "scan_interval": "Poll frequency (seconds).",
           "update_interval": "Poll frequency (seconds).",
+          "use_push_notifications": "use push notifications",
           "nightly_update_reduction": "Nightly reduction of the poll frequency (between 22:00 and 05:00).",
           "spin": "S-PIN",
           "mutable": "Allow interactions with car (actions). Uncheck to make the car 'read only'.",

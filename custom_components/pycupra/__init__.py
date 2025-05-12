@@ -52,6 +52,7 @@ from .const import (
     CONF_VEHICLE,
     CONF_INSTRUMENTS,
     CONF_NIGHTLY_UPDATE_REDUCTION,
+    CONF_FIREBASE,
     DATA,
     DATA_KEY,
     MIN_SCAN_INTERVAL,
@@ -154,8 +155,8 @@ SERVICE_SET_PHEATER_DURATION_SCHEMA = vol.Schema(
 #PARALLEL_UPDATES = 2
 
 _LOGGER = logging.getLogger(__name__)
-#CONF_BRAND = "brand"
-TOKEN_FILE_NAME_AND_PATH='./custom_components/pycupra/cupra_token.json'
+TOKEN_FILE_NAME_AND_PATH='./custom_components/pycupra/pycupra_token.json'
+FIREBASE_CREDENTIALS_FILE_NAME_AND_PATH='./custom_components/pycupra/pycupra_firebase_credentials.json'
 
 async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry):
     """Setup PyCupra component from a config entry."""
@@ -582,7 +583,6 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry):
 
 
 def update_callback(hass, coordinator):
-    #_LOGGER.debug("In _init__.py.update_callback(). async_request_refresh() was commented out to reduce calls of API.")
     _LOGGER.debug("CALLBACK!")
     hass.async_create_task(
         coordinator.async_request_refresh()
@@ -887,8 +887,8 @@ class PyCupraCoordinator(DataUpdateCoordinator):
             password=self.entry.data[CONF_PASSWORD],
             fulldebug=self.entry.options.get(CONF_DEBUG, self.entry.data.get(CONF_DEBUG, DEFAULT_DEBUG)),
             nightlyUpdateReduction=self.entry.options.get(CONF_NIGHTLY_UPDATE_REDUCTION, self.entry.data.get(CONF_NIGHTLY_UPDATE_REDUCTION, False)),
-       )
-
+        )
+        self.firebaseWanted=self.entry.options.get(CONF_FIREBASE, self.entry.data.get(CONF_FIREBASE, False))
         super().__init__(hass, _LOGGER, name=DOMAIN, update_interval=update_interval)
 
     async def _async_update_data(self):
@@ -955,6 +955,9 @@ class PyCupraCoordinator(DataUpdateCoordinator):
         try:
             # Get Vehicle object matching VIN number
             vehicle = self.connection.vehicle(self.vin)
+            if self.firebaseWanted:
+                newStatus = await vehicle.initialiseFirebase(firebaseCredentialsFileName=FIREBASE_CREDENTIALS_FILE_NAME_AND_PATH, updateCallback=self.updateCallbackForNotifications)
+                #_LOGGER.debug(f"New status of firebase={newStatus}")
             if await vehicle.update():
                 return vehicle
             else:
@@ -962,4 +965,26 @@ class PyCupraCoordinator(DataUpdateCoordinator):
                 return False
         except Exception as error:
             _LOGGER.warning(f"An error occured while requesting update from My Cupra: {error}")
+            return False
+
+    async def updateCallbackForNotifications(self, updateType=0) -> Union[bool, Vehicle]:
+        """Update status from My Cupra (called for notifications)"""
+
+        # Update vehicle data
+        _LOGGER.debug("Due to push notification, call for update of data from My Cupra")
+        try:
+            # Get Vehicle object matching VIN number
+            vehicle = self.connection.vehicle(self.vin)
+            if await vehicle.update(updateType):
+                dashboard = vehicle.dashboard(
+                    mutable=self.entry.options.get(CONF_MUTABLE),
+                    spin=self.entry.options.get(CONF_SPIN),
+                )
+                self.async_set_updated_data(dashboard.instruments)
+                return True
+            else:
+                _LOGGER.warning("Could not query update from My Cupra")
+                return False
+        except Exception as error:
+            _LOGGER.warning(f"An error occured in updateCallbackForNotifications while requesting update from My Cupra: {error}")
             return False

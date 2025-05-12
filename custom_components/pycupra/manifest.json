@@ -8,8 +8,8 @@
     "iot_class": "cloud_polling",
     "issue_tracker": "https://github.com/WulfgarW/homeassistant-pycupra/issues",
     "requirements": [
-        "pycupra>=0.0.15",
+        "pycupra>=0.1.0",
         "homeassistant>=2025.1.0"
     ],
-    "version": "0.0.6"
+    "version": "0.1.0"
 }

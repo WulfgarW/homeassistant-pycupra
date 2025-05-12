@@ -16,6 +16,7 @@ CONF_VEHICLE = "vehicle"
 CONF_INSTRUMENTS = "instruments"
 CONF_DEBUG = "debug"
 CONF_NIGHTLY_UPDATE_REDUCTION = "nightly_update_reduction"
+CONF_FIREBASE = "use_push_notifications"
 
 # Service definitions
 SERVICE_SET_SCHEDULE = "set_departure_schedule"

@@ -75,10 +75,11 @@ The options available are:
 
 * **Poll frequency** The interval (in seconds) that the servers are polled for updated data (only bucket 1 as described above). Please don't use values below 300 seconds, better 600 or 900 seconds.
  
-
+* **Use push notifications** When activated, PyCupra asks the Seat/Cupra portal to send push notifications to PyCupra if the charging status or climatisation status have changed or when the API has finished a request like lock or unlock vehicle, start or stop charging or change departure timers or .... 
+ 
 * **Nightly update reduction** To stay within the daily limitation of API calls, you can activate nightly reduction of updates in the time frame of 22:00 to 05:00 (local time). With activated 'nightly update reduction', the data in the buckets 1 and 2 are updated about once per every 20 minutes in the time frame of 22:00 to 05:00.
 
-Recommendation: Activate 'nightly update reduction' and set poll frequency to 600.
+Recommendation: Activate 'nightly update reduction' and set poll frequency to 600. If you activate 'use push notifications', a value of 900 is recommended for the poll frequency.
 
 * **S-PIN** The S-PIN for the vehicle. This is optional and is only needed for certain vehicle requests/actions (auxiliary heater, lock etc).
 

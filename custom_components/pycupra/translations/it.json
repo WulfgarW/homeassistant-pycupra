@@ -28,6 +28,7 @@
           "convert": "Scegli la conversione di distanza/unità",
           "scan_interval": "Frequenza di aggiornamento (secondi)",
           "update_interval": "Frequenza di aggiornamento (secondi)",
+          "use_push_notifications": "Utilizzare notifiche push",
           "nightly_update_reduction": "Riduzione notturna della frequenza di aggiornamento (tra le 22:00 e le 05:00)",
           "debug": "API debug logging completo (richiede che il debug logging sia abilitato in configuration.yaml)"
         }
@@ -63,6 +64,7 @@
         "data": {
           "scan_interval": "Frequenza di aggiornamento (secondi)",
           "update_interval": "Frequenza di aggiornamento (secondi)",
+          "use_push_notifications": "Utilizzare notifiche push",
           "nightly_update_reduction": "Riduzione notturna della frequenza di aggiornamento (tra le 22:00 e le 05:00)",
           "spin": "S-PIN",
           "mutable": "Permetti l'interazione con l'auto (azioni). Deseleziona questa opzione se desideri solo monitorare lo stato dei sensori.",

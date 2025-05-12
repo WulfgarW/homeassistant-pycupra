@@ -27,6 +27,7 @@ from .const import (
     CONF_VEHICLE,
     CONF_INSTRUMENTS,
     CONF_NIGHTLY_UPDATE_REDUCTION,
+    CONF_FIREBASE,
     MIN_SCAN_INTERVAL,
     DEFAULT_SCAN_INTERVAL,
     DOMAIN,
@@ -74,6 +75,7 @@ class PyCupraConnectConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                 CONF_SCAN_INTERVAL: DEFAULT_SCAN_INTERVAL,
                 CONF_DEBUG: False,
                 CONF_SPIN: None,
+                CONF_FIREBASE: False,
                 CONF_NIGHTLY_UPDATE_REDUCTION: False,
                 CONF_RESOURCES: []
             }
@@ -154,6 +156,7 @@ class PyCupraConnectConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
             self._options[CONF_RESOURCES] = user_input[CONF_RESOURCES]
             #self._options[CONF_CONVERT] = user_input[CONF_CONVERT]
             self._options[CONF_SCAN_INTERVAL] = user_input[CONF_SCAN_INTERVAL]
+            self._options[CONF_FIREBASE] = user_input[CONF_FIREBASE]
             self._options[CONF_NIGHTLY_UPDATE_REDUCTION] = user_input[CONF_NIGHTLY_UPDATE_REDUCTION]
             self._options[CONF_DEBUG] = user_input[CONF_DEBUG]
 
@@ -189,6 +192,10 @@ class PyCupraConnectConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                         vol.Coerce(int),
                         vol.Range(min=MIN_SCAN_INTERVAL, max=900)
                     ),
+                    vol.Optional(
+                        CONF_FIREBASE,
+                        default=False
+                    ): cv.boolean,
                     vol.Optional(
                         CONF_NIGHTLY_UPDATE_REDUCTION,
                         default=False
@@ -326,6 +333,7 @@ class PyCupraConnectConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
             CONF_SCAN_INTERVAL: DEFAULT_SCAN_INTERVAL,
             CONF_DEBUG: False,
             CONF_SPIN: None,
+            CONF_FIREBASE: False,
             CONF_NIGHTLY_UPDATE_REDUCTION: False,
             CONF_RESOURCES: []
         }
@@ -443,6 +451,7 @@ class PyCupraConnectOptionsFlowHandler(config_entries.OptionsFlow):
 
             options = self._config_entry.options.copy()
             options[CONF_SCAN_INTERVAL] = user_input.get(CONF_SCAN_INTERVAL, 1)
+            options[CONF_FIREBASE] = user_input.get(CONF_FIREBASE, False)
             options[CONF_NIGHTLY_UPDATE_REDUCTION] = user_input.get(CONF_NIGHTLY_UPDATE_REDUCTION, False)
             options[CONF_SPIN] = user_input.get(CONF_SPIN, None)
             options[CONF_MUTABLE] = user_input.get(CONF_MUTABLE, True)
@@ -486,6 +495,12 @@ class PyCupraConnectOptionsFlowHandler(config_entries.OptionsFlow):
                         vol.Coerce(int),
                         vol.Range(min=MIN_SCAN_INTERVAL, max=900)
                     ),
+                    vol.Optional(
+                        CONF_FIREBASE,
+                        default=self._config_entry.options.get(CONF_FIREBASE,
+                            self._config_entry.data.get(CONF_FIREBASE, False)
+                        )
+                    ): cv.boolean,
                     vol.Optional(
                         CONF_NIGHTLY_UPDATE_REDUCTION,
                         default=self._config_entry.options.get(CONF_NIGHTLY_UPDATE_REDUCTION,
