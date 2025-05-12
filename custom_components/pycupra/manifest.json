@@ -11,5 +11,5 @@
         "pycupra>=0.1.4",
         "homeassistant>=2025.1.0"
     ],
-    "version": "0.1.0"
+    "version": "0.1.1"
 }
