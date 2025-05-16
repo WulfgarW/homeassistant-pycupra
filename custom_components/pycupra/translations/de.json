@@ -100,7 +100,21 @@
         }, 
         "current": {
           "name": "Strom",
-          "description": "Maximaler Ladestrom. Text (Maximum oder Reduced/Minimum) or Ganzzahl 1-255 (1-32 = Amps, 252 = Reduced, 254 = Maximum)"
+          "description": "Maximaler Ladestrom. Text (Maximum oder Reduced/Minimum) oder Ganzzahl 1-255 (1-32 = Amps, 252 = Reduced, 254 = Maximum)"
+        }
+      }
+    },
+    "set_charger_target_soc": {
+      "name": "Ladeziel setzen",
+      "description": "Setzt den gewünschten Ladestand.",
+      "fields": {
+        "device_id": {
+          "name": "Geräte-ID",
+          "description": "Geräte-ID des Fahrzeugs"
+        }, 
+        "targetSoc": {
+          "name": "Ziel-Ladestand",
+          "description": "Gewünschte Zielwert für den Ladestand. Ganzzahl 1-100"
         }
       }
     },

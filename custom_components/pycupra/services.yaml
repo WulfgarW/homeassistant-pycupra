@@ -45,6 +45,28 @@ set_charger_max_current:
           min: 1
           max: 254
           unit_of_measurement: Ampere
+set_charger_target_soc:
+  name: Set target state of charge
+  description: >
+    Set the target value for the battery level when charging.
+  fields:
+    device_id:
+      name: Vehicle
+      description: The vehicle to set target soc for
+      required: true
+      selector:
+        device:
+          integration: pycupra
+    targetSoc:
+      name: Target State of Charge
+      description: >
+        Target state of charge. Int 1-100.
+      example: 80
+      selector:
+        number:
+          min: 1
+          max: 100
+          unit_of_measurement: percent
 set_pheater_duration:
   name: Set parking heater runtime
   description: >

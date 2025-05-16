@@ -66,6 +66,7 @@ from .const import (
     SERVICE_SET_MAX_CURRENT,
     SERVICE_SEND_DESTINATION,
     SERVICE_SET_CHARGE_LIMIT,
+    SERVICE_SET_TARGET_SOC,
     SERVICE_SET_CLIMATER,
     SERVICE_SET_PHEATER_DURATION,
 )
@@ -111,6 +112,12 @@ SERVICE_SET_MAX_CURRENT_SCHEMA = vol.Schema(
             vol.Range(min=1, max=255),
             vol.In(['Maximum', 'maximum', 'Max', 'max', 'Minimum', 'minimum', 'Min', 'min', 'Reduced', 'reduced'])
         ),
+    }
+)
+SERVICE_SET_TARGET_SOC_SCHEMA = vol.Schema(
+    {
+        vol.Required("device_id"): vol.All(cv.string, vol.Length(min=32, max=32)),
+        vol.Required("targetSoc"): vol.All(vol.Coerce(int), vol.Range(min=1, max=100)),
     }
 )
 SERVICE_SET_CHARGE_LIMIT_SCHEMA = vol.Schema(
@@ -483,7 +490,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry):
             raise
 
     async def set_current(service_call=None):
-        """Set departure schedule."""
+        """Set charge current."""
         try:
             car = await get_car(service_call)
 
@@ -494,6 +501,23 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry):
                 await coordinator.async_request_refresh()
             else:
                 _LOGGER.warning(f"Failed to execute service call 'set_current' with data '{service_call}'")
+        except (SeatInvalidRequestException) as e:
+            _LOGGER.warning(f"Service call 'set_schedule' failed {e}")
+        except Exception as e:
+            raise
+
+    async def set_target_soc(service_call=None):
+        """Set target state of charge."""
+        try:
+            car = await get_car(service_call)
+
+            # Get charge current and execute service call
+            targetSoc = service_call.data.get('targetSoc', None)
+            if await car.set_charger_target_soc(targetSoc) is True:
+                _LOGGER.debug(f"Service call 'set_target_soc' executed without error")
+                await coordinator.async_request_refresh()
+            else:
+                _LOGGER.warning(f"Failed to execute service call 'set_target_soc' with data '{service_call}'")
         except (SeatInvalidRequestException) as e:
             _LOGGER.warning(f"Service call 'set_schedule' failed {e}")
         except Exception as e:
@@ -553,6 +577,12 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry):
         SERVICE_SET_MAX_CURRENT,
         set_current,
         schema = SERVICE_SET_MAX_CURRENT_SCHEMA
+    )
+    hass.services.async_register(
+        DOMAIN,
+        SERVICE_SET_TARGET_SOC,
+        set_target_soc,
+        schema = SERVICE_SET_TARGET_SOC_SCHEMA
     )
     hass.services.async_register(
         DOMAIN,
@@ -619,6 +649,7 @@ async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry):
     _LOGGER.debug("Unloading services")
     hass.services.async_remove(DOMAIN, SERVICE_SET_SCHEDULE)
     hass.services.async_remove(DOMAIN, SERVICE_SET_MAX_CURRENT)
+    hass.services.async_remove(DOMAIN, SERVICE_SET_TARGET_SOC)
     hass.services.async_remove(DOMAIN, SERVICE_SET_CHARGE_LIMIT)
     hass.services.async_remove(DOMAIN, SERVICE_SET_CLIMATER)
     hass.services.async_remove(DOMAIN, SERVICE_SET_PHEATER_DURATION)
