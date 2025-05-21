@@ -885,7 +885,7 @@ class PyCupraEntity(Entity):
         return {
             "identifiers": {(DOMAIN, self.vin)},
             "name": self._vehicle_name,
-            "manufacturer": "Cupra",
+            "manufacturer": self.vehicle.brand,
             "model": self.vehicle.model,
             "sw_version": self.vehicle.model_year,
         }
