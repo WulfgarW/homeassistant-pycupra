@@ -27,6 +27,7 @@ from homeassistant.helpers.dispatcher import async_dispatcher_connect
 from homeassistant.helpers.entity import Entity
 from homeassistant.helpers.icon import icon_for_battery_level
 from homeassistant.helpers.update_coordinator import DataUpdateCoordinator, UpdateFailed
+from homeassistant.helpers.redact import REDACTED, async_redact_data
 
 from pycupra.connection import Connection
 from pycupra.vehicle import Vehicle
@@ -214,8 +215,8 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry):
 
     conf_instruments = entry.data.get(CONF_INSTRUMENTS, {}).copy()
     if entry.options.get(CONF_DEBUG, False) is True:
-        _LOGGER.debug(f"Configured data: {entry.data}")
-        _LOGGER.debug(f"Configured options: {entry.options}")
+        _LOGGER.debug(f"Configured data: {async_redact_data(entry.data, ['username', 'password', 'vehicle', 'spin'])}") 
+        _LOGGER.debug(f"Configured options: {async_redact_data(entry.options, ['username', 'password', 'vehicle', 'spin'])}") 
         _LOGGER.debug(f"Resources from options are: {entry.options.get(CONF_RESOURCES, [])}")
         _LOGGER.debug(f"All instruments (data): {conf_instruments}")
     new_instruments = {}
