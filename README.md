@@ -13,27 +13,35 @@ This integration will only work for your car if you have MyCupra/MySeat function
 The car privacy settings must be set to "Share my position" for full functionality of this integration. Without this setting, if set to "Use my position", the sensors for position (device tracker), requests remaining and parking time might not work reliably or at all. Set to even stricter privacy setting will limit functionality even further.
 
 ### What should work (please report if not)
-- Automatic discovery of enabled functions (API endpoints).
-- Charging plug connected
-- Charging plug locked
-- Charger connected (external power)
+- Automatic discovery of enabled functions (API endpoints) based on the (enabled) capabilities of the vehicle
+- Charging cable connected
+- Charging cable locked
+- Charging state
 - Battery level
 - Electric range
 - Start/stop charging
-- Start/stop Electric climatisation, window_heater and information
-- Change charge current (maximum or reduced)
-- Show and set departure timers and departure profiles respectively (until now, no set schedule for departure profiles)
+- Change charge current (maximum or reduced, current in Ampere for some fully electric models)
+- Change target state of charge
 - Odometer and service info
-- Fuel level, range, adblue level
+- Fuel level, combustion range, combined range, adblue level
 - Lock, windows, trunk, hood, sunroof and door status
-- Last trip info and last cycle info (for cars with combustion engine 'last cycle' means 'since refuel')
-- Position - gps coordinates, if vehicle is moving, time parked
-- Start/stop auxiliary climatisation for PHEV cars (untested)
 - Lock and unlock car
-- Device tracker - entity is set to 'not_home' when car is moving
+- Last trip info and last cycle info (for cars with combustion engine 'last cycle' means 'since refuel')
+- Start/stop Electric climatisation, window_heater and information
+- Start/stop auxiliary climatisation for PHEV cars (untested)
+- Show and set departure timers and departure profiles respectively (until now, set schedule for departure profiles not tested)
+- Position (gps coordinates) and device tracker (showing if the position is lying in one of the zone defined in HA)
+- Area Alarm (shows area alarm notifications, if area alarms have been defined and activated in the app; only works with 'Use push notifications' enabled)
 - Trigger data refresh - this will trigger a wake up call so the car sends new data
 - Model images (downloaded in www folder; the image url string is to long for home assistant)
 - Send a navigation destination to vehicle
+
+### How to use the area alarms
+Using the MyCupra/MySeat app and provided that your car supports it, you can define areas  and activate to get push alerts, if your car enters or leaves a predefined area.
+If 'Use push notifications' is enabled in the configuration of PyCupra, then PyCupra will also receive these area alarm notifications and show this alarm with the binary sensor area_alarm. Information about the alarm type and the name of the zone that your car entered of left is shown as attributes of the binary sensor.
+The binary sensor is reset after 900 seconds.
+
+You can use the area alarm sensor as trigger for automations e.g. to turn on the light in front of your garage when your car is nearly at home. 
 
 ### How to use the model images
 The model images of the vehicle are downloaded from the Cupra/Seat cloud and stored in the www folder. The names of the model image files are:
@@ -58,7 +66,7 @@ Configuration in configuration.yaml is now deprecated and can interfere with set
 To configure the integration, go to Configuration in the side panel of Home Assistant and then select Integrations.
 Click on the "ADD INTEGRATION" button in the bottom right corner and search/select pycupra.
 Follow the steps and enter the required information. Because of how the data is stored and handled in Home Assistant, there will be one integration per vehicle.
-Setup multiple vehicles by adding the integration multiple times.
+Setup multiple vehicles by adding the integration multiple times. (Not tested yet!)
 
 ### Data update concept of PyCupra
 The MyCupra/MySeat portal has a per day limitation for the API calls (about 1.500 request per day, including the calls from the MyCupra/MySeat app and other systems that read from the API). If you go above this limit, PyCupra will get not data updates from the API until the portal resets the limit counter at about 02:00 a.m. So the task is to find a good compromise between up-to-date data in HA and the number of API calls.

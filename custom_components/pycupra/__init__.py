@@ -2,7 +2,7 @@
 """
 PyCupra integration
 
-Read more at https://github.com/WulfgarW/homeassistant-cupra/
+Read more at https://github.com/WulfgarW/homeassistant-pycupra/
 """
 import re
 import asyncio
@@ -81,7 +81,9 @@ SERVICE_SET_SCHEDULE_SCHEMA = vol.Schema(
         vol.Required("recurring"): cv.boolean,
         vol.Optional("date"): cv.string,
         vol.Optional("days"): cv.string,
-        vol.Optional("temp"): vol.All(vol.Coerce(int), vol.Range(min=16, max=30)),
+        #vol.Optional("temp"): vol.All(vol.Coerce(int), vol.Range(min=16, max=30)),
+        vol.Optional("temp"): vol.In([16.0, 16.5, 17.0, 17.5, 18.0, 18.5, 19.0, 19.5, 20.0, 20.5, 21.0, 21.5, 22.0, 22.5, 23.0, 23.5, 
+                                      24.0, 24.5, 25.0, 25.5, 26.0, 26.5, 27.0, 27.5, 28.0, 28,5, 29.0, 29.5, 30.0]), 
         vol.Optional("climatisation"): cv.boolean,
         vol.Optional("charging"): cv.boolean,
         vol.Optional("charge_current"): vol.Any(
@@ -130,8 +132,8 @@ SERVICE_SET_CHARGE_LIMIT_SCHEMA = vol.Schema(
 SERVICE_SEND_DESTINATION_SCHEMA = vol.Schema(
     {
         vol.Required("device_id"): vol.All(cv.string, vol.Length(min=32, max=32)),
-        vol.Required("latitude"): vol.Any(vol.Range(min=-90, max=90)),
-        vol.Required("longitude"): vol.Any(vol.Range(min=-180, max=180)),
+        vol.Required("latitude"): vol.All(vol.Coerce(float), vol.Range(min=-90, max=90)),
+        vol.Required("longitude"): vol.All(vol.Coerce(float), vol.Range(min=-180, max=180)),
         vol.Required("poiProvider"): cv.string,
         vol.Optional("destinationName"): cv.string,
         vol.Optional("street"): cv.string,
@@ -145,9 +147,10 @@ SERVICE_SEND_DESTINATION_SCHEMA = vol.Schema(
 SERVICE_SET_CLIMATER_SCHEMA = vol.Schema(
     {
         vol.Required("device_id"): vol.All(cv.string, vol.Length(min=32, max=32)),
-        vol.Required("enabled", default=True): cv.boolean,
-        vol.Optional("temp"): vol.All(vol.Coerce(int), vol.Range(min=16, max=30)),
-        vol.Optional("battery_power"): cv.boolean,
+        vol.Required("enabled", default='Start'): vol.In(['Start', 'Stop', 'Set Temp.']),
+        vol.Optional("temp"): vol.In([16.0, 16.5, 17.0, 17.5, 18.0, 18.5, 19.0, 19.5, 20.0, 20.5, 21.0, 21.5, 22.0, 22.5, 23.0, 23.5, 
+                                      24.0, 24.5, 25.0, 25.5, 26.0, 26.5, 27.0, 27.5, 28.0, 28,5, 29.0, 29.5, 30.0]), 
+        #vol.Optional("battery_power"): cv.boolean,
         vol.Optional("aux_heater"): cv.boolean,
         vol.Optional("spin"): vol.All(cv.string, vol.Match(r"^[0-9]{4}$"))
     }
@@ -464,7 +467,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry):
 	  }
 
             _LOGGER.debug(f"destination dict= {dest}")
-            if True: #await car.send_destination(dest) is True:
+            if await car.send_destination(dest) is True:
                 _LOGGER.debug(f"Service call 'send_destination' executed without error")
             else:
                 _LOGGER.warning(f"Failed to execute service call 'send_destination' with data '{service_call}'")
@@ -486,7 +489,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry):
             else:
                 _LOGGER.warning(f"Failed to execute service call 'set_charge_limit' with data '{service_call}'")
         except (SeatInvalidRequestException) as e:
-            _LOGGER.warning(f"Service call 'set_schedule' failed {e}")
+            _LOGGER.warning(f"Service call 'set_charge_limit' failed {e}")
         except Exception as e:
             raise
 
@@ -503,7 +506,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry):
             else:
                 _LOGGER.warning(f"Failed to execute service call 'set_current' with data '{service_call}'")
         except (SeatInvalidRequestException) as e:
-            _LOGGER.warning(f"Service call 'set_schedule' failed {e}")
+            _LOGGER.warning(f"Service call 'set_current' failed {e}")
         except Exception as e:
             raise
 
@@ -520,7 +523,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry):
             else:
                 _LOGGER.warning(f"Failed to execute service call 'set_target_soc' with data '{service_call}'")
         except (SeatInvalidRequestException) as e:
-            _LOGGER.warning(f"Service call 'set_schedule' failed {e}")
+            _LOGGER.warning(f"Service call 'set_target_soc' failed {e}")
         except Exception as e:
             raise
 
@@ -532,7 +535,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry):
             _LOGGER.debug(f"Service call 'set_pheater_duration' executed without error")
             await coordinator.async_request_refresh()
         except (SeatInvalidRequestException) as e:
-            _LOGGER.warning(f"Service call 'set_schedule' failed {e}")
+            _LOGGER.warning(f"Service call 'set_pheater_duration' failed {e}")
         except Exception as e:
             raise
 
@@ -541,22 +544,39 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry):
         try:
             car = await get_car(service_call)
 
-            if service_call.data.get('enabled'):
-                action = 'auxiliary' if service_call.data.get('aux_heater', False) else 'electric'
-                temp = service_call.data.get('temp', None)
-                hvpower = service_call.data.get('battery_power', None)
+            temp = service_call.data.get('temp', None)
+            if service_call.data.get('enabled', None):
+                if service_call.data.get('enabled', None)=='Set Temp.':
+                    action = 'settings'
+                elif service_call.data.get('enabled', None)=='Start':
+                    action = 'auxiliary' if service_call.data.get('aux_heater', False) else 'electric'
+                else:
+                    action = 'off'
+                    #temp = hvpower = spin = None
+                #hvpower = service_call.data.get('battery_power', None)
                 spin = service_call.data.get('spin', None)
+
+                # Execute service call
+                _LOGGER.debug(f"Action 'set_climater' with the following parameters: action={action}, temp={temp} and spin={spin}.")
+                if action=='settings':
+                    if temp!=None:
+                        if await car.set_climatisation_temp(temp) is True:
+                            _LOGGER.debug(f"Service call 'set_climater' executed without error")
+                            await coordinator.async_request_refresh()
+                        else:
+                            _LOGGER.warning(f"Failed to execute service call 'set_climater' with data '{service_call}'")
+                    else:
+                        _LOGGER.warning(f"Failed to execute service call 'set_climater' because temperature parameter not set.'")
+                else:
+                    if await car.set_climatisation(action, temp, hvpower=None, spin=spin) is True:
+                        _LOGGER.debug(f"Service call 'set_climater' executed without error")
+                        await coordinator.async_request_refresh()
+                    else:
+                        _LOGGER.warning(f"Failed to execute service call 'set_climater' with data '{service_call}'")
             else:
-                action = 'off'
-                temp = hvpower = spin = None
-            # Execute service call
-            if await car.set_climatisation(action, temp, hvpower, spin) is True:
-                _LOGGER.debug(f"Service call 'set_climater' executed without error")
-                await coordinator.async_request_refresh()
-            else:
-                _LOGGER.warning(f"Failed to execute service call 'set_current' with data '{service_call}'")
+                _LOGGER.warning(f"Service call 'set_climater' without valid action parameter")
         except (SeatInvalidRequestException) as e:
-            _LOGGER.warning(f"Service call 'set_schedule' failed {e}")
+            _LOGGER.warning(f"Service call 'set_climater' failed {e}")
         except Exception as e:
             raise
 
@@ -805,7 +825,9 @@ class PyCupraEntity(Entity):
         if not self.enabled:
             return
 
-        await self.coordinator.async_request_refresh()
+        #_LOGGER.debug(f"In PyCupraEntity.async_updata. For instrument with name={self.instrument.name}, attr={self.instrument.attr}")
+        await self.coordinator.update_only_selected_entity(self.instrument)
+        #await self.coordinator.async_request_refresh()
 
     async def async_added_to_hass(self):
         """Register update dispatcher."""
@@ -951,23 +973,23 @@ class PyCupraCoordinator(DataUpdateCoordinator):
         return dashboard.instruments
 
     async def async_logout(self, event=None):
-        """Logout from My Cupra"""
-        _LOGGER.debug("Shutdown My Cupra")
+        """Logout from Cupra/Seat portal"""
+        _LOGGER.debug("Shutdown PyCupra")
         try:
             await self.connection.terminate()
             self.connection = None
         except Exception as ex:
-            _LOGGER.error("Failed to log out and revoke tokens for My Cupra. Some tokens might still be valid.")
+            _LOGGER.error("Failed to log out and revoke tokens for Cupra/Seat portal. Some tokens might still be valid.")
             return False
         return True
 
     async def async_login(self):
-        """Login to My Cupra"""
+        """Login to Cupra/Seat portal"""
         # Check if we can login
         try:
             if await self.connection.doLogin(tokenFile=TOKEN_FILE_NAME_AND_PATH) is False:
                 _LOGGER.warning(
-                    "Could not login to My Cupra, please check your credentials and verify that the service is working"
+                    "Could not login to Cupra/Seat portal, please check your credentials and verify that the service is working"
                 )
                 return False
             # Get associated vehicles before we continue
@@ -980,10 +1002,10 @@ class PyCupraCoordinator(DataUpdateCoordinator):
             raise
 
     async def update(self) -> Union[bool, Vehicle]:
-        """Update status from My Cupra"""
+        """Update data from API"""
 
         # Update vehicle data
-        _LOGGER.debug("Updating data from My Cupra")
+        _LOGGER.debug("Updating data from Cupra/Seat API")
         try:
             # Get Vehicle object matching VIN number
             vehicle = self.connection.vehicle(self.vin)
@@ -993,17 +1015,17 @@ class PyCupraCoordinator(DataUpdateCoordinator):
             if await vehicle.update():
                 return vehicle
             else:
-                _LOGGER.warning("Could not query update from My Cupra")
+                _LOGGER.warning("Could not query update from Cupra/Seat API")
                 return False
         except Exception as error:
-            _LOGGER.warning(f"An error occured while requesting update from My Cupra: {error}")
+            _LOGGER.warning(f"An error occured while requesting update from Cupra/Seat API: {error}")
             return False
 
     async def updateCallbackForNotifications(self, updateType=0) -> Union[bool, Vehicle]:
-        """Update status from My Cupra (called for notifications)"""
+        """Update status from API (called for notifications)"""
 
         # Update vehicle data
-        _LOGGER.debug("Due to push notification, call for update of data from My Cupra")
+        _LOGGER.debug("Due to push notification, call for update of data from Cupra/Seat API")
         try:
             # Get Vehicle object matching VIN number
             vehicle = self.connection.vehicle(self.vin)
@@ -1015,8 +1037,45 @@ class PyCupraCoordinator(DataUpdateCoordinator):
                 self.async_set_updated_data(dashboard.instruments)
                 return True
             else:
-                _LOGGER.warning("Could not query update from My Cupra")
+                _LOGGER.warning("Could not query update from Cupra/Seat API")
                 return False
         except Exception as error:
-            _LOGGER.warning(f"An error occured in updateCallbackForNotifications while requesting update from My Cupra: {error}")
+            _LOGGER.warning(f"An error occured in updateCallbackForNotifications while requesting update from Cupra/Seat API: {error}")
+            return False
+
+    async def update_only_selected_entity(self, whichInstrument) -> Union[bool, Vehicle]:
+        """Update position from My Cupra"""
+
+        # Update vehicle data
+        try:
+            # Get Vehicle object matching VIN number
+            vehicle = self.connection.vehicle(self.vin)
+            if whichInstrument.attr == 'position':
+                _LOGGER.debug(f"Update for selected entity. Instrument {whichInstrument.attr}")
+                rc = await vehicle.get_position()
+            elif whichInstrument.attr in ('door_locked', 'door_closed_left_front', 'door_closed_right_front', 'door_closed_left_back', 'door_closed_right_back', 'trunk_locked', 'trunk_closed', 
+                                          'hood_closed', 'windows_closed', 'window_closed_left_front', 'window_closed_left_back', 'window_closed_right_front', 'window_closed_right_back'):
+                if (vehicle._last_get_statusreport < datetime.now(tz=None) - timedelta(seconds= 30)):
+                    _LOGGER.debug(f"Update for selected entity. Instrument {whichInstrument.attr}")
+                    rc = await vehicle.get_statusreport()
+                else:
+                    _LOGGER.info(f"Last API call to update the state of {whichInstrument.attr} less than 30 seconds ago. Not performing a new API call.")
+            elif whichInstrument.attr in ('electric_range', 'combustion_range', 'combined_range', 'battery_level', 'fuel_level'):
+                _LOGGER.debug(f"Update for selected entity. Instrument {whichInstrument.attr}")
+                rc = await vehicle.get_basiccardata()
+            else:
+                _LOGGER.warning(f"Selective update for instrument {whichInstrument.attr} not implemented yet.")
+                return False
+            if rc:
+                dashboard = vehicle.dashboard(
+                    mutable=self.entry.options.get(CONF_MUTABLE),
+                    spin=self.entry.options.get(CONF_SPIN),
+                )
+                self.async_set_updated_data(dashboard.instruments)
+                return True
+            else:
+                _LOGGER.warning(f"Could not query {whichInstrument.attr} from Cupra/Seat API")
+                return False
+        except Exception as error:
+            _LOGGER.warning(f"An error occured while requesting update for {whichInstrument.attr} from Cupra/Seat API: {error}")
             return False

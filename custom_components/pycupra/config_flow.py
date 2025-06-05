@@ -80,7 +80,7 @@ class PyCupraConnectConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                 CONF_RESOURCES: []
             }
 
-            _LOGGER.debug("Creating connection to My Cupra")
+            _LOGGER.debug("Creating connection to Cupra/Seat portal")
             self._connection = Connection(
                 session=async_get_clientsession(self.hass),
                 brand=self._data[CONF_BRAND],
@@ -221,7 +221,7 @@ class PyCupraConnectConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         try:
             await self.task_login
         except Exception:
-            return self.async_abort(reason="Failed to connect to My Cupra / My Seat")
+            return self.async_abort(reason="Failed to connect to Cupra/Seat portal")
 
         if self._errors:
             return self.async_show_progress_done(next_step_id="user")
@@ -248,7 +248,7 @@ class PyCupraConnectConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
             return self.async_show_progress_done(next_step_id="user")
 
         for vehicle in self._connection.vehicles:
-            _LOGGER.info(f"Found data for VIN: {vehicle.vin} from My Cupra")
+            _LOGGER.info(f"Found data for VIN: {vehicle.vin} from Cupra/Seat API")
         if len(self._connection.vehicles) == 0:
             return self.async_abort(reason="Could not find any vehicles associated with account!")
 
@@ -282,7 +282,7 @@ class PyCupraConnectConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
             # noinspection PyBroadException
             try:
                 if not await self._connection.doLogin(tokenFile=TOKEN_FILE_NAME_AND_PATH):
-                    _LOGGER.debug("Unable to login to My Cupra. Need to accept a new EULA/T&C? Try logging in to the portal: https://my.seat/portal/")
+                    _LOGGER.debug("Unable to login to Cupra/Seat portal. Need to accept a new EULA/T&C? Try logging in to the portal: https://my.seat/portal/")
                     errors["base"] = "cannot_connect"
                 else:
                     data = self.entry.data.copy()
@@ -386,7 +386,7 @@ class PyCupraConnectConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
             raise
 
         if len(self._connection.vehicles) == 0:
-            return self.async_abort(reason="My Cupra account didn't return any vehicles")
+            return self.async_abort(reason="MyCupra/MySeat account didn't return any vehicles")
         self._init_info["CONF_VEHICLES"] = {
             vehicle.vin: vehicle.dashboard().instruments
             for vehicle in self._connection.vehicles

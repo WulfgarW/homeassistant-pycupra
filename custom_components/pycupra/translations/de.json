@@ -134,15 +134,15 @@
     },
     "set_climater": {
       "name": "Klimatisierung setzen",
-      "description": "Starten/Stoppen der Klimatisierung mit optionalen Parametern.",
+      "description": "Starten/Stoppen der Klimatisierung mit optionalen Parametern oder Zieltemperatur ändern.",
       "fields": {
         "device_id": {
           "name": "Geräte-ID",
           "description": "Geräte-ID des Fahrzeugs"
         }, 
         "enabled": {
-          "name": "Aktivieren",
-          "description": "Starten oder Stoppen der Klimatisierung"
+          "name": "Aktivität",
+          "description": "Starten oder Stoppen der Klimatisierung oder Zieltemperatur ändern"
         },
         "temp": {
           "name": "Temperatur",

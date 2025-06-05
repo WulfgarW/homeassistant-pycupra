@@ -102,11 +102,16 @@ set_climater:
         device:
           integration: pycupra
     enabled:
-      name: Activate
-      description: Start or stop the climatisation
-      example: true
+      name: Action
+      description: Start or stop the climatisation or change temperature
+      required: true
+      example: Start
       selector:
-        boolean:
+        select:
+          options:
+            - Start
+            - Stop
+            - Set Temp.
     temp:
       name: Target temperature
       description: The target temperature for climatisation (unselect to use vehicles stored setting)
@@ -118,14 +123,6 @@ set_climater:
           max: 30
           step: 0.5
           unit_of_measurement: °C
-    battery_power:
-      name: Battery power
-      description: >
-        Allow the use of battery power to run electric climatisation (unselect to use vehicles stored setting)
-      advanced: true
-      example: true
-      selector:
-        boolean:
     aux_heater:
       name: Auxiliary heater
       description: >
@@ -279,8 +276,9 @@ send_destination:
       required: true
       selector:
         number:
-          min: -90
-          max: 90
+          min: -90.0
+          max: 90.0
+          step: 0.0000001
           mode: box
           unit_of_measurement: °
     longitude:
@@ -289,8 +287,9 @@ send_destination:
       required: true
       selector:
         number:
-          min: -180
-          max: 180
+          min: -180.0
+          max: 180.0
+          step: 0.0000001
           mode: box
           unit_of_measurement: °
     poiProvider:
