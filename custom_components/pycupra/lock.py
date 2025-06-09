@@ -41,7 +41,7 @@ async def async_setup_entry(hass, entry, async_add_devices):
 
 
 class PyCupraLock(PyCupraEntity, LockEntity):
-    """Represents a PyCupra Connect Lock."""
+    """Represents a PyCupra Lock."""
 
     @property
     def is_locked(self):
