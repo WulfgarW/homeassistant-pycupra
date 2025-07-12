@@ -34,7 +34,7 @@ async def async_setup_entry(hass, entry, async_add_devices):
         for instrument in data.instruments:
             if instrument.component == "switch" and instrument.attr in resources:
                 #_LOGGER.debug(f"In switch.py.async_setup_entry. Instrument: {instrument.attr}")
-                if instrument.attr in ('departure1','departure2','departure3','departure_profile1','departure_profile2','departure_profile3', 'request_flash', 'request_honkandflash', 'refresh_data', 'update_data'):
+                if instrument.attr in ('departure1','departure2','departure3','departure_profile1','departure_profile2','departure_profile3', 'request_flash', 'request_honkandflash'):
                     _LOGGER.debug(f"Instrument {instrument.attr} added without callback")
                     newDevices.append(PyCupraSwitch(data, instrument.vehicle_name, instrument.component, instrument.attr))
                 else:
@@ -55,11 +55,13 @@ class PyCupraSwitch(PyCupraEntity, ToggleEntity):
 
     async def async_turn_on(self, **kwargs):
         """Turn the switch on."""
+        _LOGGER.debug(f"Turning on switch {self.instrument.attr}")
         await self.instrument.turn_on()
         self.async_write_ha_state()
 
     async def async_turn_off(self, **kwargs):
         """Turn the switch off."""
+        _LOGGER.debug(f"Turning off switch {self.instrument.attr}")
         await self.instrument.turn_off()
         self.async_write_ha_state()
 
