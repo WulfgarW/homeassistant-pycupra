@@ -169,7 +169,7 @@ _LOGGER = logging.getLogger(__name__)
 TOKEN_FILE_NAME_AND_PATH='./custom_components/pycupra/pycupra_token.json'
 FIREBASE_CREDENTIALS_FILE_NAME_AND_PATH='./custom_components/pycupra/pycupra_firebase_credentials.json'
 
-async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry):
+async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     """Setup PyCupra component from a config entry."""
     hass.data.setdefault(DOMAIN, {})
 
@@ -640,7 +640,7 @@ def update_callback(hass, coordinator):
     )
 
 
-async def async_setup(hass: HomeAssistant, config: dict):
+async def async_setup(hass: HomeAssistant, config: dict) -> bool:
     """Set up the component from configuration.yaml."""
     hass.data.setdefault(DOMAIN, {})
 
@@ -665,7 +665,7 @@ async def async_setup(hass: HomeAssistant, config: dict):
     return True
 
 
-async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry):
+async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     """Unload a config entry."""
     _LOGGER.debug("Unloading services")
     hass.services.async_remove(DOMAIN, SERVICE_SET_SCHEDULE)
@@ -725,7 +725,7 @@ def get_convert_conf(entry: ConfigEntry):
 #    ) else CONF_NO_CONVERSION
     return CONF_NO_CONVERSION
 
-async def async_migrate_entry(hass: HomeAssistant, entry: ConfigEntry):
+async def async_migrate_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     """Migrate configuration from old version to new."""
     _LOGGER.debug(f'Migrating from version {entry.version}')
 
@@ -875,12 +875,12 @@ class PyCupraEntity(Entity):
         return f"{self._vehicle_name} {self._entity_name}"
 
     @property
-    def should_poll(self):
+    def should_poll(self) -> bool:
         """Return the polling state."""
         return False
 
     @property
-    def assumed_state(self):
+    def assumed_state(self) -> bool:
         """Return true if unable to access real state of entity."""
         return True
 
@@ -972,7 +972,7 @@ class PyCupraCoordinator(DataUpdateCoordinator):
 
         return dashboard.instruments
 
-    async def async_logout(self, event=None):
+    async def async_logout(self, event=None) -> bool:
         """Logout from Cupra/Seat portal"""
         _LOGGER.debug("Shutdown PyCupra")
         try:
@@ -983,7 +983,7 @@ class PyCupraCoordinator(DataUpdateCoordinator):
             return False
         return True
 
-    async def async_login(self):
+    async def async_login(self) -> bool:
         """Login to Cupra/Seat portal"""
         # Check if we can login
         try:

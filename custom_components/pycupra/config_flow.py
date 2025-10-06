@@ -215,6 +215,7 @@ class PyCupraConnectConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
             return self.async_show_progress(
                 step_id="login",
                 progress_action="task_login",
+                progress_task=self.task_login,
             )
 
         # noinspection PyBroadException
@@ -227,6 +228,7 @@ class PyCupraConnectConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
             return self.async_show_progress_done(next_step_id="user")
 
         #return self.async_show_progress_done(next_step_id="vehicle")
+        self.async_update_progress(0.5)
         return await self.async_step_get_vehicles()
 
     async def async_step_get_vehicles(self, user_input=None):
@@ -235,7 +237,8 @@ class PyCupraConnectConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
 
             return self.async_show_progress(
                 step_id="get_vehicles",
-                progress_action="task_get_vehicles"
+                progress_action="task_get_vehicles",
+                progress_task=self.task_get_vehicles,
             )
 
         # noinspection PyBroadException

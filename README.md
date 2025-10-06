@@ -55,7 +55,7 @@ You can use these image files for your HA dashboard (e.g. as image for a picture
 ## Installation
 
 ### Installation with HACS
-If you have HACS (Home Assistant Community Store) installed, add this github repo as a custom repository and install. HACS will keep track of updates and you can easly upgrade to the latest version when a new release is available.
+If you have HACS (Home Assistant Community Store) installed, go to the tab HACS on the Home Assistant UI. Enter 'pycupra' in the search field and then select 'PyCupra' from the list below the search field and install it.
 
 ### Manual installation
 Clone or copy the repository and copy the folder 'homeassistant-pycupra/custom_components/pycupra' into '<config dir>/custom_components'
