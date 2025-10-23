@@ -80,5 +80,7 @@ class PyCupraSensor(PyCupraEntity, SensorEntity):
             'electric_range', 'combustion_range', 'combined_range', 'outside_temperature'
         ]:
             state_class = "measurement"
+        elif self.instrument.attr == 'odometer':
+            state_class = "total_increasing"
         return state_class
 
