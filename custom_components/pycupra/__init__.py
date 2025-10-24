@@ -967,10 +967,18 @@ class PyCupraCoordinator(DataUpdateCoordinator):
             return
 
         original_on_notification = vehicle.onNotification
+        original_accepts_context = (
+            getattr(getattr(original_on_notification, "__code__", None), "co_argcount", 0)
+            >= 5
+        )
 
-        async def _wrapped_on_notification(obj, notification, data_message):
+        async def _wrapped_on_notification(
+            vehicle_self, obj, notification, data_message, context=None
+        ):
             try:
-                await self._handle_firebase_notification(obj, notification, data_message)
+                await self._handle_firebase_notification(
+                    obj, notification, data_message, context
+                )
             except Exception as err:  # pragma: no cover - defensive
                 _LOGGER.exception(
                     "Failed to process Firebase notification for %s: %s",
@@ -978,12 +986,18 @@ class PyCupraCoordinator(DataUpdateCoordinator):
                     err,
                 )
 
+            if context is not None and original_accepts_context:
+                await original_on_notification(obj, notification, data_message, context)
+                return
+
             await original_on_notification(obj, notification, data_message)
 
         vehicle.onNotification = MethodType(_wrapped_on_notification, vehicle)
         setattr(vehicle, "_ha_firebase_hooked", True)
 
-    async def _handle_firebase_notification(self, message, notification_id, data_message):
+    async def _handle_firebase_notification(
+        self, message, notification_id, data_message, context=None
+    ):
         """Prepare dispatcher payload for Firebase events."""
         data = message.get("data", {}) if isinstance(message, dict) else {}
         event_type = data.get("type")
@@ -1011,6 +1025,7 @@ class PyCupraCoordinator(DataUpdateCoordinator):
             "raw_message": message,
             "raw_data": data,
             "data_message": str(data_message) if data_message is not None else None,
+            "callback_context": context,
             "supported": event_type in FIREBASE_KNOWN_TYPES if event_type else False,
             "received_at": dt_util.utcnow().isoformat(timespec="seconds"),
             "raw_firebase_type": event_type,
