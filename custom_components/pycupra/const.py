@@ -50,4 +50,7 @@ PLATFORMS = {
     "device_tracker": "device_tracker",
     "switch": "switch",
     "climate": "climate",
+    "button": "button",
 }
+
+BUTTON_INSTRUMENTS = {"refresh_data", "update_data"}

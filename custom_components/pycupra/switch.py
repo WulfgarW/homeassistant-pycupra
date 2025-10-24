@@ -10,6 +10,7 @@ from homeassistant.helpers import config_validation as cv, entity_platform, serv
 from homeassistant.const import CONF_RESOURCES
 
 from . import DATA, DATA_KEY, DOMAIN, PyCupraEntity, UPDATE_CALLBACK
+from .const import BUTTON_INSTRUMENTS
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -33,6 +34,8 @@ async def async_setup_entry(hass, entry, async_add_devices):
         newDevices=[]
         for instrument in data.instruments:
             if instrument.component == "switch" and instrument.attr in resources:
+                if instrument.attr in BUTTON_INSTRUMENTS:
+                    continue
                 #_LOGGER.debug(f"In switch.py.async_setup_entry. Instrument: {instrument.attr}")
                 if instrument.attr in ('departure1','departure2','departure3','departure_profile1','departure_profile2','departure_profile3', 'request_flash', 'request_honkandflash'):
                     _LOGGER.debug(f"Instrument {instrument.attr} added without callback")

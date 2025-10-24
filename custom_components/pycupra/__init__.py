@@ -46,6 +46,7 @@ from pycupra.exceptions import (
 
 from .const import (
     PLATFORMS,
+    BUTTON_INSTRUMENTS,
     CONF_BRAND,
     CONF_MUTABLE,
     #CONF_SCANDINAVIAN_MILES,
@@ -275,7 +276,10 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
         if instrument.component in PLATFORMS and is_enabled(instrument.slug_attr)
     ):
         data.instruments.add(instrument)
-        components.add(PLATFORMS[instrument.component])
+        if instrument.component == "switch" and instrument.attr in BUTTON_INSTRUMENTS:
+            components.add("button")
+        else:
+            components.add(PLATFORMS[instrument.component])
 
     hass.data[DOMAIN][entry.entry_id] = {
         UPDATE_CALLBACK: update_callback,
