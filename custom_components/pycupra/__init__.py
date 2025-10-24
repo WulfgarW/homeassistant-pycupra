@@ -6,8 +6,10 @@ Read more at https://github.com/WulfgarW/homeassistant-pycupra/
 """
 import re
 import asyncio
+import json
 import logging
 from datetime import datetime, timedelta
+from types import MethodType
 from typing import Union
 import voluptuous as vol
 
@@ -23,11 +25,12 @@ from homeassistant.core import HomeAssistant
 from homeassistant.exceptions import ConfigEntryAuthFailed, ConfigEntryNotReady
 from homeassistant.helpers import config_validation as cv, device_registry
 from homeassistant.helpers.aiohttp_client import async_get_clientsession
-from homeassistant.helpers.dispatcher import async_dispatcher_connect
+from homeassistant.helpers.dispatcher import async_dispatcher_connect, async_dispatcher_send
 from homeassistant.helpers.entity import Entity
 from homeassistant.helpers.icon import icon_for_battery_level
 from homeassistant.helpers.update_coordinator import DataUpdateCoordinator, UpdateFailed
 from homeassistant.helpers.redact import REDACTED, async_redact_data
+from homeassistant.util import dt as dt_util
 
 from pycupra.connection import Connection
 from pycupra.vehicle import Vehicle
@@ -61,6 +64,7 @@ from .const import (
     DEFAULT_SCAN_INTERVAL,
     DOMAIN,
     SIGNAL_STATE_UPDATED,
+    SIGNAL_FIREBASE_EVENT,
     UNDO_UPDATE_LISTENER, UPDATE_CALLBACK, CONF_DEBUG, DEFAULT_DEBUG, CONF_CONVERT, CONF_NO_CONVERSION,
     CONF_IMPERIAL_UNITS,
     SERVICE_SET_SCHEDULE,
@@ -71,6 +75,7 @@ from .const import (
     SERVICE_SET_TARGET_SOC,
     SERVICE_SET_CLIMATER,
     SERVICE_SET_PHEATER_DURATION,
+    FIREBASE_KNOWN_TYPES,
 )
 
 SERVICE_SET_SCHEDULE_SCHEMA = vol.Schema(
@@ -280,6 +285,9 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
             components.add("button")
         else:
             components.add(PLATFORMS[instrument.component])
+
+    if coordinator.firebaseWanted:
+        components.add("event")
 
     hass.data[DOMAIN][entry.entry_id] = {
         UPDATE_CALLBACK: update_callback,
@@ -947,7 +955,68 @@ class PyCupraCoordinator(DataUpdateCoordinator):
             nightlyUpdateReduction=self.entry.options.get(CONF_NIGHTLY_UPDATE_REDUCTION, self.entry.data.get(CONF_NIGHTLY_UPDATE_REDUCTION, False)),
         )
         self.firebaseWanted=self.entry.options.get(CONF_FIREBASE, self.entry.data.get(CONF_FIREBASE, False))
+        self.firebase_last_event = None
         super().__init__(hass, _LOGGER, name=DOMAIN, update_interval=update_interval)
+
+    def _ensure_firebase_hook(self, vehicle: Vehicle) -> None:
+        """Wrap the vehicle notification handler to capture Firebase events."""
+        if not self.firebaseWanted:
+            return
+
+        if getattr(vehicle, "_ha_firebase_hooked", False):
+            return
+
+        original_on_notification = vehicle.onNotification
+
+        async def _wrapped_on_notification(obj, notification, data_message):
+            try:
+                await self._handle_firebase_notification(obj, notification, data_message)
+            except Exception as err:  # pragma: no cover - defensive
+                _LOGGER.exception(
+                    "Failed to process Firebase notification for %s: %s",
+                    self.vin,
+                    err,
+                )
+
+            await original_on_notification(obj, notification, data_message)
+
+        vehicle.onNotification = MethodType(_wrapped_on_notification, vehicle)
+        setattr(vehicle, "_ha_firebase_hooked", True)
+
+    async def _handle_firebase_notification(self, message, notification_id, data_message):
+        """Prepare dispatcher payload for Firebase events."""
+        data = message.get("data", {}) if isinstance(message, dict) else {}
+        event_type = data.get("type")
+        event_type_normalised = event_type or "unknown"
+        request_id = data.get("requestId")
+        payload_raw = data.get("payload")
+        payload_is_json = False
+        payload = payload_raw
+
+        if isinstance(payload_raw, str) and payload_raw:
+            try:
+                payload = json.loads(payload_raw)
+                payload_is_json = True
+            except (ValueError, TypeError):
+                payload = payload_raw
+
+        event_info = {
+            "vin": self.vin,
+            "firebase_type": event_type_normalised,
+            "request_id": request_id or None,
+            "notification_id": notification_id,
+            "payload": payload,
+            "payload_is_json": payload_is_json,
+            "payload_raw": payload_raw if isinstance(payload_raw, str) else None,
+            "raw_message": message,
+            "raw_data": data,
+            "data_message": str(data_message) if data_message is not None else None,
+            "supported": event_type in FIREBASE_KNOWN_TYPES if event_type else False,
+            "received_at": dt_util.utcnow().isoformat(timespec="seconds"),
+            "raw_firebase_type": event_type,
+        }
+        self.firebase_last_event = event_info
+        async_dispatcher_send(self.hass, SIGNAL_FIREBASE_EVENT, event_info)
 
     async def _async_update_data(self):
         """Update data via library."""
@@ -1013,6 +1082,7 @@ class PyCupraCoordinator(DataUpdateCoordinator):
         try:
             # Get Vehicle object matching VIN number
             vehicle = self.connection.vehicle(self.vin)
+            self._ensure_firebase_hook(vehicle)
             if self.firebaseWanted:
                 newStatus = await vehicle.initialiseFirebase(firebaseCredentialsFileName=FIREBASE_CREDENTIALS_FILE_NAME_AND_PATH, updateCallback=self.updateCallbackForNotifications)
                 #_LOGGER.debug(f"New status of firebase={newStatus}")
@@ -1033,6 +1103,7 @@ class PyCupraCoordinator(DataUpdateCoordinator):
         try:
             # Get Vehicle object matching VIN number
             vehicle = self.connection.vehicle(self.vin)
+            self._ensure_firebase_hook(vehicle)
             if await vehicle.update(updateType):
                 dashboard = vehicle.dashboard(
                     mutable=self.entry.options.get(CONF_MUTABLE),

@@ -51,6 +51,33 @@ PLATFORMS = {
     "switch": "switch",
     "climate": "climate",
     "button": "button",
+    "event": "event",
 }
 
 BUTTON_INSTRUMENTS = {"refresh_data", "update_data"}
+
+SIGNAL_FIREBASE_EVENT = f"{DOMAIN}.firebase_event"
+
+FIREBASE_KNOWN_TYPES = {
+    "vehicle-access-locked-successful",
+    "vehicle-access-unlocked-successful",
+    "departure-times-updated",
+    "departure-profiles-updated",
+    "charging-status-changed",
+    "charging-started",
+    "charging-stopped",
+    "charging-settings-updated",
+    "climatisation-status-changed",
+    "climatisation-started",
+    "climatisation-stopped",
+    "climatisation-settings-updated",
+    "climatisation-error-fail",
+    "vehicle-area-alarm-vehicle-exits-zone-triggered",
+    "vehicle-area-alarm-vehicle-enters-zone-triggered",
+    "vehicle-wake-up-succeeded",
+    "vehicle-wakeup-succeeded",
+    "vehicle-honk-and-flash-started",
+    "vehicle-area-alert-added",
+    "vehicle-area-alert-updated",
+}
+
