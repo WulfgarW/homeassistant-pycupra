@@ -74,5 +74,101 @@
         }
       }
     }
+  },
+  "services": {
+    "set_charge_limit": {
+      "name": "Set charge limit",
+      "description": "Is setting the upper charge limit.",
+      "fields": {
+        "device_id": {
+          "name": "Device id",
+          "description": "Device id of the vehicle"
+        }, 
+        "limit": {
+          "name": "Charge limit",
+          "description": "Upper charge limit"
+        }
+      }
+    },
+    "set_charger_max_current": {
+      "name": "Set maximum charge current",
+      "description": "Is setting the maximum charge current.",
+      "fields": {
+        "device_id": {
+          "name": "Device id",
+          "description": "Device id of the vehicle"
+        }, 
+        "current": {
+          "name": "Current",
+          "description": "Maximum charge current. Text (Maximum oder Reduced/Minimum) oder integer 1-255 (1-32 = Amps, 252 = Reduced, 254 = Maximum)"
+        }
+      }
+    },
+    "set_departure_schedule": {
+      "name": "Set departure schedule",
+      "description": "Is setting one of the departure timers.",
+      "fields": {
+        "device_id": {
+          "name": "Device id",
+          "description": "Device id of the vehicle"
+        }, 
+        "id": {
+          "name": "Id of the departure timer",
+          "description": "Id of the departure timer, that shall be changed."
+        }, 
+        "time": {
+          "name": "Time",
+          "description": "Departure time, 24h HH:MM."
+        }, 
+        "enabled": {
+          "name": "Activate",
+          "description": "Shall the departure timer be activated or not?"
+        },
+        "recurring": {
+          "name": "Recurring schedule?",
+          "description": "Shall the departure timer be for a single date or recurring?"
+        }, 
+        "date": {
+          "name": "Date",
+          "description": "Departure date for a single departure timer, YYYY-MM-DD (only necessary for non-recurring departure schedules)."
+        }, 
+        "days": {
+          "name": "Day pattern",
+          "description": "Weekyday pattern for a recurring schedule, Mon-Sun - (only necessary for recurring departure schedules)."
+        }, 
+        "temp": {
+          "name": "Temperature",
+          "description": "Target temperature for climatisation. (Global setting, that applies to all climatisation activities)."
+        }, 
+        "climatisation": {
+          "name": "Climatisation",
+          "description": "Shall climatisation be activated for this departure timer?"
+        },
+        "charging": {
+          "name": "Charging",
+          "description": "Shall charging of the battery be activated for this departure timer?"
+        }, 
+        "charge_current": {
+          "name": "Charge Current",
+          "description": "Maximum charge current for this departure timer. (1-254 or maximum/reduced)"
+        }, 
+        "charge_target": {
+          "name": "Charge target",
+          "description": "Charge target for the departure timer"
+        }, 
+        "off_peak_active": {
+          "name": "Off-peak rates active",
+          "description": "Use off-peak rates."
+        },
+        "off_peak_start": {
+          "name": "Start of off-peak time",
+          "description": "Starting time of off-peak rate, 24h HH:MM."
+        },
+        "off_peak_end": {
+          "name": "End of off-peak time",
+          "description": "End time of off-peak rate, 24h HH:MM."
+        }
+      }
+    }
   }
 }

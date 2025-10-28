@@ -188,7 +188,7 @@
         }, 
         "date": {
           "name": "Datum",
-          "description": "Datum für die einmalige Abfahrtszeit (nur erforderlich bei einmaliger Abfahrtszeit)."
+          "description": "Datum für die einmalige Abfahrtszeit, JJJJ-MM-TT (nur erforderlich bei einmaliger Abfahrtszeit)."
         }, 
         "days": {
           "name": "Tagesmuster",
@@ -304,7 +304,7 @@
         }, 
         "date": {
           "name": "Datum",
-          "description": "Datum für die einmalige Abfahrtszeit (nur erforderlich bei einmaliger Abfahrtszeit)."
+          "description": "Datum für die einmalige Abfahrtszeit, JJJJ-MM-TT (nur erforderlich bei einmaliger Abfahrtszeit)."
         }, 
         "days": {
           "name": "Tagesmuster",
