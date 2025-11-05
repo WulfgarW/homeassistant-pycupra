@@ -5,7 +5,7 @@ import logging
 
 from . import DATA_KEY, DOMAIN, PyCupraEntity
 from .const import DATA
-from homeassistant.components.sensor import DEVICE_CLASSES, SensorEntity
+from homeassistant.components.sensor import DEVICE_CLASSES, SensorEntity, SensorStateClass
 from homeassistant.const import CONF_RESOURCES
 
 _LOGGER = logging.getLogger(__name__)
@@ -79,8 +79,8 @@ class PyCupraSensor(PyCupraEntity, SensorEntity):
             'battery_level', 'adblue_level', 'fuel_level', 'charging_time_left', 'charging_power', 'charge_rate',
             'electric_range', 'combustion_range', 'combined_range', 'outside_temperature'
         ]:
-            state_class = "measurement"
+            state_class = SensorStateClass.MEASUREMENT
         elif self.instrument.attr == 'odometer':
-            state_class = "total_increasing"
+            state_class = SensorStateClass.TOTAL_INCREASING
         return state_class
 
