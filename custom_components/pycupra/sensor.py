@@ -44,6 +44,19 @@ async def async_setup_entry(hass, entry, async_add_devices):
 class PyCupraSensor(PyCupraEntity, SensorEntity):
     """Representation of a PyCupra Sensor."""
 
+    def __init__(self, data, vin, component, attribute):
+        """Initialize the sensor."""
+        super().__init__(data, vin, component, attribute)
+        # Set state_class during initialization
+        if self.instrument.attr == 'odometer':
+            self._attr_state_class = SensorStateClass.TOTAL_INCREASING
+        elif self.instrument.attr in [
+            'battery_level', 'adblue_level', 'fuel_level', 'charging_time_left', 
+            'charging_power', 'charge_rate', 'electric_range', 'combustion_range', 
+            'combined_range', 'outside_temperature'
+        ]:
+            self._attr_state_class = SensorStateClass.MEASUREMENT
+
     @property
     #def state(self):
     def native_value(self):
@@ -70,17 +83,4 @@ class PyCupraSensor(PyCupraEntity, SensorEntity):
         if self.instrument.device_class in DEVICE_CLASSES:
             return self.instrument.device_class
         return None
-
-    @property
-    def state_class(self):
-        """Return the state_class for the sensor, to enable statistics"""
-        state_class = None
-        if self.instrument.attr in [
-            'battery_level', 'adblue_level', 'fuel_level', 'charging_time_left', 'charging_power', 'charge_rate',
-            'electric_range', 'combustion_range', 'combined_range', 'outside_temperature'
-        ]:
-            state_class = SensorStateClass.MEASUREMENT
-        elif self.instrument.attr == 'odometer':
-            state_class = SensorStateClass.TOTAL_INCREASING
-        return state_class
 
