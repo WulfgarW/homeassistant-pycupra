@@ -64,6 +64,8 @@ from .const import (
     CONF_IMPERIAL_UNITS,
     SERVICE_SET_SCHEDULE,
     SERVICE_SET_DEPARTURE_PROFILE_SCHEDULE,
+    SERVICE_SET_CLIMATISATION_TIMER_SCHEDULE,
+    SERVICE_SET_AUXILIARY_HEATING_TIMER_SCHEDULE,
     SERVICE_SET_MAX_CURRENT,
     SERVICE_SEND_DESTINATION,
     SERVICE_SET_CHARGE_LIMIT,
@@ -108,6 +110,29 @@ SERVICE_SET_DEPARTURE_PROFILE_SCHEDULE_SCHEMA = vol.Schema(
         vol.Required("chargingProgramId"): vol.In([1,2,3,4,5,6,7,8,9,10]),
     }
 )
+SERVICE_SET_CLIMATISATION_TIMER_SCHEDULE_SCHEMA = vol.Schema(
+    {
+        vol.Required("device_id"): vol.All(cv.string, vol.Length(min=32, max=32)),
+        vol.Required("id"): vol.In([1,2,3]),
+        vol.Required("time"): cv.string,
+        vol.Required("enabled"): cv.boolean,
+        vol.Required("recurring"): cv.boolean,
+        vol.Optional("date"): cv.string,
+        vol.Optional("days"): cv.string,
+    }
+)
+SERVICE_SET_AUXILIARY_HEATING_TIMER_SCHEDULE_SCHEMA = vol.Schema(
+    {
+        vol.Required("device_id"): vol.All(cv.string, vol.Length(min=32, max=32)),
+        vol.Required("id"): vol.In([1,2,3]),
+        vol.Required("time"): cv.string,
+        vol.Required("enabled"): cv.boolean,
+        vol.Required("recurring"): cv.boolean,
+        vol.Optional("date"): cv.string,
+        vol.Optional("days"): cv.string,
+        vol.Required("spin"): vol.All(cv.string, vol.Match(r"^[0-9]{4}$"))
+    }
+)
 SERVICE_SET_MAX_CURRENT_SCHEMA = vol.Schema(
     {
         vol.Required("device_id"): vol.All(cv.string, vol.Length(min=32, max=32)),
@@ -126,7 +151,7 @@ SERVICE_SET_TARGET_SOC_SCHEMA = vol.Schema(
 SERVICE_SET_CHARGE_LIMIT_SCHEMA = vol.Schema(
     {
         vol.Required("device_id"): vol.All(cv.string, vol.Length(min=32, max=32)),
-        vol.Required("limit"): vol.In([0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100]),
+        vol.Required("limit"): vol.In([0, 10, 20, 30, 40, 50]),
     }
 )
 SERVICE_SEND_DESTINATION_SCHEMA = vol.Schema(
@@ -147,12 +172,12 @@ SERVICE_SEND_DESTINATION_SCHEMA = vol.Schema(
 SERVICE_SET_CLIMATER_SCHEMA = vol.Schema(
     {
         vol.Required("device_id"): vol.All(cv.string, vol.Length(min=32, max=32)),
-        vol.Required("enabled", default='Start'): vol.In(['Start', 'Stop', 'Set Temp.']),
+        vol.Required("enabled", default='Start'): vol.In(['Start', 'Stop', 'Set Temp.', 'Auxiliary Start', 'Auxiliary Stop']),
         vol.Optional("temp"): vol.In([16.0, 16.5, 17.0, 17.5, 18.0, 18.5, 19.0, 19.5, 20.0, 20.5, 21.0, 21.5, 22.0, 22.5, 23.0, 23.5, 
                                       24.0, 24.5, 25.0, 25.5, 26.0, 26.5, 27.0, 27.5, 28.0, 28,5, 29.0, 29.5, 30.0]), 
         #vol.Optional("battery_power"): cv.boolean,
-        vol.Optional("aux_heater"): cv.boolean,
-        vol.Optional("spin"): vol.All(cv.string, vol.Match(r"^[0-9]{4}$"))
+        #vol.Optional("aux_heater"): cv.boolean,
+        #vol.Optional("spin"): vol.All(cv.string, vol.Match(r"^[0-9]{4}$"))
     }
 )
 SERVICE_SET_PHEATER_DURATION_SCHEMA = vol.Schema(
@@ -340,7 +365,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
                     peakstart = service_call.data.get("off_peak_start").strftime("%H:%M")
                 except:
                     if re.match('^[0-9]{2}:[0-9]{2}$', service_call.data.get("off_peak_start", "")):
-                        time = service_call.data.get("off_peak_start", "00:00")
+                        peakstart = service_call.data.get("off_peak_start", "00:00")
                     else:
                         raise SeatInvalidRequestException(f"Invalid value for off peak start hours: {service_call.data.get('off_peak_start')}")
             if service_call.data.get("off_peak_end", False):
@@ -348,7 +373,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
                     peakend = service_call.data.get("off_peak_end").strftime("%H:%M")
                 except:
                     if re.match('^[0-9]{2}:[0-9]{2}$', service_call.data.get("off_peak_end", "")):
-                        time = service_call.data.get("off_peak_end", "00:00")
+                        peakend = service_call.data.get("off_peak_end", "00:00")
                     else:
                         raise SeatInvalidRequestException(f"Invalid value for off peak end hours: {service_call.data.get('off_peak_end')}")
 
@@ -363,12 +388,12 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
             }
             # Set optional values
             # Night rate
-            if service_call.data.get("climatisation", None) is not None:
-                schedule["nightRateActive"] = service_call.data.get("climatisation")
+            if service_call.data.get("off_peak_active", None) is not None:
+                schedule["nightRateActive"] = service_call.data.get("off_peak_active")
             if service_call.data.get("off_peak_start", None) is not None:
-                schedule["nightRateTimeStart"] = service_call.data.get("off_peak_start")
+                schedule["nightRateStart"] = peakstart
             if service_call.data.get("off_peak_end", None) is not None:
-                schedule["nightRateTimeEnd"] = service_call.data.get("off_peak_end")
+                schedule["nightRateEnd"] = peakend
             # Climatisation and charging options
             if service_call.data.get("climatisation", None) is not None:
                 schedule["operationClimatisation"] = service_call.data.get("climatisation")
@@ -432,6 +457,86 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
                 _LOGGER.warning(f"Failed to execute service call 'set_departure_profile_schedule' with data '{service_call}'")
         except (SeatInvalidRequestException) as e:
             _LOGGER.warning(f"Service call 'set_departure_profile_schedule' failed {e}")
+        except Exception as e:
+            raise
+
+    async def set_climatisation_timer_schedule(service_call=None):
+        """Set climatisation timer schedule."""
+        try:
+            # Prepare data
+            id = service_call.data.get("id", 0)
+            temp = None
+
+            # Convert datetime objects to simple strings or check that strings are correctly formatted
+            try:
+                time = service_call.data.get("time").strftime("%H:%M")
+            except:
+                if re.match('^[0-9]{2}:[0-9]{2}$', service_call.data.get('time', '')):
+                    time = service_call.data.get("time", "08:00")
+                else:
+                    raise SeatInvalidRequestException(f"Invalid time string: {service_call.data.get('time')}")
+
+            # Convert to parseable data
+            schedule = {
+                "id": service_call.data.get("id", 1),
+                "enabled": service_call.data.get("enabled"),
+                "recurring": service_call.data.get("recurring"),
+                "date": service_call.data.get("date"),
+                "time": time,
+                "days": service_call.data.get("days", "nnnnnnn"),
+            }
+            #spin = service_call.data.get('spin', None)
+
+            # Find the correct car and execute service call
+            car = await get_car(service_call)
+            _LOGGER.info(f'Set climatisation timer schedule {id} with data {schedule} for car {car.vin}')
+            if await car.set_climatisation_timer_schedule(id, schedule) is True:
+                _LOGGER.debug(f"Service call 'set_climatisation_timer_schedule' executed without error")
+                await coordinator.async_request_refresh()
+            else:
+                _LOGGER.warning(f"Failed to execute service call 'set_climatisation_timer_schedule' with data '{service_call}'")
+        except (SeatInvalidRequestException) as e:
+            _LOGGER.warning(f"Service call 'set_climatisation_timer_schedule' failed {e}")
+        except Exception as e:
+            raise
+
+    async def set_auxiliary_heating_timer_schedule(service_call=None):
+        """Set auxiliary heating timer schedule."""
+        try:
+            # Prepare data
+            id = service_call.data.get("id", 0)
+            temp = None
+
+            # Convert datetime objects to simple strings or check that strings are correctly formatted
+            try:
+                time = service_call.data.get("time").strftime("%H:%M")
+            except:
+                if re.match('^[0-9]{2}:[0-9]{2}$', service_call.data.get('time', '')):
+                    time = service_call.data.get("time", "08:00")
+                else:
+                    raise SeatInvalidRequestException(f"Invalid time string: {service_call.data.get('time')}")
+
+            # Convert to parseable data
+            schedule = {
+                "id": service_call.data.get("id", 1),
+                "enabled": service_call.data.get("enabled"),
+                "recurring": service_call.data.get("recurring"),
+                "date": service_call.data.get("date"),
+                "time": time,
+                "days": service_call.data.get("days", "nnnnnnn"),
+            }
+            spin = service_call.data.get('spin', None)
+
+            # Find the correct car and execute service call
+            car = await get_car(service_call)
+            _LOGGER.info(f'Set auxiliary heating timer schedule {id} with data {schedule} for car {car.vin}')
+            if await car.set_auxiliary_heating_timer_schedule(id, schedule, spin) is True:
+                _LOGGER.debug(f"Service call 'set_auxiliary_heating_timer_schedule' executed without error")
+                await coordinator.async_request_refresh()
+            else:
+                _LOGGER.warning(f"Failed to execute service call 'set_auxiliary_heating_timer_schedule' with data '{service_call}'")
+        except (SeatInvalidRequestException) as e:
+            _LOGGER.warning(f"Service call 'set_auxiliary_heating_timer_schedule' failed {e}")
         except Exception as e:
             raise
 
@@ -549,15 +654,20 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
                 if service_call.data.get('enabled', None)=='Set Temp.':
                     action = 'settings'
                 elif service_call.data.get('enabled', None)=='Start':
-                    action = 'auxiliary' if service_call.data.get('aux_heater', False) else 'electric'
+                    action = 'electric'
+                elif service_call.data.get('enabled', None)=='Auxiliary Start':
+                    action = 'auxiliary_start'
+                elif service_call.data.get('enabled', None)=='Auxiliary Stop':
+                    action = 'auxiliary_stop'
                 else:
                     action = 'off'
                     #temp = hvpower = spin = None
                 #hvpower = service_call.data.get('battery_power', None)
-                spin = service_call.data.get('spin', None)
+                #spin = service_call.data.get('spin', None)
 
                 # Execute service call
-                _LOGGER.debug(f"Action 'set_climater' with the following parameters: action={action}, temp={temp} and spin={spin}.")
+                _LOGGER.debug(f"Action 'set_climater' with the following parameters: action={action} and temp={temp}.")
+                #_LOGGER.debug(f"Action 'set_climater' with the following parameters: action={action}, temp={temp} and spin={spin}.")
                 if action=='settings':
                     if temp!=None:
                         if await car.set_climatisation_temp(temp) is True:
@@ -568,7 +678,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
                     else:
                         _LOGGER.warning(f"Failed to execute service call 'set_climater' because temperature parameter not set.'")
                 else:
-                    if await car.set_climatisation(action, temp, hvpower=None, spin=spin) is True:
+                    if await car.set_climatisation(action, temp, hvpower=None) is True:
                         _LOGGER.debug(f"Service call 'set_climater' executed without error")
                         await coordinator.async_request_refresh()
                     else:
@@ -592,6 +702,18 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
         SERVICE_SET_DEPARTURE_PROFILE_SCHEDULE,
         set_departure_profile_schedule,
         schema = SERVICE_SET_DEPARTURE_PROFILE_SCHEDULE_SCHEMA
+    )
+    hass.services.async_register(
+        DOMAIN,
+        SERVICE_SET_CLIMATISATION_TIMER_SCHEDULE,
+        set_climatisation_timer_schedule,
+        schema = SERVICE_SET_CLIMATISATION_TIMER_SCHEDULE_SCHEMA
+    )
+    hass.services.async_register(
+        DOMAIN,
+        SERVICE_SET_AUXILIARY_HEATING_TIMER_SCHEDULE,
+        set_auxiliary_heating_timer_schedule,
+        schema = SERVICE_SET_AUXILIARY_HEATING_TIMER_SCHEDULE_SCHEMA
     )
     hass.services.async_register(
         DOMAIN,
@@ -675,6 +797,8 @@ async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     hass.services.async_remove(DOMAIN, SERVICE_SET_CLIMATER)
     hass.services.async_remove(DOMAIN, SERVICE_SET_PHEATER_DURATION)
     hass.services.async_remove(DOMAIN, SERVICE_SET_DEPARTURE_PROFILE_SCHEDULE)
+    hass.services.async_remove(DOMAIN, SERVICE_SET_CLIMATISATION_TIMER_SCHEDULE)
+    hass.services.async_remove(DOMAIN, SERVICE_SET_AUXILIARY_HEATING_TIMER_SCHEDULE)
     hass.services.async_remove(DOMAIN, SERVICE_SEND_DESTINATION)
 
     _LOGGER.debug("Unloading update listener")

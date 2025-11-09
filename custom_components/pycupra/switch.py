@@ -34,7 +34,8 @@ async def async_setup_entry(hass, entry, async_add_devices):
         for instrument in data.instruments:
             if instrument.component == "switch" and instrument.attr in resources:
                 #_LOGGER.debug(f"In switch.py.async_setup_entry. Instrument: {instrument.attr}")
-                if instrument.attr in ('departure1','departure2','departure3','departure_profile1','departure_profile2','departure_profile3', 'request_flash', 'request_honkandflash'):
+                if instrument.attr in ('departure1','departure2','departure3','departure_profile1','departure_profile2','departure_profile3', 
+                                       'climatisation_timer1', 'climatisation_timer2', 'climatisation_timer3', 'request_flash', 'request_honkandflash'):
                     _LOGGER.debug(f"Instrument {instrument.attr} added without callback")
                     newDevices.append(PyCupraSwitch(data, instrument.vehicle_name, instrument.component, instrument.attr))
                 else:

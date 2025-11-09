@@ -1,7 +1,7 @@
 # PyCupra - A Home Assistant custom component using the pycupra library to add integration for your Cupra or Seat car 
 
-## This is fork of [Farfar/homeassistant-seatconnect](https://github.com/Farfar/homeassistant-seatconnect) modified to support new API of Cupra and Seat
-## This is fork of [lendy007/homeassistant-skodaconnect](https://github.com/lendy007/homeassistant-skodaconnect) modified to support Seat
+## This is based on [Farfar/homeassistant-seatconnect](https://github.com/Farfar/homeassistant-seatconnect) modified to support new API of Cupra and Seat
+## [Farfar/homeassistant-seatconnect] is based on [lendy007/homeassistant-skodaconnect](https://github.com/lendy007/homeassistant-skodaconnect) modified to support Seat
 This integration for Home Assistant will fetch data from My Cupra/My Seat servers related to your Cupra or Seat car.
 PyCupra never fetches data directly from car, the car sends updated data to My Cupra/My Seat servers on specific events such as lock/unlock, charging events, climatisation events and when vehicle is parked. The integration will then fetch this data from the servers.
 When vehicle actions fails or return with no response, a force refresh might help. This will trigger a "wake up" call from VAG servers to the car.
@@ -12,28 +12,31 @@ This integration will only work for your car if you have MyCupra/MySeat function
 
 The car privacy settings must be set to "Share my position" for full functionality of this integration. Without this setting, if set to "Use my position", the sensors for position (device tracker), requests remaining and parking time might not work reliably or at all. Set to even stricter privacy setting will limit functionality even further.
 
-### What should work (please report if not)
+### What should work, as long as your car supports it (please report if you see something in the app, that you are missing in PyCupra)
 - Automatic discovery of enabled functions (API endpoints) based on the (enabled) capabilities of the vehicle
 - Charging cable connected
 - Charging cable locked
-- Charging state
+- Charging state, charging power, charging rate and charging time left
 - Battery level
 - Electric range
 - Start/stop charging
 - Change charge current (maximum or reduced, current in Ampere for some fully electric models)
 - Change target state of charge
 - Odometer and service info
+- Engine status
 - Fuel level, combustion range, combined range, adblue level
 - Lock, windows, trunk, hood, sunroof and door status
 - Lock and unlock car
 - Last trip info and last cycle info (for cars with combustion engine 'last cycle' means 'since refuel')
-- Start/stop Electric climatisation, window_heater and information
-- Start/stop auxiliary climatisation for PHEV cars (untested)
-- Show and set departure timers and departure profiles respectively (until now, set schedule for departure profiles not tested)
+- Information about status and settings of climatisation and auxiliary heating
+- Start/stop Electric climatisation, window_heater
+- Start/stop auxiliary heating
+- Show, enable/disable and set departure timers, departure profiles and climatisation timers (incl. those for auxiliary heating), respectively (until now, set schedule for departure profiles not tested)
 - Position (gps coordinates) and device tracker (showing if the position is lying in one of the zone defined in HA)
 - Area Alarm (shows area alarm notifications, if area alarms have been defined and activated in the app; only works with 'Use push notifications' enabled)
-- Trigger data refresh - this will trigger a wake up call so the car sends new data
-- Model images (downloaded in www folder; the image url string is to long for home assistant)
+- Request wakeup vehicle - this will trigger a wake up call, so the car sends new data and PyCupra reads them (available as switch and as button entity; use what you prefer)
+- Request full update - this will trigger, that nearly all vehicle data are reread from the portal (available as switch and as button entity; use what you prefer)
+- Model images (downloaded in www/pycupra folder; the image url string is to long for home assistant)
 - Send a navigation destination to vehicle
 
 ### How to use the area alarms
@@ -44,13 +47,15 @@ The binary sensor is reset after 900 seconds.
 You can use the area alarm sensor as trigger for automations e.g. to turn on the light in front of your garage when your car is nearly at home. 
 
 ### How to use the model images
-The model images of the vehicle are downloaded from the Cupra/Seat cloud and stored in the www folder. The names of the model image files are:
-- image_front.png
-- image_rear.png
-- image_side.png
-- image_top.png
+The model images of the vehicle are downloaded from the Cupra/Seat cloud and stored in the www/pycupra folder. The names of the model image files are:
+- image_{your_VIN}_front.png
+- image_{your_VIN}_rear.png
+- image_{your_VIN}_side.png
+- image_{your_VIN}_top.png
+- image_{your_VIN}_rbcFront.png
+- image_{your_VIN}_rbcCable.png
 
-You can use these image files for your HA dashboard (e.g. as image for a picture card). Just add the prefix '/local/' to the file name above and use this as the *image path*. A cropped image of the front view is used as the icon of the vehicle on the Home Assistant map
+You can use these image files for your HA dashboard (e.g. as image for a picture card). Just add the prefix '/local/pycupra' to the file name above and use this as the *image path*. A cropped image of the front view is used as the icon of the vehicle on the Home Assistant map
 
 ## Installation
 
@@ -72,7 +77,7 @@ Setup multiple vehicles by adding the integration multiple times. (Not tested ye
 The MyCupra/MySeat portal has a per day limitation for the API calls (about 1.500 request per day, including the calls from the MyCupra/MySeat app and other systems that read from the API). If you go above this limit, PyCupra will get not data updates from the API until the portal resets the limit counter at about 02:00 a.m. So the task is to find a good compromise between up-to-date data in HA and the number of API calls.
 As some data of your vehicle change faster or more often than others, the reading API calls in PyCupra are divided in three buckets:
 - Bucket 1: status of doors and windows, range information and status of charging and climatisation. This bucket uses the INTERVAL setting (poll frequency) described in the configuration options section below. 
-- Bucket 2: everything that is not in the buckets 1 or 3 (e.g. mileage, parking position, full charging climatisation information, departure timers/profile). This bucket is updated about every 20 minutes. (An update for the data in bucket 2 is done, when HA initiates an update (of bucket 1) and the last update of bucket 2 is more than 1100 seconds ago.)
+- Bucket 2: everything that is not in the buckets 1 or 3 (e.g. mileage, parking position, full charging climatisation information, departure timers/profile, climatisation timers). This bucket is updated about every 20 minutes. (An update for the data in bucket 2 is done, when HA initiates an update (of bucket 1) and the last update of bucket 2 is more than 1100 seconds ago.)
 - Bucket 3: the model images. This bucket is updated only every 2 hours. 
 
 You can initiate an update of all data in the buckets 1 and 2 by activating the switch "Request full update".
@@ -112,6 +117,7 @@ logger:
     custom_components.pycupra.switch: debug
     custom_components.pycupra.binary_sensor: debug
     custom_components.pycupra.sensor: debug
+    custom_components.pycupra.button: debug
  ```
 * **pycupra.connection:** Set the debug level for the Connection class of the PyCupra library. This handles the GET/SET requests towards the API
 

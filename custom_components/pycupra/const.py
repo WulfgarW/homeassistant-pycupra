@@ -21,6 +21,8 @@ CONF_FIREBASE = "use_push_notifications"
 # Service definitions
 SERVICE_SET_SCHEDULE = "set_departure_schedule"
 SERVICE_SET_DEPARTURE_PROFILE_SCHEDULE = "set_departure_profile_schedule"
+SERVICE_SET_CLIMATISATION_TIMER_SCHEDULE = "set_climatisation_timer_schedule"
+SERVICE_SET_AUXILIARY_HEATING_TIMER_SCHEDULE = "set_auxiliary_heating_timer_schedule"
 SERVICE_SET_MAX_CURRENT = "set_charger_max_current"
 SERVICE_SET_TARGET_SOC = "set_charger_target_soc"
 SERVICE_SEND_DESTINATION = "send_destination"
@@ -49,5 +51,6 @@ PLATFORMS = {
     "lock": "lock",
     "device_tracker": "device_tracker",
     "switch": "switch",
+    "button": "button",
     "climate": "climate",
 }

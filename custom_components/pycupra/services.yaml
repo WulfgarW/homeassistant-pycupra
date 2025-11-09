@@ -112,6 +112,8 @@ set_climater:
             - Start
             - Stop
             - Set Temp.
+            - Auxiliary Start
+            - Auxiliary Stop
     temp:
       name: Target temperature
       description: The target temperature for climatisation (unselect to use vehicles stored setting)
@@ -123,22 +125,22 @@ set_climater:
           max: 30
           step: 0.5
           unit_of_measurement: °C
-    aux_heater:
-      name: Auxiliary heater
-      description: >
-        Use the auxiliary heater for climatisation (disable to use electric), requires S-PIN
-      advanced: true
-      example: false
-      selector:
-        boolean:
-    spin:
-      name: S-PIN
-      description: >
-        The S-PIN for the vehicle
-      advanced: true
-      example: 1234
-      selector:
-        text:
+    #aux_heater:
+    #  name: Auxiliary heater
+    #  description: >
+    #    Use the auxiliary heater for climatisation (disable to use electric), requires S-PIN
+    #  advanced: true
+    #  example: false
+    #  selector:
+    #    boolean:
+    #spin:
+    #  name: S-PIN
+    #  description: >
+    #    The S-PIN for the vehicle
+    #  advanced: true
+    #  example: 1234
+    #  selector:
+    #    text:
 set_departure_schedule:
   name: Set departure schedule
   description: >
@@ -258,6 +260,133 @@ set_departure_schedule:
       example: "06:00"
       selector:
         text:
+set_auxiliary_heating_timer_schedule:
+  name: Set auxiliary heating timer schedule
+  description: >
+    Set the schedule for one of the climatisation timers for auxiliary heating.
+  fields:
+    device_id:
+      name: Vehicle
+      description: "[Required] The vehicle to set climatisation timer schedule for."
+      required: true
+      selector:
+        device:
+          integration: pycupra
+    id:
+      name: ID
+      description: "[Required] Which climatisation timer to change."
+      required: true
+      example: "1"
+      selector:
+        number:
+          min: 1
+          max: 3
+          mode: slider
+    time:
+      name: Time
+      description: "[Required] The time for departure, 24h HH:MM."
+      required: true
+      example: "17:00"
+      selector:
+        text:
+    enabled:
+      name: Activated
+      description: "[Required] If the climatisation timer should be activated."
+      required: true
+      example: true
+      selector:
+        boolean:
+    recurring:
+      name: Recurring schedule
+      description: "[Required] Whether the schedule should be recurring or one off."
+      required: true
+      example: false
+      selector:
+        boolean:
+    date:
+      name: Date
+      description: "The date for departure (required for single schedule, not recurring)."
+      example: "2021-06-31"
+      selector:
+        text:
+    days:
+      name: Days
+      description: "Weekday mask for recurring schedule, mon-sun - (required for recurring schedule, not single)."
+      example: "yyynnnn"
+      selector:
+        text:
+    spin:
+      name: S-PIN
+      description: >
+        The S-PIN for the vehicle
+      required: true
+      advanced: true
+      example: 1234
+      selector:
+        text:
+set_climatisation_timer_schedule:
+  name: Set climatisation timer schedule
+  description: >
+    Set the schedule for one of the climatisation timers.
+  fields:
+    device_id:
+      name: Vehicle
+      description: "[Required] The vehicle to set climatisation timer schedule for."
+      required: true
+      selector:
+        device:
+          integration: pycupra
+    id:
+      name: ID
+      description: "[Required] Which climatisation timer to change."
+      required: true
+      example: "1"
+      selector:
+        number:
+          min: 1
+          max: 3
+          mode: slider
+    time:
+      name: Time
+      description: "[Required] The time for departure, 24h HH:MM."
+      required: true
+      example: "17:00"
+      selector:
+        text:
+    enabled:
+      name: Activated
+      description: "[Required] If the climatisation timer should be activated."
+      required: true
+      example: true
+      selector:
+        boolean:
+    recurring:
+      name: Recurring schedule
+      description: "[Required] Whether the schedule should be recurring or one off."
+      required: true
+      example: false
+      selector:
+        boolean:
+    date:
+      name: Date
+      description: "The date for departure (required for single schedule, not recurring)."
+      example: "2021-06-31"
+      selector:
+        text:
+    days:
+      name: Days
+      description: "Weekday mask for recurring schedule, mon-sun - (required for recurring schedule, not single)."
+      example: "yyynnnn"
+      selector:
+        text:
+    #spin:
+    #  name: S-PIN
+    #  description: >
+    #    The S-PIN for the vehicle
+    #  advanced: true
+    #  example: 1234
+    #  selector:
+    #    text:
 send_destination:
   name: Send destination to vehicle
   description: >

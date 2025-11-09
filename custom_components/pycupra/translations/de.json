@@ -78,7 +78,7 @@
   "services": {
     "set_charge_limit": {
       "name": "Ladelimit setzen",
-      "description": "Setzt das obere Ladelimit.",
+      "description": "Setzt das untere Ladelimit.",
       "fields": {
         "device_id": {
           "name": "Geräte-ID",
@@ -86,7 +86,7 @@
         }, 
         "limit": {
           "name": "Ladelimit",
-          "description": "Oberes Ladelimit"
+          "description": "Unteres Ladelimit"
         }
       }
     },
@@ -225,6 +225,78 @@
         "off_peak_end": {
           "name": "Ende des Nachtstromtarifs",
           "description": "Zeitpunkt, zu dem der vergünstigte Stromtarif endet, 24h HH:MM."
+        }
+      }
+    },
+    "set_climatisation_timer_schedule": {
+      "name": "Klimatisierungszeitplan setzen",
+      "description": "Setzen von einem der Klimatisierungszeitpläne.",
+      "fields": {
+        "device_id": {
+          "name": "Geräte-ID",
+          "description": "Geräte-ID des Fahrzeugs"
+        }, 
+        "id": {
+          "name": "Klimatisierungszeitplan-ID",
+          "description": "ID des Klimatisierungszeitplans, der geändert werden soll"
+        }, 
+        "time": {
+          "name": "Zeit",
+          "description": "Gewünschte Startszeit, 24h HH:MM."
+        }, 
+        "enabled": {
+          "name": "Aktivieren",
+          "description": "Soll der Klimatisierungszeitplan aktiviert werden oder nicht?"
+        },
+        "recurring": {
+          "name": "Wiederkehrende Klimatisierungszeit",
+          "description": "Soll es sich um eine wiederkehrende Klimatisierungszeit oder eine einmalige handeln?"
+        }, 
+        "date": {
+          "name": "Datum",
+          "description": "Datum für die einmalige Klimatisierungszeit, JJJJ-MM-TT (nur erforderlich bei einmaliger Klimatisierungszeit)."
+        }, 
+        "days": {
+          "name": "Tagesmuster",
+          "description": "Wochentagsmuster für eine wiederkehrende Klimatisierungszeit, Mon-Son - (nur erforderlich für wiederkehrende Klimatisierungszeit)."
+        } 
+      }
+    },
+    "set_auxiliary_heating_timer_schedule": {
+      "name": "Klimatisierungszeitplan für Zusatzheizer setzen",
+      "description": "Setzen von einem der Klimatisierungszeitpläne für den Zusatzheizer.",
+      "fields": {
+        "device_id": {
+          "name": "Geräte-ID",
+          "description": "Geräte-ID des Fahrzeugs"
+        }, 
+        "id": {
+          "name": "Klimatisierungszeitplan-ID",
+          "description": "ID des Klimatisierungszeitplans, der geändert werden soll"
+        }, 
+        "time": {
+          "name": "Zeit",
+          "description": "Gewünschte Startszeit, 24h HH:MM."
+        }, 
+        "enabled": {
+          "name": "Aktivieren",
+          "description": "Soll der Klimatisierungszeitplan aktiviert werden oder nicht?"
+        },
+        "recurring": {
+          "name": "Wiederkehrende Klimatisierungszeit",
+          "description": "Soll es sich um eine wiederkehrende Klimatisierungszeit oder eine einmalige handeln?"
+        }, 
+        "date": {
+          "name": "Datum",
+          "description": "Datum für die einmalige Klimatisierungszeit, JJJJ-MM-TT (nur erforderlich bei einmaliger Klimatisierungszeit)."
+        }, 
+        "days": {
+          "name": "Tagesmuster",
+          "description": "Wochentagsmuster für eine wiederkehrende Klimatisierungszeit, Mon-Son - (nur erforderlich für wiederkehrende Klimatisierungszeit)."
+        }, 
+        "spin": {
+          "name": "S-Pin",
+          "description": "Sicherheits-Pin für das Fahrzeug"
         }
       }
     },

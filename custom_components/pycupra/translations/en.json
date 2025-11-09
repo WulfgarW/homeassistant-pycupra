@@ -78,7 +78,7 @@
   "services": {
     "set_charge_limit": {
       "name": "Set charge limit",
-      "description": "Is setting the upper charge limit.",
+      "description": "Is setting the lower charge limit.",
       "fields": {
         "device_id": {
           "name": "Device id",
@@ -86,7 +86,7 @@
         }, 
         "limit": {
           "name": "Charge limit",
-          "description": "Upper charge limit"
+          "description": "Lower charge limit"
         }
       }
     },
