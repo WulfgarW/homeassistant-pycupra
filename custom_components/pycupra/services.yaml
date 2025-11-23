@@ -309,21 +309,21 @@ set_auxiliary_heating_timer_schedule:
       example: "2021-06-31"
       selector:
         text:
-    days:
-      name: Days
-      description: "Weekday mask for recurring schedule, mon-sun - (required for recurring schedule, not single)."
-      example: "yyynnnn"
-      selector:
-        text:
-    spin:
-      name: S-PIN
-      description: >
-        The S-PIN for the vehicle
-      required: true
-      advanced: true
-      example: 1234
-      selector:
-        text:
+    #days:
+    #  name: Days
+    #  description: "Weekday mask for recurring schedule, mon-sun - (required for recurring schedule, not single)."
+    #  example: "yyynnnn"
+    #  selector:
+    #    text:
+    #spin:
+    #  name: S-PIN
+    #  description: >
+    #    The S-PIN for the vehicle
+    #  required: true
+    #  advanced: true
+    #  example: 1234
+    #  selector:
+    #    text:
 set_climatisation_timer_schedule:
   name: Set climatisation timer schedule
   description: >

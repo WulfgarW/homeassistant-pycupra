@@ -129,8 +129,8 @@ SERVICE_SET_AUXILIARY_HEATING_TIMER_SCHEDULE_SCHEMA = vol.Schema(
         vol.Required("enabled"): cv.boolean,
         vol.Required("recurring"): cv.boolean,
         vol.Optional("date"): cv.string,
-        vol.Optional("days"): cv.string,
-        vol.Required("spin"): vol.All(cv.string, vol.Match(r"^[0-9]{4}$"))
+        #vol.Optional("days"): cv.string,
+        #vol.Required("spin"): vol.All(cv.string, vol.Match(r"^[0-9]{4}$"))
     }
 )
 SERVICE_SET_MAX_CURRENT_SCHEMA = vol.Schema(
@@ -209,11 +209,12 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
 
     try:
         if not await coordinator.async_login():
-            await hass.config_entries.flow.async_init(
-                DOMAIN,
-                context={"source": SOURCE_REAUTH},
-                data=entry,
-            )
+            self.entry.async_start_reauth(self.hass)
+            #await hass.config_entries.flow.async_init(
+            #    DOMAIN,
+            #    context={"source": SOURCE_REAUTH},
+            #    data=entry,
+            #)
             return False
     except (SeatAuthenticationException, SeatAccountLockedException, SeatLoginFailedException) as e:
         raise ConfigEntryAuthFailed(e) from e
@@ -523,12 +524,17 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
                 "recurring": service_call.data.get("recurring"),
                 "date": service_call.data.get("date"),
                 "time": time,
-                "days": service_call.data.get("days", "nnnnnnn"),
+                "days": "yyyyyyy", # Recurring auxiliary heating timer, means all days #service_call.data.get("days", "nnnnnnn"),
             }
-            spin = service_call.data.get('spin', None)
+            #spin = service_call.data.get('spin', None)
 
             # Find the correct car and execute service call
             car = await get_car(service_call)
+            spin = car._dashboard._config.get('spin','') # Using the S-PIN that was entered when setting up the vehicle in pycupra
+            if spin=='':
+                _LOGGER.warning(f'Tried to take SPIN from PyCupra settings for car {car.vin}. But it was empty.')
+            else:
+                _LOGGER.debug(f'SPIN taken from PyCupra settings for car {car.vin}')
             _LOGGER.info(f'Set auxiliary heating timer schedule {id} with data {schedule} for car {car.vin}')
             if await car.set_auxiliary_heating_timer_schedule(id, schedule, spin) is True:
                 _LOGGER.debug(f"Service call 'set_auxiliary_heating_timer_schedule' executed without error")
@@ -678,7 +684,14 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
                     else:
                         _LOGGER.warning(f"Failed to execute service call 'set_climater' because temperature parameter not set.'")
                 else:
-                    if await car.set_climatisation(action, temp, hvpower=None) is True:
+                    spin = None
+                    if action == 'auxiliary_start':
+                        spin = car._dashboard._config.get('spin','') # Using the S-PIN that was entered when setting up the vehicle in pycupra
+                        if spin=='':
+                            _LOGGER.warning(f'Tried to take SPIN from PyCupra settings for car {car.vin}. But it was empty.')
+                        else:
+                            _LOGGER.debug(f'SPIN taken from PyCupra settings for car {car.vin}')
+                    if await car.set_climatisation(action, temp, hvpower=None, spin=spin) is True:
                         _LOGGER.debug(f"Service call 'set_climater' executed without error")
                         await coordinator.async_request_refresh()
                     else:
@@ -771,18 +784,14 @@ async def async_setup(hass: HomeAssistant, config: dict) -> bool:
 
     if DOMAIN in config:
         _LOGGER.info("Found existing PyCupra configuration.")
-        #await hass.config_entries.flow.async_init(
-        #     DOMAIN,
-        #     context={"source": SOURCE_IMPORT},
-        #     data=config[DOMAIN],
+        self.entry.async_start_reauth(self.hass)
+        #hass.async_create_task(
+        #    hass.config_entries.flow.async_init(
+        #        DOMAIN,
+        #        context={"source": SOURCE_IMPORT},
+        #        data=config[DOMAIN],
+        #    )
         #)
-        hass.async_create_task(
-            hass.config_entries.flow.async_init(
-                DOMAIN,
-                context={"source": SOURCE_IMPORT},
-                data=config[DOMAIN],
-            )
-        )
 
     return True
 
@@ -1125,7 +1134,7 @@ class PyCupraCoordinator(DataUpdateCoordinator):
         except:
             raise
 
-    async def update(self) -> Union[bool, Vehicle]:
+    async def update(self) -> Vehicle:
         """Update data from API"""
 
         # Update vehicle data
@@ -1139,11 +1148,11 @@ class PyCupraCoordinator(DataUpdateCoordinator):
             if await vehicle.update():
                 return vehicle
             else:
-                _LOGGER.warning("Could not query update from Cupra/Seat API")
-                return False
+                _LOGGER.warning("Could not query update from Cupra/Seat API. Continuing with old vehicle data")
+                return vehicle
         except Exception as error:
-            _LOGGER.warning(f"An error occured while requesting update from Cupra/Seat API: {error}")
-            return False
+            _LOGGER.warning(f"An error occured while requesting update from Cupra/Seat API: {error}. Continuing with old vehicle data")
+            return vehicle
 
     async def updateCallbackForNotifications(self, updateType=0) -> Union[bool, Vehicle]:
         """Update status from API (called for notifications)"""
