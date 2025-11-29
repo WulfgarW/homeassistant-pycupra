@@ -191,8 +191,8 @@ SERVICE_SET_PHEATER_DURATION_SCHEMA = vol.Schema(
 #PARALLEL_UPDATES = 2
 
 _LOGGER = logging.getLogger(__name__)
-TOKEN_FILE_NAME_AND_PATH='./custom_components/pycupra/pycupra_token.json'
-FIREBASE_CREDENTIALS_FILE_NAME_AND_PATH='./custom_components/pycupra/pycupra_firebase_credentials.json'
+#TOKEN_FILE_NAME_AND_PATH='./custom_components/pycupra/pycupra_token.json'
+FIREBASE_CREDENTIALS_FILE_NAME_AND_PATH='./custom_components/pycupra/pycupra_firebase_credentials_{vin}.json'
 
 async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     """Setup PyCupra component from a config entry."""
@@ -676,7 +676,8 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
                 #_LOGGER.debug(f"Action 'set_climater' with the following parameters: action={action}, temp={temp} and spin={spin}.")
                 if action=='settings':
                     if temp!=None:
-                        if await car.set_climatisation_temp(temp) is True:
+                        #if await car.set_climatisation_temp(temp) is True:
+                        if await car.set_climatisation_one_setting('targetTemperatureInCelsius', temp) is True:
                             _LOGGER.debug(f"Service call 'set_climater' executed without error")
                             await coordinator.async_request_refresh()
                         else:
@@ -1120,7 +1121,8 @@ class PyCupraCoordinator(DataUpdateCoordinator):
         """Login to Cupra/Seat portal"""
         # Check if we can login
         try:
-            if await self.connection.doLogin(tokenFile=TOKEN_FILE_NAME_AND_PATH) is False:
+            #if await self.connection.doLogin(tokenFile=TOKEN_FILE_NAME_AND_PATH) is False:
+            if await self.connection.doLogin() is False:
                 _LOGGER.warning(
                     "Could not login to Cupra/Seat portal, please check your credentials and verify that the service is working"
                 )

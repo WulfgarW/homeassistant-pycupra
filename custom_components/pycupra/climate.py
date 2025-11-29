@@ -5,22 +5,19 @@ import logging
 
 from homeassistant.components.climate import ClimateEntity
 from homeassistant.components.climate.const import (
-    HVAC_MODE_COOL,
-    HVAC_MODE_HEAT,
-    HVAC_MODE_OFF,
-    SUPPORT_TARGET_TEMPERATURE,
+    HVAC_MODES,
+    ClimateEntityFeature,
+    HVACMode,
 )
 from homeassistant.const import (
     ATTR_TEMPERATURE,
     STATE_UNKNOWN,
-    TEMP_CELSIUS,
-    TEMP_FAHRENHEIT,
+    UnitOfTemperature,
     CONF_RESOURCES
 )
 
-SUPPORT_HVAC = [HVAC_MODE_COOL, HVAC_MODE_HEAT, HVAC_MODE_OFF]
 
-from . import DATA, DATA_KEY, DOMAIN, PyCupraEntity
+from . import DATA, DATA_KEY, DOMAIN, PyCupraEntity, UPDATE_CALLBACK
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -61,7 +58,7 @@ class PyCupraClimate(PyCupraEntity, ClimateEntity):
     @property
     def supported_features(self):
         """Return the list of supported features."""
-        return SUPPORT_TARGET_TEMPERATURE
+        return ClimateEntityFeature.TARGET_TEMPERATURE
 
     @property
     def hvac_mode(self):
@@ -69,25 +66,27 @@ class PyCupraClimate(PyCupraEntity, ClimateEntity):
         Need to be one of HVAC_MODE_*.
         """
         if not self.instrument.hvac_mode:
-            return HVAC_MODE_OFF
+            return HVACMode.OFF
+        return HVACMode.HEAT_COOL
 
         hvac_modes = {
-            "HEATING": HVAC_MODE_HEAT,
-            "COOLING": HVAC_MODE_COOL,
+            "HEAT_COOL": HVACMode.HEAT_COOL,
+            #"HEATING": HVAC_MODE_HEAT,
+            #"COOLING": HVAC_MODE_COOL,
         }
-        return hvac_modes.get(self.instrument.hvac_mode, HVAC_MODE_OFF)
+        return hvac_modes.get(self.instrument.hvac_mode, HVACMode.OFF)
 
     @property
     def hvac_modes(self):
         """Return the list of available hvac operation modes.
         Need to be a subset of HVAC_MODES.
         """
-        return SUPPORT_HVAC
+        return [HVACMode.OFF, HVACMode.HEAT_COOL] #HVAC_MODES
 
     @property
     def temperature_unit(self):
         """Return the unit of measurement."""
-        return TEMP_CELSIUS
+        return UnitOfTemperature.CELSIUS
 
     @property
     def target_temperature(self):
@@ -102,10 +101,13 @@ class PyCupraClimate(PyCupraEntity, ClimateEntity):
         temperature = kwargs.get(ATTR_TEMPERATURE)
         if temperature:
             await self.instrument.set_temperature(temperature)
+            self.async_write_ha_state()
 
     async def async_set_hvac_mode(self, hvac_mode):
         """Set new target hvac mode."""
-        if hvac_mode == HVAC_MODE_OFF:
+        if hvac_mode == HVACMode.OFF:
             await self.instrument.set_hvac_mode(False)
-        elif hvac_mode == HVAC_MODE_HEAT:
+            self.async_write_ha_state()
+        elif hvac_mode == HVACMode.HEAT_COOL:
             await self.instrument.set_hvac_mode(True)
+            self.async_write_ha_state()

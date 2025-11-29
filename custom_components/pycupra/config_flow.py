@@ -35,7 +35,7 @@ from .const import (
 )
 
 _LOGGER = logging.getLogger(__name__)
-TOKEN_FILE_NAME_AND_PATH='./custom_components/pycupra/cupra_token.json'
+#TOKEN_FILE_NAME_AND_PATH='./custom_components/pycupra/cupra_token.json'
 
 
 class PyCupraConnectConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
@@ -106,7 +106,8 @@ class PyCupraConnectConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
     # noinspection PyBroadException
     async def _async_task_login(self):
         try:
-            result = await self._connection.doLogin(tokenFile=TOKEN_FILE_NAME_AND_PATH)
+            #result = await self._connection.doLogin(tokenFile=TOKEN_FILE_NAME_AND_PATH)
+            result = await self._connection.doLogin()
         except Exception as e:
             _LOGGER.error(f"Login failed with error: {e}")
             self._errors["base"] = "cannot_connect"
@@ -284,7 +285,8 @@ class PyCupraConnectConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
 
             # noinspection PyBroadException
             try:
-                if not await self._connection.doLogin(tokenFile=TOKEN_FILE_NAME_AND_PATH):
+                #if not await self._connection.doLogin(tokenFile=TOKEN_FILE_NAME_AND_PATH):
+                if not await self._connection.doLogin():
                     _LOGGER.debug("Unable to login to Cupra/Seat portal. Need to accept a new EULA/T&C? Try logging in to the portal: https://my.seat/portal/")
                     errors["base"] = "cannot_connect"
                 else:
@@ -383,7 +385,8 @@ class PyCupraConnectConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
             nightlyUpdateReduction=False,
         )
         try:
-            await self._connection.doLogin(tokenFile=TOKEN_FILE_NAME_AND_PATH)
+            #await self._connection.doLogin(tokenFile=TOKEN_FILE_NAME_AND_PATH)
+            await self._connection.doLogin()
             await self._connection.get_vehicles()
         except:
             raise
