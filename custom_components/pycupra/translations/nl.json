@@ -1,0 +1,174 @@
+{
+  "title": "PyCupra",
+  "config": {
+    "step": {
+      "user": {
+        "title": "PyCupra Configuratie",
+        "description": "Vul de accountgegevens van Mijn Cupra/Mijn Seat in",
+        "data": {
+          "brand": "Merk",
+          "username": "E-mail",
+          "password": "Wachtwoord"
+        }
+      },
+      "vehicle": {
+        "title": "Voertuiginstellingen",
+        "description": "Het volgende voertuig/de volgende voertuigen is/zijn gevonden. Selecteer het voertuig dat je wilt monitoren en stel de instellingen in.\n\nDe S-PIN is alleen vereist voor enkele specifieke handelingen zoals vergrendelen/ontgrendelen en acties die de verbrandingsmotorverwarming activeren.\nJe kunt dit veld leeg laten.",
+        "data": {
+          "vehicle": "VIN-nummer",
+          "spin": "S-PIN",
+          "mutable": "Sta interacties met de auto toe (acties). Vink uit om de auto alleen-lezen te maken."
+        }
+      },
+      "monitoring": {
+        "title": "Monitoringsinstellingen",
+        "description": "Specificeer aanvullende monitoringsinstellingen.",
+        "data": {
+          "resources": "Te monitoren bronnen.",
+          "convert": "Selecteer afstand-/eenheidsconversies.",
+          "scan_interval": "Pollfrequentie (seconden).",
+          "update_interval": "Pollfrequentie (seconden).",
+          "use_push_notifications": "pushmeldingen gebruiken",
+          "nightly_update_reduction": "Nachtelijke reductie van de pollfrequentie (tussen 22:00 en 05:00).",
+          "debug": "Volledige API-debuglogging (vereist dat debuglogging is ingeschakeld in configuration.yaml)"
+        }
+      },
+      "reauth_confirm": {
+        "description": "Her-authenticeer met je My Cupra/My Seat account.\nZorg ervoor dat je eventuele nieuwe EULA accepteert in het My Cupra-portaal (https://cupraofficial.de) voordat je doorgaat.",
+        "data": {
+          "brand": "Merk",
+          "username": "E-mail",
+          "password": "Wachtwoord"
+        }
+      }
+    },
+    "abort": {
+      "already_configured": "Auto met dit VIN is al geconfigureerd",
+      "reauth_successful": "Her-authenticatie was succesvol"
+    },
+    "error": {
+      "cannot_connect": "Kon niet inloggen bij My Cupra, controleer je inloggegevens en verifieer dat de service werkt",
+      "cannot_update": "Kon geen update ophalen van My Cupra/My Seat",
+      "unknown": "[%key:common::config_flow::error::unknown%]"
+    },
+    "progress": {
+      "task_login": "Inloggen bij My Cupra/My Seat",
+      "task_update": "Voertuigen ophalen"
+    }
+  },
+  "options": {
+    "step": {
+      "user": {
+        "title": "Opties voor PyCupra",
+        "description": "Instellingen configureren",
+        "data": {
+          "scan_interval": "Pollfrequentie (seconden).",
+          "update_interval": "Pollfrequentie (seconden).",
+          "use_push_notifications": "pushmeldingen gebruiken",
+          "nightly_update_reduction": "Nachtelijke reductie van de pollfrequentie (tussen 22:00 en 05:00).",
+          "spin": "S-PIN",
+          "mutable": "Sta interacties met de auto toe (acties). Vink uit om de auto alleen-lezen te maken.",
+          "convert": "Selecteer afstand-/eenheidsconversies.",
+          "resources": "Te monitoren bronnen.",
+          "debug": "Volledige API-debuglogging (vereist dat debuglogging is ingeschakeld in configuration.yaml)"
+        }
+      }
+    }
+  },
+  "services": {
+    "set_charge_limit": {
+      "name": "Stel laadlimiet in",
+      "description": "Stelt de onderste laadlimiet in.",
+      "fields": {
+        "device_id": {
+          "name": "Apparaat-ID",
+          "description": "Apparaat-ID van het voertuig"
+        }, 
+        "limit": {
+          "name": "Laadlimiet",
+          "description": "Onderste laadlimiet"
+        }
+      }
+    },
+    "set_charger_max_current": {
+      "name": "Stel maximale laadstroom in",
+      "description": "Stelt de maximale laadstroom in.",
+      "fields": {
+        "device_id": {
+          "name": "Apparaat-ID",
+          "description": "Apparaat-ID van het voertuig"
+        }, 
+        "current": {
+          "name": "Stroom",
+          "description": "Maximale laadstroom. Tekst (Maximum of Reduced/Minimum) of geheel getal 1-255 (1-32 = Ampère, 252 = Reduced, 254 = Maximum)"
+        }
+      }
+    },
+    "set_departure_schedule": {
+      "name": "Stel vertrekschema in",
+      "description": "Stelt een van de vertrektimers in.",
+      "fields": {
+        "device_id": {
+          "name": "Apparaat-ID",
+          "description": "Apparaat-ID van het voertuig"
+        }, 
+        "id": {
+          "name": "ID van de vertrektimer",
+          "description": "ID van de vertrektimer die gewijzigd moet worden."
+        }, 
+        "time": {
+          "name": "Tijd",
+          "description": "Vertrektijd, 24u HH:MM."
+        }, 
+        "enabled": {
+          "name": "Activeren",
+          "description": "Moet de vertrektimer geactiveerd worden of niet?"
+        },
+        "recurring": {
+          "name": "Herhalend schema?",
+          "description": "Moet de vertrektimer voor een enkele datum of herhalend zijn?"
+        }, 
+        "date": {
+          "name": "Datum",
+          "description": "Vertrekdatum voor een enkele vertrektimer, JJJJ-MM-DD (alleen nodig voor niet-herhalende schema’s)."
+        }, 
+        "days": {
+          "name": "Dagpatroon",
+          "description": "Weekdagpatroon voor een herhalend schema, ma-zo (alleen nodig voor herhalende schema’s)."
+        }, 
+        "temp": {
+          "name": "Temperatuur",
+          "description": "Doeltemperatuur voor klimaatregeling. (Globale instelling die geldt voor alle klimaatactiviteiten)."
+        }, 
+        "climatisation": {
+          "name": "Klimaatregeling",
+          "description": "Moet klimaatregeling geactiveerd worden voor deze vertrektimer?"
+        },
+        "charging": {
+          "name": "Opladen",
+          "description": "Moet het opladen van de batterij geactiveerd worden voor deze vertrektimer?"
+        }, 
+        "charge_current": {
+          "name": "Laadstroom",
+          "description": "Maximale laadstroom voor deze vertrektimer. (1-254 of maximum/reduced)"
+        }, 
+        "charge_target": {
+          "name": "Laaddoel",
+          "description": "Laaddoel voor de vertrektimer"
+        }, 
+        "off_peak_active": {
+          "name": "Daluren actief",
+          "description": "Gebruik daluren."
+        },
+        "off_peak_start": {
+          "name": "Start van daluren",
+          "description": "Starttijd van het daltarief, 24u HH:MM."
+        },
+        "off_peak_end": {
+          "name": "Einde van daluren",
+          "description": "Eindtijd van het daltarief, 24u HH:MM."
+        }
+      }
+    }
+  }
+}
