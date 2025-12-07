@@ -27,7 +27,7 @@
           "resources": "Resources to monitor.",
           "convert": "Select distance/unit conversions.",
           "update_interval": "Poll frequency (minutes).",
-          "debug": "Full API debug logging (requires debug logging enabled in configuration.yaml)"
+          "debug": "Full API debug logging (requires debug logging enabled in configuration.yaml)",
           "log_prefix": "Short log prefix for this Pycupra instance (e.g. 1)"
         }
       },
