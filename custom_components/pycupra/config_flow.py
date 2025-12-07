@@ -28,6 +28,7 @@ from .const import (
     CONF_INSTRUMENTS,
     CONF_NIGHTLY_UPDATE_REDUCTION,
     CONF_FIREBASE,
+    CONF_LOGPREFIX,
     MIN_SCAN_INTERVAL,
     DEFAULT_SCAN_INTERVAL,
     DOMAIN,
@@ -77,6 +78,7 @@ class PyCupraConnectConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                 CONF_SPIN: None,
                 CONF_FIREBASE: False,
                 CONF_NIGHTLY_UPDATE_REDUCTION: False,
+                CONF_LOGPREFIX: None,
                 CONF_RESOURCES: []
             }
 
@@ -160,6 +162,9 @@ class PyCupraConnectConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
             self._options[CONF_FIREBASE] = user_input[CONF_FIREBASE]
             self._options[CONF_NIGHTLY_UPDATE_REDUCTION] = user_input[CONF_NIGHTLY_UPDATE_REDUCTION]
             self._options[CONF_DEBUG] = user_input[CONF_DEBUG]
+            self._options[CONF_LOGPREFIX] = user_input[CONF_LOGPREFIX]
+            if user_input[CONF_LOGPREFIX]=='':
+                self._options[CONF_LOGPREFIX] = None
 
             await self.async_set_unique_id(self._data[CONF_VEHICLE])
             self._abort_if_unique_id_configured()
@@ -201,6 +206,10 @@ class PyCupraConnectConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                         CONF_NIGHTLY_UPDATE_REDUCTION,
                         default=False
                     ): cv.boolean,
+                    vol.Optional(
+                        CONF_LOGPREFIX,
+                        default=None
+                    ): cv.string,
                     vol.Required(
                         CONF_DEBUG, default=False
                     ): cv.boolean
@@ -274,6 +283,7 @@ class PyCupraConnectConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
 
         if user_input is not None:
             _LOGGER.debug("Creating connection to My Cupra")
+            logPrefix=self.entry.options.get(CONF_LOGPREFIX, self.entry.data.get(CONF_LOGPREFIX, None))
             self._connection = Connection(
                 session=async_get_clientsession(self.hass),
                 brand=user_input[CONF_BRAND],
@@ -281,6 +291,7 @@ class PyCupraConnectConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                 password=user_input[CONF_PASSWORD],
                 fulldebug=self.entry.options.get(CONF_DEBUG, self.entry.data.get(CONF_DEBUG, DEFAULT_DEBUG)),
                 nightlyUpdateReduction=self.entry.options.get(CONF_NIGHTLY_UPDATE_REDUCTION, self.entry.data.get(CONF_NIGHTLY_UPDATE_REDUCTION, False)),
+                logPrefix=logPrefix,
             )
 
             # noinspection PyBroadException
@@ -340,6 +351,7 @@ class PyCupraConnectConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
             CONF_SPIN: None,
             CONF_FIREBASE: False,
             CONF_NIGHTLY_UPDATE_REDUCTION: False,
+            CONF_LOGPREFIX: None,
             CONF_RESOURCES: []
         }
         self._init_info = {}
@@ -383,6 +395,7 @@ class PyCupraConnectConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
             password=self._data[CONF_PASSWORD],
             fulldebug=False,
             nightlyUpdateReduction=False,
+            logPrefix=None,
         )
         try:
             #await self._connection.doLogin(tokenFile=TOKEN_FILE_NAME_AND_PATH)
@@ -462,6 +475,9 @@ class PyCupraConnectOptionsFlowHandler(config_entries.OptionsFlow):
             options[CONF_SPIN] = user_input.get(CONF_SPIN, None)
             options[CONF_MUTABLE] = user_input.get(CONF_MUTABLE, True)
             options[CONF_DEBUG] = user_input.get(CONF_DEBUG, False)
+            options[CONF_LOGPREFIX] = user_input.get(CONF_LOGPREFIX, None)
+            if user_input.get(CONF_LOGPREFIX, None)=='':
+                options[CONF_LOGPREFIX] = None
             options[CONF_RESOURCES] = user_input.get(CONF_RESOURCES, [])
             #options[CONF_CONVERT] = user_input.get(CONF_CONVERT, CONF_NO_CONVERSION)
             return self.async_create_entry(
@@ -531,6 +547,12 @@ class PyCupraConnectOptionsFlowHandler(config_entries.OptionsFlow):
                             self._config_entry.data.get(CONF_DEBUG, False)
                         )
                     ): cv.boolean,
+                    vol.Optional(
+                        CONF_LOGPREFIX,
+                        default=self._config_entry.options.get(CONF_LOGPREFIX,
+                            self._config_entry.data.get(CONF_LOGPREFIX, None)
+                        )
+                    ): cv.string,
                     vol.Optional(
                         CONF_RESOURCES,
                         default=self._config_entry.options.get(CONF_RESOURCES,

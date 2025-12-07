@@ -54,6 +54,7 @@ from .const import (
     CONF_INSTRUMENTS,
     CONF_NIGHTLY_UPDATE_REDUCTION,
     CONF_FIREBASE,
+    CONF_LOGPREFIX,
     DATA,
     DATA_KEY,
     MIN_SCAN_INTERVAL,
@@ -984,10 +985,13 @@ class PyCupraEntity(Entity):
     @property
     def icon(self):
         """Return the icon."""
-        if self.instrument.attr in ["battery_level", "charging"]:
-            return icon_for_battery_level(
-                battery_level=self.instrument.state, charging=self.vehicle.charging
-            )
+        if self.instrument.attr in ["battery_level", "charging",  "charging_state", "charging_time_left", "charging_estimated_end_time"]:
+            return icon_for_battery_level(battery_level=self.vehicle.battery_level, charging=self.vehicle.charging)
+        #if self.instrument.attr in ["climatisation_time_left", "climatisation_estimated_end_time"]:
+        #    if self.vehicle.electric_climatisation:
+        #        return "mdi:radiator"
+        #    else:
+        #        return "mdi:radiator-off"
         return self.instrument.icon
 
     @property
@@ -1068,6 +1072,8 @@ class PyCupraCoordinator(DataUpdateCoordinator):
         self.entry = entry
         self.platforms = []
         self.report_last_updated = None
+        self._logPrefix=self.entry.options.get(CONF_LOGPREFIX, self.entry.data.get(CONF_LOGPREFIX, None))
+        _LOGGER.debug(f"In PyCupraCoord.Init: logPrefix={self._logPrefix}")
         self.connection = Connection(
             session=async_get_clientsession(hass),
             brand=self.entry.data[CONF_BRAND],
@@ -1075,6 +1081,7 @@ class PyCupraCoordinator(DataUpdateCoordinator):
             password=self.entry.data[CONF_PASSWORD],
             fulldebug=self.entry.options.get(CONF_DEBUG, self.entry.data.get(CONF_DEBUG, DEFAULT_DEBUG)),
             nightlyUpdateReduction=self.entry.options.get(CONF_NIGHTLY_UPDATE_REDUCTION, self.entry.data.get(CONF_NIGHTLY_UPDATE_REDUCTION, False)),
+            logPrefix=self._logPrefix
         )
         self.firebaseWanted=self.entry.options.get(CONF_FIREBASE, self.entry.data.get(CONF_FIREBASE, False))
         super().__init__(hass, _LOGGER, name=DOMAIN, update_interval=update_interval)

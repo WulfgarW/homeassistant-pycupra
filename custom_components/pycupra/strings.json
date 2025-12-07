@@ -28,6 +28,7 @@
           "convert": "Select distance/unit conversions.",
           "update_interval": "Poll frequency (minutes).",
           "debug": "Full API debug logging (requires debug logging enabled in configuration.yaml)"
+          "log_prefix": "Short log prefix for this Pycupra instance (e.g. 1)"
         }
       },
       "reauth_confirm": {
@@ -65,6 +66,7 @@
           "convert": "Select distance/unit conversions.",
           "resources": "Resources to monitor.",
           "debug": "Full API debug logging (requires debug logging enabled in configuration.yaml)"
+          "log_prefix": "Short log prefix for this Pycupra instance (e.g. 1)"
         }
       }
     }

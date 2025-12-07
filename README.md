@@ -71,7 +71,7 @@ Configuration in configuration.yaml is now deprecated and can interfere with set
 To configure the integration, go to Configuration in the side panel of Home Assistant and then select Integrations.
 Click on the "ADD INTEGRATION" button in the bottom right corner and search/select pycupra.
 Follow the steps and enter the required information. Because of how the data is stored and handled in Home Assistant, there will be one integration per vehicle.
-Setup multiple vehicles by adding the integration multiple times. (Not tested yet!)
+Setup multiple vehicles by adding the integration multiple times. To facilitate debugging in case of multiple vehicles in PyCupra, you can define a log prefix/identifier in the configuration. E.g. 1 for the first vehicle, 2 for the second,... If you have defined a log prefix for a vehicle, the log messages of the pycupra components connection, vehicle, dashboard and firebase will contain the log prefix.
 
 ### Data update concept of PyCupra
 The MyCupra/MySeat portal has a per day limitation for the API calls (about 1.500 request per day, including the calls from the MyCupra/MySeat app and other systems that read from the API). If you go above this limit, PyCupra will get not data updates from the API until the portal resets the limit counter at about 02:00 a.m. So the task is to find a good compromise between up-to-date data in HA and the number of API calls.
@@ -128,6 +128,10 @@ logger:
 * **custom_components.pycupra:** Set debug level for the custom component. The communication between hass and library.
 
 * **custom_components.pycupra.XYZ** Sets debug level for individual entity types in the custom component.
+
+## Login problems?
+When the login of PyCupra for your vehicle fails, open cupraid.vwgroup.io / seatid.vwgroup.io in a browser and login with your credentials. Check, if there you have agreed to the terms of use, and if there are any other open consent questions. Log out and then log in again.
+After that, try pycupra again.
 
 ## Further help or contributions
 For questions, further help or contributions you can join the (V.A.G. Connected Cars) Discord server at https://discord.gg/826X9jEtCh
