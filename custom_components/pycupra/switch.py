@@ -9,7 +9,7 @@ from homeassistant.helpers.entity import ToggleEntity
 from homeassistant.helpers import config_validation as cv, entity_platform, service
 from homeassistant.const import CONF_RESOURCES
 
-from . import DATA, DATA_KEY, DOMAIN, PyCupraEntity, UPDATE_CALLBACK
+from . import DATA, DATA_KEY, DOMAIN, PyCupraEntity, UPDATE_CALLBACK, async_show_pycupra_notification
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -57,13 +57,29 @@ class PyCupraSwitch(PyCupraEntity, ToggleEntity):
     async def async_turn_on(self, **kwargs):
         """Turn the switch on."""
         _LOGGER.debug(f"Turning on switch {self.instrument.attr}")
-        await self.instrument.turn_on()
+        if self.instrument.mutable:
+            await self.instrument.turn_on()
+        else:
+            _LOGGER.warning(f"Not turning on switch {self.instrument.attr}, because the option \'mutable\' is deactivated.")
+            #raise Exception(f"Not turning on switch {self.instrument.attr}, because the option \'mutable\' is deactivated.")
+            async_show_pycupra_notification(self.hass, f"Not turning on switch {self.instrument.attr}, because the option \'mutable\' is deactivated.", title="Option mutable deactivated", id="PyCupra_mutable")
+            # Because some switches have no callback, self.coordinator.async_request_refresh() to set the switch in the UI back to its value according to PyCupra
+            if self.instrument.callback==None:
+                await self.coordinator.async_request_refresh()
         self.async_write_ha_state()
 
     async def async_turn_off(self, **kwargs):
         """Turn the switch off."""
         _LOGGER.debug(f"Turning off switch {self.instrument.attr}")
-        await self.instrument.turn_off()
+        if self.instrument.mutable:
+            await self.instrument.turn_off()
+        else:
+            _LOGGER.warning(f"Not turning off switch {self.instrument.attr}, because the option \'mutable\' is deactivated.")
+            #raise Exception(f"Not turning off switch {self.instrument.attr}, because the option \'mutable\' is deactivated.")
+            async_show_pycupra_notification(self.hass, f"Not turning off switch {self.instrument.attr}, because the option \'mutable\' is deactivated.", title="Option mutable deactivated", id="PyCupra_mutable")
+            # Because some switches have no callback, self.coordinator.async_request_refresh() to set the switch in the UI back to its value according to PyCupra
+            if self.instrument.callback==None:
+                await self.coordinator.async_request_refresh()
         self.async_write_ha_state()
 
     @property

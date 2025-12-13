@@ -208,7 +208,7 @@ class PyCupraConnectConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                     ): cv.boolean,
                     vol.Optional(
                         CONF_LOGPREFIX,
-                        default=None
+                        default='' #None
                     ): cv.string,
                     vol.Required(
                         CONF_DEBUG, default=False
@@ -237,8 +237,7 @@ class PyCupraConnectConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         if self._errors:
             return self.async_show_progress_done(next_step_id="user")
 
-        #return self.async_show_progress_done(next_step_id="vehicle")
-        self.async_update_progress(0.5)
+        #self.async_update_progress(0.5) # this function is not available before 2025.5.0
         return await self.async_step_get_vehicles()
 
     async def async_step_get_vehicles(self, user_input=None):
@@ -504,6 +503,11 @@ class PyCupraConnectOptionsFlowHandler(config_entries.OptionsFlow):
                             self._config_entry.options.get(CONF_RESOURCES, {})
                         )
 
+        defaultLogPrefix=self._config_entry.options.get(CONF_LOGPREFIX,
+            self._config_entry.data.get(CONF_LOGPREFIX, None)
+        )
+        if defaultLogPrefix==None:
+            defaultLogPrefix=''
         return self.async_show_form(
             step_id="user",
             data_schema=vol.Schema(
@@ -549,9 +553,10 @@ class PyCupraConnectOptionsFlowHandler(config_entries.OptionsFlow):
                     ): cv.boolean,
                     vol.Optional(
                         CONF_LOGPREFIX,
-                        default=self._config_entry.options.get(CONF_LOGPREFIX,
-                            self._config_entry.data.get(CONF_LOGPREFIX, None)
-                        )
+                        #default=self._config_entry.options.get(CONF_LOGPREFIX,
+                        #    self._config_entry.data.get(CONF_LOGPREFIX, None)
+                        #)
+                        default= defaultLogPrefix
                     ): cv.string,
                     vol.Optional(
                         CONF_RESOURCES,

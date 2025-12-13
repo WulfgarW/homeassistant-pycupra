@@ -29,6 +29,8 @@ from homeassistant.helpers.icon import icon_for_battery_level
 from homeassistant.helpers.update_coordinator import DataUpdateCoordinator, UpdateFailed
 from homeassistant.helpers.redact import REDACTED, async_redact_data
 
+from homeassistant.components.persistent_notification import async_create as async_pn_create, async_dismiss as async_pn_dismiss
+
 from pycupra.connection import Connection
 from pycupra.vehicle import Vehicle
 from pycupra.exceptions import (
@@ -194,6 +196,7 @@ SERVICE_SET_PHEATER_DURATION_SCHEMA = vol.Schema(
 _LOGGER = logging.getLogger(__name__)
 #TOKEN_FILE_NAME_AND_PATH='./custom_components/pycupra/pycupra_token.json'
 FIREBASE_CREDENTIALS_FILE_NAME_AND_PATH='./custom_components/pycupra/pycupra_firebase_credentials_{vin}.json'
+COUNTER_FOR_PERSISTENT_NOTIFICATIONS=0
 
 async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     """Setup PyCupra component from a config entry."""
@@ -411,6 +414,14 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
 
             # Find the correct car and execute service call
             car = await get_car(service_call)
+
+            # If option 'mutable' is deactivated, then this action shall not be performed
+            if not car._dashboard._config.get('mutable', False):
+                _LOGGER.warning(f"Not starting action 'set_schedule', because the option \'mutable\' is deactivated.")
+                #raise SeatException(f"Not starting action 'set_schedule', because the option \'mutable\' is deactivated.")
+                async_show_pycupra_notification(hass, f"Not starting action 'set_schedule', because the option 'mutable' is deactivated.", title="Option mutable deactivated", id="PyCupra_mutable")
+                return
+
             _LOGGER.info(f'Set departure schedule {id} with data {schedule} for car {car.vin}')
             if await car.set_timer_schedule(id, schedule) is True:
                 _LOGGER.debug(f"Service call 'set_schedule' executed without error")
@@ -451,6 +462,14 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
 
             # Find the correct car and execute service call
             car = await get_car(service_call)
+
+            # If option 'mutable' is deactivated, then this action shall not be performed
+            if not car._dashboard._config.get('mutable', False):
+                _LOGGER.warning(f"Not starting action 'set_departure_profile', because the option \'mutable\' is deactivated.")
+                #raise SeatException(f"Not starting action 'set_departure_profile', because the option \'mutable\' is deactivated.")
+                async_show_pycupra_notification(hass, f"Not starting action 'set_departure_profile', because the option 'mutable' is deactivated.", title="Option mutable deactivated", id="PyCupra_mutable")
+                return
+
             _LOGGER.info(f'Set departure profile schedule {id} with data {schedule} for car {car.vin}')
             if await car.set_departure_profile_schedule(id, schedule) is True:
                 _LOGGER.debug(f"Service call 'set_departure_profile_schedule' executed without error")
@@ -491,6 +510,14 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
 
             # Find the correct car and execute service call
             car = await get_car(service_call)
+
+            # If option 'mutable' is deactivated, then this action shall not be performed
+            if not car._dashboard._config.get('mutable', False):
+                _LOGGER.warning(f"Not starting action 'set_climatisation_timer', because the option \'mutable\' is deactivated.")
+                #raise SeatException(f"Not starting action 'set_climatisation_timer', because the option \'mutable\' is deactivated.")
+                async_show_pycupra_notification(hass, f"Not starting action 'set_climatisation_timer', because the option 'mutable' is deactivated.", title="Option mutable deactivated", id="PyCupra_mutable")
+                return
+
             _LOGGER.info(f'Set climatisation timer schedule {id} with data {schedule} for car {car.vin}')
             if await car.set_climatisation_timer_schedule(id, schedule) is True:
                 _LOGGER.debug(f"Service call 'set_climatisation_timer_schedule' executed without error")
@@ -531,6 +558,14 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
 
             # Find the correct car and execute service call
             car = await get_car(service_call)
+
+            # If option 'mutable' is deactivated, then this action shall not be performed
+            if not car._dashboard._config.get('mutable', False):
+                _LOGGER.warning(f"Not starting action 'set_auxiliary_heating_timer', because the option \'mutable\' is deactivated.")
+                #raise SeatException(f"Not starting action 'set_auxiliary_heating_timer', because the option \'mutable\' is deactivated.")
+                async_show_pycupra_notification(hass, f"Not starting action 'set_auxiliary_heating_timer', because the option 'mutable' is deactivated.", title="Option mutable deactivated", id="PyCupra_mutable")
+                return
+
             spin = car._dashboard._config.get('spin','') # Using the S-PIN that was entered when setting up the vehicle in pycupra
             if spin=='':
                 _LOGGER.warning(f'Tried to take SPIN from PyCupra settings for car {car.vin}. But it was empty.')
@@ -578,6 +613,13 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
 	  "stateAbbrevation": stateAbbrevation,
 	  }
 
+            # If option 'mutable' is deactivated, then this action shall not be performed
+            if not car._dashboard._config.get('mutable', False):
+                _LOGGER.warning(f"Not starting action 'send_destination', because the option \'mutable\' is deactivated.")
+                #raise SeatException(f"Not starting action 'send_destination', because the option \'mutable\' is deactivated.")
+                async_show_pycupra_notification(hass, f"Not starting action 'send_destination', because the option 'mutable' is deactivated.", title="Option mutable deactivated", id="PyCupra_mutable")
+                return
+
             _LOGGER.debug(f"destination dict= {dest}")
             if await car.send_destination(dest) is True:
                 _LOGGER.debug(f"Service call 'send_destination' executed without error")
@@ -592,6 +634,13 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
         """Set minimum charge limit."""
         try:
             car = await get_car(service_call)
+
+            # If option 'mutable' is deactivated, then this action shall not be performed
+            if not car._dashboard._config.get('mutable', False):
+                _LOGGER.warning(f"Not starting action 'set_charge_limit', because the option \'mutable\' is deactivated.")
+                #raise SeatException(f"Not starting action 'set_charge_limit', because the option \'mutable\' is deactivated.")
+                async_show_pycupra_notification(hass, f"Not starting action 'set_charge_limit', because the option 'mutable' is deactivated.", title="Option mutable deactivated", id="PyCupra_mutable")
+                return
 
             # Get charge limit and execute service call
             limit = service_call.data.get("limit", 50)
@@ -610,6 +659,13 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
         try:
             car = await get_car(service_call)
 
+            # If option 'mutable' is deactivated, then this action shall not be performed
+            if not car._dashboard._config.get('mutable', False):
+                _LOGGER.warning(f"Not starting action 'set_current', because the option \'mutable\' is deactivated.")
+                #raise SeatException(f"Not starting action 'set_current', because the option \'mutable\' is deactivated.")
+                async_show_pycupra_notification(hass, f"Not starting action 'set_current', because the option 'mutable' is deactivated.", title="Option mutable deactivated", id="PyCupra_mutable")
+                return
+
             # Get charge current and execute service call
             current = service_call.data.get('current', None)
             if await car.set_charger_current(current) is True:
@@ -627,6 +683,13 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
         try:
             car = await get_car(service_call)
 
+            # If option 'mutable' is deactivated, then this action shall not be performed
+            if not car._dashboard._config.get('mutable', False):
+                _LOGGER.warning(f"Not starting action 'set_target_soc', because the option \'mutable\' is deactivated.")
+                #raise SeatException(f"Not starting action 'set_target_soc', because the option \'mutable\' is deactivated.")
+                async_show_pycupra_notification(hass, f"Not starting action 'set_target_soc', because the option 'mutable' is deactivated.", title="Option mutable deactivated", id="PyCupra_mutable")
+                return
+
             # Get charge current and execute service call
             targetSoc = service_call.data.get('targetSoc', None)
             if await car.set_charger_target_soc(targetSoc) is True:
@@ -643,6 +706,14 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
         """Set duration for parking heater."""
         try:
             car = await get_car(service_call)
+
+            # If option 'mutable' is deactivated, then this action shall not be performed
+            if not car._dashboard._config.get('mutable', False):
+                _LOGGER.warning(f"Not starting action 'set_pheater_duration', because the option \'mutable\' is deactivated.")
+                #raise SeatException(f"Not starting action 'set_pheater_duration', because the option \'mutable\' is deactivated.")
+                async_show_pycupra_notification(hass, f"Not starting action 'set_pheater_duration', because the option 'mutable' is deactivated.", title="Option mutable deactivated", id="PyCupra_mutable")
+                return
+
             car.pheater_duration = service_call.data.get("duration", car.pheater_duration)
             _LOGGER.debug(f"Service call 'set_pheater_duration' executed without error")
             await coordinator.async_request_refresh()
@@ -655,6 +726,13 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
         """Start or stop climatisation with options."""
         try:
             car = await get_car(service_call)
+
+            # If option 'mutable' is deactivated, then this action shall not be performed
+            if not car._dashboard._config.get('mutable', False):
+                _LOGGER.warning(f"Not starting action 'set_climater', because the option \'mutable\' is deactivated.")
+                #raise SeatException(f"Not starting action 'set_climater', because the option \'mutable\' is deactivated.")
+                async_show_pycupra_notification(hass, f"Not starting action 'set_climater', because the option 'mutable' is deactivated.", title="Option mutable deactivated", id="PyCupra_mutable")
+                return
 
             temp = service_call.data.get('temp', None)
             if service_call.data.get('enabled', None):
@@ -1221,3 +1299,22 @@ class PyCupraCoordinator(DataUpdateCoordinator):
         except Exception as error:
             _LOGGER.warning(f"An error occured while requesting update for {whichInstrument.attr} from Cupra/Seat API: {error}")
             return False
+
+def async_show_pycupra_notification(hass: HomeAssistant, message, title=None, id= None):
+    """show a notification for pycupra messages"""
+    async_pn_create(hass, message, title=title, notification_id=id)
+    global COUNTER_FOR_PERSISTENT_NOTIFICATIONS
+    COUNTER_FOR_PERSISTENT_NOTIFICATIONS = COUNTER_FOR_PERSISTENT_NOTIFICATIONS +1
+    if id:
+        hass.async_create_task(
+            async_sleep_and_dismiss_pycupra_notification(hass, id, COUNTER_FOR_PERSISTENT_NOTIFICATIONS)
+        )
+
+async def async_sleep_and_dismiss_pycupra_notification(hass: HomeAssistant, id, counter):
+    """wait 2 minutes and then dismiss notification"""
+    await asyncio.sleep(120)
+    global COUNTER_FOR_PERSISTENT_NOTIFICATIONS
+    if counter==COUNTER_FOR_PERSISTENT_NOTIFICATIONS:
+        _LOGGER.debug("Dismissing open pycupra notification")
+        async_pn_dismiss(hass, notification_id=id)
+

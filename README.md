@@ -96,7 +96,7 @@ Recommendation: Activate 'nightly update reduction' and set poll frequency to 60
 
 * **S-PIN** The S-PIN for the vehicle. This is optional and is only needed for certain vehicle requests/actions (auxiliary heater, lock etc).
 
-* **Mutable** Select to allow interactions with vehicle, start climatisation etc.
+* **Mutable** Select to allow interactions with vehicle, start climatisation etc. If deactivated, all buttons, climater and switches except 'Request full update' and 'Request wakeup vehicle' do not work. They only lead to a notification message.
 
 * **Full API debug logging** Enable full debug logging. This will print the full respones from API to homeassistant.log. Only enable for troubleshooting since it will generate a lot of logs.
 

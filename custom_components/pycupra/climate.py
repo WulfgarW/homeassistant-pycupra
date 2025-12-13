@@ -17,7 +17,7 @@ from homeassistant.const import (
 )
 
 
-from . import DATA, DATA_KEY, DOMAIN, PyCupraEntity, UPDATE_CALLBACK
+from . import DATA, DATA_KEY, DOMAIN, PyCupraEntity, UPDATE_CALLBACK, async_show_pycupra_notification
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -100,14 +100,23 @@ class PyCupraClimate(PyCupraEntity, ClimateEntity):
         """Set new target temperatures."""
         temperature = kwargs.get(ATTR_TEMPERATURE)
         if temperature:
-            await self.instrument.set_temperature(temperature)
+            if self.instrument.mutable:
+                await self.instrument.set_temperature(temperature)
+            else:
+                _LOGGER.warning(f"Not changing temperature of {self.instrument.attr}, because the option \'mutable\' is deactivated.")
+                #raise Exception(f"Not changing temperature of {self.instrument.attr}, because the option \'mutable\' is deactivated.")
+                async_show_pycupra_notification(self.hass, f"Not changing temperature of {self.instrument.attr}, because the option \'mutable\' is deactivated.", title="Option mutable deactivated", id="PyCupra_mutable")
             self.async_write_ha_state()
 
     async def async_set_hvac_mode(self, hvac_mode):
         """Set new target hvac mode."""
-        if hvac_mode == HVACMode.OFF:
-            await self.instrument.set_hvac_mode(False)
-            self.async_write_ha_state()
-        elif hvac_mode == HVACMode.HEAT_COOL:
-            await self.instrument.set_hvac_mode(True)
-            self.async_write_ha_state()
+        if self.instrument.mutable:
+            if hvac_mode == HVACMode.OFF:
+                await self.instrument.set_hvac_mode(False)
+            elif hvac_mode == HVACMode.HEAT_COOL:
+                await self.instrument.set_hvac_mode(True)
+        else:
+            _LOGGER.warning(f"Not switching {self.instrument.attr}, because the option \'mutable\' is deactivated.")
+            #raise Exception(f"Not switching {self.instrument.attr}, because the option \'mutable\' is deactivated.")
+            async_show_pycupra_notification(self.hass, f"Not switching {self.instrument.attr}, because the option \'mutable\' is deactivated.", title="Option mutable deactivated", id="PyCupra_mutable")
+        self.async_write_ha_state()
