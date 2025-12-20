@@ -27,7 +27,7 @@ The car privacy settings must be set to "Share my position" for full functionali
 - Fuel level, combustion range, combined range, adblue level
 - Lock, windows, trunk, hood, sunroof and door status
 - Lock and unlock car
-- Last trip info and last cycle info (for cars with combustion engine 'last cycle' means 'since refuel')
+- Last trip info and last cycle info (last trip = summary of last day, the vehicle was used, last cycle = summary of last month, the vehicle was used)
 - Information about status and settings of climatisation and auxiliary heating
 - Start/stop Electric climatisation, window_heater
 - Start/stop auxiliary heating
@@ -108,26 +108,19 @@ For comprehensive debug logging you can add this to your `<config dir>/configura
 logger:
   default: info
   logs:
-    pycupra.connection: debug
-    pycupra.vehicle: debug
+    pycupra: debug
     custom_components.pycupra: debug
-    custom_components.pycupra.climate: debug
-    custom_components.pycupra.lock: debug
-    custom_components.pycupra.device_tracker: debug
-    custom_components.pycupra.switch: debug
-    custom_components.pycupra.binary_sensor: debug
-    custom_components.pycupra.sensor: debug
-    custom_components.pycupra.button: debug
  ```
-* **pycupra.connection:** Set the debug level for the Connection class of the PyCupra library. This handles the GET/SET requests towards the API
+* **pycupra:** Set the debug level for all components of the PyCupra library. This handles the communication towards the API and the preparation of the data received from the API as home assistant entities. 
 
-* **pycupra.vehicle:** Set the debug level for the Vehicle class of the PyCupra library. One object created for every vehicle in account and stores all data.
+* **custom_components.pycupra:** Set debug level for the custom components which handle the communication between hass and the PyCupra library.
 
-* **pycupra.dashboard:** Set the debug level for the Dashboard class of the PyCupra library. A wrapper class between hass component and library.
+You can also set the log level different for different components of PyCupra:
 
-* **custom_components.pycupra:** Set debug level for the custom component. The communication between hass and library.
+* **pycupra.XYZ:** with connection, vehicle, dashboard and firebase for XYZ 
 
-* **custom_components.pycupra.XYZ** Sets debug level for individual entity types in the custom component.
+* **custom_components.pycupra.XYZ:** with button, binary_sensor, climate, device_tracker, lock, sensor and switch for XYZ 
+
 
 ## Login problems?
 When the login of PyCupra for your vehicle fails, open cupraid.vwgroup.io / seatid.vwgroup.io in a browser and login with your credentials. Check, if there you have agreed to the terms of use, and if there are any other open consent questions. Log out and then log in again.

@@ -1151,6 +1151,9 @@ class PyCupraCoordinator(DataUpdateCoordinator):
         self.platforms = []
         self.report_last_updated = None
         self._logPrefix=self.entry.options.get(CONF_LOGPREFIX, self.entry.data.get(CONF_LOGPREFIX, None))
+        if self._logPrefix=='' or self._logPrefix==' ':
+            _LOGGER.debug(f"Config entry for logPrefix='{self._logPrefix}'. Treating it as None.")
+            self._logPrefix=None
         _LOGGER.debug(f"In PyCupraCoord.Init: logPrefix={self._logPrefix}")
         self.connection = Connection(
             session=async_get_clientsession(hass),

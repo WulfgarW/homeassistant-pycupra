@@ -163,7 +163,7 @@ class PyCupraConnectConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
             self._options[CONF_NIGHTLY_UPDATE_REDUCTION] = user_input[CONF_NIGHTLY_UPDATE_REDUCTION]
             self._options[CONF_DEBUG] = user_input[CONF_DEBUG]
             self._options[CONF_LOGPREFIX] = user_input[CONF_LOGPREFIX]
-            if user_input[CONF_LOGPREFIX]=='':
+            if user_input[CONF_LOGPREFIX]=='' or user_input[CONF_LOGPREFIX]==' ':
                 self._options[CONF_LOGPREFIX] = None
 
             await self.async_set_unique_id(self._data[CONF_VEHICLE])
@@ -283,6 +283,8 @@ class PyCupraConnectConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         if user_input is not None:
             _LOGGER.debug("Creating connection to My Cupra")
             logPrefix=self.entry.options.get(CONF_LOGPREFIX, self.entry.data.get(CONF_LOGPREFIX, None))
+            if logPrefix=='' or logPrefix==' ':
+                logPrefix=None
             self._connection = Connection(
                 session=async_get_clientsession(self.hass),
                 brand=user_input[CONF_BRAND],
@@ -475,7 +477,7 @@ class PyCupraConnectOptionsFlowHandler(config_entries.OptionsFlow):
             options[CONF_MUTABLE] = user_input.get(CONF_MUTABLE, True)
             options[CONF_DEBUG] = user_input.get(CONF_DEBUG, False)
             options[CONF_LOGPREFIX] = user_input.get(CONF_LOGPREFIX, None)
-            if user_input.get(CONF_LOGPREFIX, None)=='':
+            if user_input.get(CONF_LOGPREFIX, None)=='' or user_input.get(CONF_LOGPREFIX, None)==' ':
                 options[CONF_LOGPREFIX] = None
             options[CONF_RESOURCES] = user_input.get(CONF_RESOURCES, [])
             #options[CONF_CONVERT] = user_input.get(CONF_CONVERT, CONF_NO_CONVERSION)
