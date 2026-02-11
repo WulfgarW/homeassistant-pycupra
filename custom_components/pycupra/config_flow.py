@@ -90,6 +90,7 @@ class PyCupraConnectConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                 password=self._data[CONF_PASSWORD],
                 fulldebug=False,
                 nightlyUpdateReduction= False,
+                hass=self.hass
             )
 
             return await self.async_step_login()
@@ -293,6 +294,7 @@ class PyCupraConnectConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                 fulldebug=self.entry.options.get(CONF_DEBUG, self.entry.data.get(CONF_DEBUG, DEFAULT_DEBUG)),
                 nightlyUpdateReduction=self.entry.options.get(CONF_NIGHTLY_UPDATE_REDUCTION, self.entry.data.get(CONF_NIGHTLY_UPDATE_REDUCTION, False)),
                 logPrefix=logPrefix,
+                hass=self.hass
             )
 
             # noinspection PyBroadException
@@ -397,6 +399,7 @@ class PyCupraConnectConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
             fulldebug=False,
             nightlyUpdateReduction=False,
             logPrefix=None,
+            hass=self.hass
         )
         try:
             #await self._connection.doLogin(tokenFile=TOKEN_FILE_NAME_AND_PATH)

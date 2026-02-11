@@ -1162,7 +1162,8 @@ class PyCupraCoordinator(DataUpdateCoordinator):
             password=self.entry.data[CONF_PASSWORD],
             fulldebug=self.entry.options.get(CONF_DEBUG, self.entry.data.get(CONF_DEBUG, DEFAULT_DEBUG)),
             nightlyUpdateReduction=self.entry.options.get(CONF_NIGHTLY_UPDATE_REDUCTION, self.entry.data.get(CONF_NIGHTLY_UPDATE_REDUCTION, False)),
-            logPrefix=self._logPrefix
+            logPrefix=self._logPrefix,
+            hass=hass
         )
         self.firebaseWanted=self.entry.options.get(CONF_FIREBASE, self.entry.data.get(CONF_FIREBASE, False))
         super().__init__(hass, _LOGGER, name=DOMAIN, update_interval=update_interval)
