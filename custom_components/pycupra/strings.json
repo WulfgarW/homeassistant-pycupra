@@ -32,7 +32,7 @@
         }
       },
       "reauth_confirm": {
-        "description": "Re-authenticate with your MyCupra/MySeat account.\nMake sure to accept any new EULA in the My Cupra/My Seat portal (https://cupraofficial.de) before proceeding.",
+        "description": "Re-authenticate with your MyCupra/MySeat account.\nMake sure to accept any new EULA in the Cupra/Seat portal before proceeding.",
         "data": {
           "brand": "[%key:common::config_flow::data::brand%]",
           "email": "[%key:common::config_flow::data::email%]",

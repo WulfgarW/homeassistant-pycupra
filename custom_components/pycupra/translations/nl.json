@@ -34,7 +34,7 @@
         }
       },
       "reauth_confirm": {
-        "description": "Her-authenticeer met je My Cupra/My Seat account.\nZorg ervoor dat je eventuele nieuwe EULA accepteert in het My Cupra-portaal (https://cupraofficial.de) voordat je doorgaat.",
+        "description": "Her-authenticeer met je My Cupra/My Seat account.\nZorg ervoor dat je eventuele nieuwe EULA accepteert in het Cupra-/Seat-portaal voordat je doorgaat.",
         "data": {
           "brand": "Merk",
           "username": "E-mail",

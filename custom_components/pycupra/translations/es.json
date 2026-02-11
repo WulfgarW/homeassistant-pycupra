@@ -31,7 +31,7 @@
         }
       },
       "reauth_confirm": {
-        "description": "Vuelve a autenticarte con tu cuenta My Cupra/My Seat.\nCerciórate de aceptar cualquier nuevo EULA en el portal My Cupra/My Seat (https://cupraofficial.de) antes de proceder. ",
+        "description": "Vuelve a autenticarte con tu cuenta My Cupra/My Seat.\nCerciórate de aceptar cualquier nuevo EULA en el portal Cupra/Seat antes de proceder. ",
         "data": {
           "username": "Correo electrónico",
           "password": "Contraseña"

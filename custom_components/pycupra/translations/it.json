@@ -34,7 +34,7 @@
         }
       },
       "reauth_confirm": {
-        "description": "Ri-autenticati con il tuo account My Cupra/My Seat.\nAssicurati di aver accettato le nuove condizioni (EULA) nel portale My Cupra/My Seat (https://cupraofficial.de) prima di procedere.",
+        "description": "Ri-autenticati con il tuo account My Cupra/My Seat.\nAssicurati di aver accettato le nuove condizioni (EULA) nel portale Cupra/Seat prima di procedere.",
         "data": {
           "brand": "Marca",
           "username": "E-mail",

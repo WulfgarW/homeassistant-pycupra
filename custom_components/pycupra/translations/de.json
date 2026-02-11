@@ -34,7 +34,7 @@
         }
       },
       "reauth_confirm": {
-        "description": "Authentifiziere dich erneut mit deinem My Cupra Konto.\nStelle sicher, dass du alle neuen EULAs im My Cupra Portal (https://cupraofficial.de) akzeptierst, bevor du fortfährst.",
+        "description": "Authentifiziere dich erneut mit deinem My Cupra Konto.\nStelle sicher, dass du alle neuen EULAs im Cupra/Seat Portal akzeptierst, bevor du fortfährst.",
         "data": {
           "brand": "Marke",
           "username": "E-Mail",
