@@ -24,7 +24,7 @@ The car privacy settings must be set to "Share my position" for full functionali
 - Change target state of charge
 - Odometer and service info
 - Engine status
-- Fuel level, combustion range, combined range, adblue level
+- Fuel level, combustion range, combined range, adblue range
 - Lock, windows, trunk, hood, sunroof and door status
 - Lock and unlock car
 - Last trip info and last cycle info (last trip = summary of last day, the vehicle was used, last cycle = summary of last month, the vehicle was used)
@@ -32,8 +32,8 @@ The car privacy settings must be set to "Share my position" for full functionali
 - Start/stop Electric climatisation, window_heater
 - Start/stop auxiliary heating
 - Show, enable/disable and set departure timers, departure profiles and climatisation timers (incl. those for auxiliary heating), respectively (until now, set schedule for departure profiles not tested)
-- Position (gps coordinates) and device tracker (showing if the position is lying in one of the zone defined in HA)
-- Area Alarm (shows area alarm notifications, if area alarms have been defined and activated in the app; only works with 'Use push notifications' enabled)
+- Device tracker 'Position' (showing if the position is lying in one of the zone defined in HA; 'Unknown' if vehicle is moving) (GPS coordinates in attributes)
+- Device tracker 'Last known position' (showing if the position is lying in one of the zone defined in HA; if vehicle is moving, last known position is kept) (GPS coordinates in attributes)
 - Request wakeup vehicle - this will trigger a wake up call, so the car sends new data and PyCupra reads them (available as switch and as button entity; use what you prefer)
 - Request full update - this will trigger, that nearly all vehicle data are reread from the portal (available as switch and as button entity; use what you prefer)
 - Model images (downloaded in www/pycupra folder; the image url string is to long for home assistant)

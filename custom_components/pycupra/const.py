@@ -54,4 +54,5 @@ PLATFORMS = {
     "switch": "switch",
     "button": "button",
     "climate": "climate",
+    "number": "number",
 }
