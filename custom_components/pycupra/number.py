@@ -50,35 +50,35 @@ class PyCupraNumber(PyCupraEntity, NumberEntity):
 
     @property
     def native_min_value(self):
-        if self.instrument != None:
+        if self.instrument is not None:
             if self.instrument.min_value:
                 return self.instrument.min_value
         return 0
 
     @property
     def native_max_value(self):
-        if self.instrument != None:
+        if self.instrument is not None:
             if self.instrument.max_value:
                 return self.instrument.max_value
         return 100
 
     @property
     def native_step(self):
-        if self.instrument != None:
+        if self.instrument is not None:
             if self.instrument.step:
                 return self.instrument.step
         return 10
 
     @property
     def native_value(self):
-        if self.instrument != None:
+        if self.instrument is not None:
             if self.instrument.value:
                 return float(self.instrument.value)
         return STATE_UNKNOWN
 
     @property
     def native_unit_of_measurement(self):
-        if self.instrument != None:
+        if self.instrument is not None:
             if self.instrument.unit:
                 return self.instrument.unit
         return None

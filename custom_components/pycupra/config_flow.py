@@ -2,7 +2,7 @@ import homeassistant.helpers.config_validation as cv
 import logging
 import voluptuous as vol
 from homeassistant import config_entries
-from homeassistant.config_entries import ConfigEntry
+from homeassistant.config_entries import ConfigEntry, ConfigFlowResult
 from homeassistant.const import (
     CONF_PASSWORD,
     CONF_RESOURCES,
@@ -29,6 +29,7 @@ from .const import (
     DOMAIN,
     DEFAULT_DEBUG
 )
+from typing import Any, Mapping
 
 _LOGGER = logging.getLogger(__name__)
 #TOKEN_FILE_NAME_AND_PATH='./custom_components/pycupra/cupra_token.json'
@@ -40,11 +41,11 @@ class PyCupraConnectConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
     task_login = None
     task_finish = None
     task_get_vehicles = None
-    entry = None
+    entry : Mapping[str, Any] = {}
 
     def __init__(self):
         """Initialize."""
-        self._entry = None
+        #self._entry: Mapping[str, Any] = {}
         self._init_info = {}
         self._data = {}
         self._options = {}
@@ -159,7 +160,7 @@ class PyCupraConnectConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
             self._options[CONF_NIGHTLY_UPDATE_REDUCTION] = user_input[CONF_NIGHTLY_UPDATE_REDUCTION]
             self._options[CONF_DEBUG] = user_input[CONF_DEBUG]
             self._options[CONF_LOGPREFIX] = user_input[CONF_LOGPREFIX]
-            if user_input[CONF_LOGPREFIX]=='' or user_input[CONF_LOGPREFIX]==' ':
+            if user_input[CONF_LOGPREFIX] == '' or user_input[CONF_LOGPREFIX] == ' ':
                 self._options[CONF_LOGPREFIX] = None
 
             await self.async_set_unique_id(self._data[CONF_VEHICLE])
@@ -265,13 +266,13 @@ class PyCupraConnectConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         return self.async_show_progress_done(next_step_id="vehicle")
 
 
-    async def async_step_reauth(self, entry) -> dict:
+    async def async_step_reauth(self, entry: Mapping[str, Any]) -> ConfigFlowResult:
         """Handle initiation of re-authentication with My Cupra."""
         #_LOGGER.debug(f"In async_step_reauth. entry={entry}")
         self.entry = entry
         return await self.async_step_reauth_confirm()
 
-    async def async_step_reauth_confirm(self, user_input: dict = None) -> dict:
+    async def async_step_reauth_confirm(self, user_input: dict|None = None) -> ConfigFlowResult:
         """Handle re-authentication with My Cupra."""
         errors: dict = {}
         #_LOGGER.debug(f"In async_step_reauth_confirm. user_input={user_input}")
@@ -459,7 +460,7 @@ class PyCupraConnectOptionsFlowHandler(config_entries.OptionsFlow):
             options[CONF_MUTABLE] = user_input.get(CONF_MUTABLE, True)
             options[CONF_DEBUG] = user_input.get(CONF_DEBUG, False)
             options[CONF_LOGPREFIX] = user_input.get(CONF_LOGPREFIX, None)
-            if user_input.get(CONF_LOGPREFIX, None)=='' or user_input.get(CONF_LOGPREFIX, None)==' ':
+            if user_input.get(CONF_LOGPREFIX, None) == '' or user_input.get(CONF_LOGPREFIX, None) == ' ':
                 options[CONF_LOGPREFIX] = None
             #uncomment this, if EUDA option shall be visible: options[CONF_EUDA] = user_input.get(CONF_EUDA, False)
             options[CONF_RESOURCES] = user_input.get(CONF_RESOURCES, [])
@@ -486,7 +487,7 @@ class PyCupraConnectOptionsFlowHandler(config_entries.OptionsFlow):
         defaultLogPrefix=self._config_entry.options.get(CONF_LOGPREFIX,
             self._config_entry.data.get(CONF_LOGPREFIX, None)
         )
-        if defaultLogPrefix==None:
+        if defaultLogPrefix is None:
             defaultLogPrefix=''
         return self.async_show_form(
             step_id="user",

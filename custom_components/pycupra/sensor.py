@@ -58,7 +58,7 @@ class PyCupraSensor(PyCupraEntity, SensorEntity):
     #def state(self):
     def native_value(self):
         """Return the state of the sensor."""
-        if self.instrument != None:
+        if self.instrument is not None:
             return self.instrument.state
         return None
 
@@ -66,14 +66,14 @@ class PyCupraSensor(PyCupraEntity, SensorEntity):
     #def unit_of_measurement(self):
     def native_unit_of_measurement(self):
         """Return the unit of measurement."""
-        if self.instrument != None:
+        if self.instrument is not None:
             return self.instrument.unit
         return None
 
     @property
     def suggested_unit_of_measurement(self):
         """Return the unit of measurement."""
-        if self.instrument != None:
+        if self.instrument is not None:
             if self.instrument.unit in ('km', 'km/h'):
                 return self.instrument.unit
         return None

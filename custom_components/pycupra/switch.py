@@ -65,7 +65,7 @@ class PyCupraSwitch(PyCupraEntity, ToggleEntity):
                 #raise Exception(f"Not turning on switch {self.instrument.attr}, because the option \'mutable\' is deactivated.")
                 async_show_pycupra_notification(self.hass, f"Not turning on switch {self.instrument.attr}, because the option \'mutable\' is deactivated.", title="Option mutable deactivated", id="PyCupra_mutable")
                 # Because some switches have no callback, self.coordinator.async_request_refresh() to set the switch in the UI back to its value according to PyCupra
-                if self.instrument.callback==None:
+                if self.instrument.callback is None:
                     await self.coordinator.async_request_refresh()
             self.async_write_ha_state()
         except Exception as e:
@@ -83,7 +83,7 @@ class PyCupraSwitch(PyCupraEntity, ToggleEntity):
                 #raise Exception(f"Not turning off switch {self.instrument.attr}, because the option \'mutable\' is deactivated.")
                 async_show_pycupra_notification(self.hass, f"Not turning off switch {self.instrument.attr}, because the option \'mutable\' is deactivated.", title="Option mutable deactivated", id="PyCupra_mutable")
                 # Because some switches have no callback, self.coordinator.async_request_refresh() to set the switch in the UI back to its value according to PyCupra
-                if self.instrument.callback==None:
+                if self.instrument.callback is None:
                     await self.coordinator.async_request_refresh()
             self.async_write_ha_state()
         except Exception as e:

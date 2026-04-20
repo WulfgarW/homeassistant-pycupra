@@ -231,11 +231,17 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
 
     # Get parent device
     try:
-        identifiers={(DOMAIN, entry.unique_id)}
+        if entry.unique_id is not None:
+            identifiers={(DOMAIN, entry.unique_id)}
+        else:
+            identifiers=None
         registry = device_registry.async_get(hass)
         device = registry.async_get_device(identifiers)
         # Get user configured name for device
-        name = device.name_by_user if not device.name_by_user is None else None
+        if device is not None:
+            name = device.name_by_user if not device.name_by_user is None else None
+        else:
+            name = None
     except:
         name = None
 
@@ -243,7 +249,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     instruments = coordinator.data
 
     conf_instruments = entry.data.get(CONF_INSTRUMENTS, {}).copy()
-    if entry.options.get(CONF_DEBUG, False) is True:
+    if entry.options.get(CONF_DEBUG, False):
         #_LOGGER.debug(f"Configured data: {async_redact_data(entry.data, ['username', 'password', 'vehicle', 'spin'])}") 
         #_LOGGER.debug(f"Configured options: {async_redact_data(entry.options, ['username', 'password', 'vehicle', 'spin'])}") 
         _LOGGER.debug(f"Resources from options are: {entry.options.get(CONF_RESOURCES, [])}")
@@ -414,7 +420,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
                 return
 
             _LOGGER.info(f'Set departure schedule {id} with data {schedule} for car {car.vin}')
-            if await car.set_timer_schedule(id, schedule) is True:
+            if await car.set_timer_schedule(id, schedule):
                 _LOGGER.debug(f"Service call 'set_schedule' executed without error")
                 await coordinator.async_request_refresh()
             else:
@@ -462,7 +468,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
                 return
 
             _LOGGER.info(f'Set departure profile schedule {id} with data {schedule} for car {car.vin}')
-            if await car.set_departure_profile_schedule(id, schedule) is True:
+            if await car.set_departure_profile_schedule(id, schedule):
                 _LOGGER.debug(f"Service call 'set_departure_profile_schedule' executed without error")
                 await coordinator.async_request_refresh()
             else:
@@ -510,7 +516,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
                 return
 
             _LOGGER.info(f'Set climatisation timer schedule {id} with data {schedule} for car {car.vin}')
-            if await car.set_climatisation_timer_schedule(id, schedule) is True:
+            if await car.set_climatisation_timer_schedule(id, schedule):
                 _LOGGER.debug(f"Service call 'set_climatisation_timer_schedule' executed without error")
                 await coordinator.async_request_refresh()
             else:
@@ -558,12 +564,12 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
                 return
 
             spin = car._dashboard._config.get('spin','') # Using the S-PIN that was entered when setting up the vehicle in pycupra
-            if spin=='':
+            if spin == '':
                 _LOGGER.warning(f'Tried to take SPIN from PyCupra settings for car {car.vin}. But it was empty.')
             else:
                 _LOGGER.debug(f'SPIN taken from PyCupra settings for car {car.vin}')
             _LOGGER.info(f'Set auxiliary heating timer schedule {id} with data {schedule} for car {car.vin}')
-            if await car.set_auxiliary_heating_timer_schedule(id, schedule, spin) is True:
+            if await car.set_auxiliary_heating_timer_schedule(id, schedule, spin):
                 _LOGGER.debug(f"Service call 'set_auxiliary_heating_timer_schedule' executed without error")
                 await coordinator.async_request_refresh()
             else:
@@ -615,7 +621,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
                 return
 
             _LOGGER.debug(f"destination dict= {dest}")
-            if await car.send_destination(dest) is True:
+            if await car.send_destination(dest):
                 _LOGGER.debug(f"Service call 'send_destination' executed without error")
             else:
                 _LOGGER.warning(f"Failed to execute service call 'send_destination' with data '{service_call}'")
@@ -641,7 +647,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
 
             # Get charge limit and execute service call
             limit = service_call.data.get("limit", 50)
-            if await car.set_charge_limit(limit) is True:
+            if await car.set_charge_limit(limit):
                 _LOGGER.debug(f"Service call 'set_charge_limit' executed without error")
                 await coordinator.async_request_refresh()
             else:
@@ -668,7 +674,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
 
             # Get charge current and execute service call
             current = service_call.data.get('current', None)
-            if await car.set_charger_current(current) is True:
+            if await car.set_charger_current(current):
                 _LOGGER.debug(f"Service call 'set_current' executed without error")
                 await coordinator.async_request_refresh()
             else:
@@ -695,7 +701,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
 
             # Get charge current and execute service call
             targetSoc = service_call.data.get('targetSoc', None)
-            if await car.set_charger_target_soc(targetSoc) is True:
+            if await car.set_charger_target_soc(targetSoc):
                 _LOGGER.debug(f"Service call 'set_target_soc' executed without error")
                 await coordinator.async_request_refresh()
             else:
@@ -742,13 +748,13 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
 
             temp = service_call.data.get('temp', None)
             if service_call.data.get('enabled', None):
-                if service_call.data.get('enabled', None)=='Set Temp.':
+                if service_call.data.get('enabled', None) == 'Set Temp.':
                     action = 'settings'
-                elif service_call.data.get('enabled', None)=='Start':
+                elif service_call.data.get('enabled', None) == 'Start':
                     action = 'electric'
-                elif service_call.data.get('enabled', None)=='Auxiliary Start':
+                elif service_call.data.get('enabled', None) == 'Auxiliary Start':
                     action = 'auxiliary_start'
-                elif service_call.data.get('enabled', None)=='Auxiliary Stop':
+                elif service_call.data.get('enabled', None) == 'Auxiliary Stop':
                     action = 'auxiliary_stop'
                 else:
                     action = 'off'
@@ -759,10 +765,10 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
                 # Execute service call
                 _LOGGER.debug(f"Action 'set_climater' with the following parameters: action={action} and temp={temp}.")
                 #_LOGGER.debug(f"Action 'set_climater' with the following parameters: action={action}, temp={temp} and spin={spin}.")
-                if action=='settings':
-                    if temp!=None:
-                        #if await car.set_climatisation_temp(temp) is True:
-                        if await car.set_climatisation_one_setting('targetTemperatureInCelsius', temp) is True:
+                if action == 'settings':
+                    if temp is not None:
+                        #if await car.set_climatisation_temp(temp):
+                        if await car.set_climatisation_one_setting('targetTemperatureInCelsius', temp):
                             _LOGGER.debug(f"Service call 'set_climater' executed without error")
                             await coordinator.async_request_refresh()
                         else:
@@ -773,11 +779,11 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
                     spin = None
                     if action == 'auxiliary_start':
                         spin = car._dashboard._config.get('spin','') # Using the S-PIN that was entered when setting up the vehicle in pycupra
-                        if spin=='':
+                        if spin == '':
                             _LOGGER.warning(f'Tried to take SPIN from PyCupra settings for car {car.vin}. But it was empty.')
                         else:
                             _LOGGER.debug(f'SPIN taken from PyCupra settings for car {car.vin}')
-                    if await car.set_climatisation(action, temp, hvpower=None, spin=spin) is True:
+                    if await car.set_climatisation(action, temp, hvpower=None, spin=spin):
                         _LOGGER.debug(f"Service call 'set_climater' executed without error")
                         await coordinator.async_request_refresh()
                     else:
@@ -1120,7 +1126,7 @@ class PyCupraEntity(Entity):
         """Return extra state attributes."""
         attributes = dict(
             self.instrument.attributes,
-            model=f"{self.vehicle.model}/{self.vehicle.model_year}" if (self.vehicle.model_year!='unknown') else f"{self.vehicle.model}",
+            model=f"{self.vehicle.model}/{self.vehicle.model_year}" if (self.vehicle.model_year != 'unknown') else f"{self.vehicle.model}",
         )
 
         # Return model image as picture attribute for position entity
@@ -1163,12 +1169,12 @@ class PyCupraCoordinator(DataUpdateCoordinator):
     def __init__(self, hass: HomeAssistant, entry, update_interval: timedelta):
         self.vin = entry.data[CONF_VEHICLE].upper()
         self.entry = entry
-        self.platforms = []
+        self.platforms: list[str] = []
         self.report_last_updated = None
         self._logPrefix=self.entry.options.get(CONF_LOGPREFIX, self.entry.data.get(CONF_LOGPREFIX, None))
-        if self._logPrefix=='' or self._logPrefix==' ':
+        if self._logPrefix == '' or self._logPrefix == ' ':
             _LOGGER.debug(f"Config entry for logPrefix='{self._logPrefix}'. Treating it as None.")
-            self._logPrefix=None
+            self._logPrefix = None
         _LOGGER.debug(f"In PyCupraCoord.Init: logPrefix={self._logPrefix}")
         self.connection = Connection(
             session=async_get_clientsession(hass),
@@ -1230,7 +1236,7 @@ class PyCupraCoordinator(DataUpdateCoordinator):
         # Check if we can login
         try:
             #if await self.connection.doLogin(tokenFile=TOKEN_FILE_NAME_AND_PATH) is False:
-            if await self.connection.doLogin() is False:
+            if not await self.connection.doLogin():
                 _LOGGER.warning(
                     "Could not login to Cupra/Seat portal, please check your credentials and verify that the service is working"
                 )
@@ -1238,14 +1244,14 @@ class PyCupraCoordinator(DataUpdateCoordinator):
             # Get associated vehicles before we continue
             await self.connection.get_vehicles()
             vehicle = self.connection.vehicle(self.vin)
-            if vehicle == None:
+            if vehicle is None:
                 _LOGGER.warning(f"PyCupraCoordinator.async_login() called. But vehicle with VIN ending on '{self.vin[-4:]}' was not found.")
             elif vehicle.deactivated:
                 _LOGGER.warning(f"Vehicle is offline or API endpoint not responding during initialisation process. Continuing, but a lot of device entities will be unavailable. Better to check your vehicle and reload the device after solving the problem.")
                 async_show_pycupra_notification(self.hass, f"Vehicle is offline or API endpoint not responding during initialisation process. Continuing, but a lot of device entities will be unavailable. Better to check your vehicle and reload the device after solving the problem.", title="Vehicle offline", id="PyCupra_vehicle_offline_error")
 
             if self._euda:    
-                if await self.eudaConnection.doLogin() is False:
+                if not await self.eudaConnection.doLogin():
                     _LOGGER.error(
                         "Could not login to EUDA portal, please check your credentials and verify that the service is working"
                     )
@@ -1274,7 +1280,7 @@ class PyCupraCoordinator(DataUpdateCoordinator):
             eudaVehicle= None
             # Get Vehicle object matching VIN number
             vehicle = self.connection.vehicle(self.vin)
-            if vehicle == None:
+            if vehicle is None:
                 _LOGGER.warning(f"PyCupraCoordinator.update() called. But vehicle is none.")
                 rc1 = False
             else:
@@ -1285,10 +1291,10 @@ class PyCupraCoordinator(DataUpdateCoordinator):
             rc2 = True
             if self._euda:
                 eudaVehicle = self.eudaConnection.vehicle(self.vin)
-                if self.eudaConnection._loginError == None:
+                if self.eudaConnection._loginError is None:
                     try:
                         rc2 = await self.eudaConnection.update()
-                        if self.eudaConnection._loginError != None:
+                        if self.eudaConnection._loginError is not None:
                             _LOGGER.error(f"An error occurred in update of EU data act data. Error: {self.eudaConnection._loginError}")
                             async_show_pycupra_notification(self.hass, f"An error occurred in update of EU data act data. Error: {self.eudaConnection._loginError}. If you think, it should work again, reload your PyCupra device.", title="EUDA connection failed", id="PyCupra_euda_error")
                     except Exception as e:
@@ -1317,7 +1323,7 @@ class PyCupraCoordinator(DataUpdateCoordinator):
             eudaVehicle= None
             # Get Vehicle object matching VIN number
             vehicle = self.connection.vehicle(self.vin)
-            if vehicle._haNotification != None:
+            if vehicle._haNotification is not None:
                 async_show_pycupra_notification(self.hass, vehicle._haNotification, title="Request failed", id="PyCupra_request_failed")
                 vehicle.clearHANotification()
             rc1 = await vehicle.update()
@@ -1399,7 +1405,7 @@ async def async_sleep_and_dismiss_pycupra_notification(hass: HomeAssistant, id, 
     """wait 2 minutes and then dismiss notification"""
     await asyncio.sleep(120)
     global COUNTER_FOR_PERSISTENT_NOTIFICATIONS
-    if counter==COUNTER_FOR_PERSISTENT_NOTIFICATIONS:
+    if counter == COUNTER_FOR_PERSISTENT_NOTIFICATIONS:
         _LOGGER.debug("Dismissing open pycupra notification")
         async_pn_dismiss(hass, notification_id=id)
 
