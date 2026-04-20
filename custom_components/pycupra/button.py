@@ -6,7 +6,7 @@ from typing import Any, Dict, Optional
 from homeassistant.components.button import ButtonEntity
 from homeassistant.const import CONF_RESOURCES
 
-from . import DATA, DATA_KEY, DOMAIN, PyCupraEntity, UPDATE_CALLBACK
+from . import DATA, DATA_KEY, DOMAIN, PyCupraEntity, UPDATE_CALLBACK, async_show_pycupra_notification
 
 _LOGGER = logging.getLogger(__name__)
 
