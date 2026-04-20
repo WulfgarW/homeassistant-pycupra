@@ -1,1 +1,1 @@
-pycupra>=0.2.12
+pycupra>=0.2.23
