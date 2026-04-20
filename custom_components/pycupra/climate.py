@@ -5,7 +5,6 @@ import logging
 
 from homeassistant.components.climate import ClimateEntity
 from homeassistant.components.climate.const import (
-    HVAC_MODES,
     ClimateEntityFeature,
     HVACMode,
 )
@@ -65,17 +64,10 @@ class PyCupraClimate(PyCupraEntity, ClimateEntity):
         """Return hvac operation ie. heat, cool mode.
         Need to be one of HVAC_MODE_*.
         """
-        if self.instrument != None:
+        if self.instrument is not None:
             if not self.instrument.hvac_mode:
                 return HVACMode.OFF
         return HVACMode.HEAT_COOL
-
-        hvac_modes = {
-            "HEAT_COOL": HVACMode.HEAT_COOL,
-            #"HEATING": HVAC_MODE_HEAT,
-            #"COOLING": HVAC_MODE_COOL,
-        }
-        return hvac_modes.get(self.instrument.hvac_mode, HVACMode.OFF)
 
     @property
     def hvac_modes(self):
@@ -92,7 +84,7 @@ class PyCupraClimate(PyCupraEntity, ClimateEntity):
     @property
     def target_temperature(self):
         """Return the temperature we try to reach."""
-        if self.instrument != None:
+        if self.instrument is not None:
             if self.instrument.target_temperature:
                 return float(self.instrument.target_temperature)
         return STATE_UNKNOWN
