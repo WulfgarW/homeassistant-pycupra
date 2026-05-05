@@ -33,7 +33,7 @@ PyCupra should work now.
 
 ### Marketing consent error
 
-Open seatid.vwgroup.io or cupraid.vwgroup.ioin your browser and login. Change 'Language' to English and 'Country' to United Kingdom. Then log off und relogin. 
+Open seatid.vwgroup.io or cupraid.vwgroup.io in your browser and login. Change 'Language' to English and 'Country' to United Kingdom. Then log off und relogin. 
 If you get a page asking if you consent to marketing, then answer it (agree and disagree should both work). After that, you can change language and country back.
 PyCupra should work now.
 

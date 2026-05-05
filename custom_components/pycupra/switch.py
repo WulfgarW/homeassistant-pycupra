@@ -3,10 +3,9 @@ Support for My Cupra Platform
 """
 import logging
 from typing import Any, Dict, Optional
-import voluptuous as vol
 
 from homeassistant.helpers.entity import ToggleEntity
-from homeassistant.helpers import config_validation as cv, entity_platform, service
+#from homeassistant.helpers import config_validation as cv, entity_platform, service
 from homeassistant.const import CONF_RESOURCES
 
 from . import DATA, DATA_KEY, DOMAIN, PyCupraEntity, UPDATE_CALLBACK, async_show_pycupra_notification

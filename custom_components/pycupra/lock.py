@@ -6,7 +6,7 @@ import logging
 from homeassistant.components.lock import LockEntity
 from homeassistant.const import CONF_RESOURCES
 
-from . import DATA, DATA_KEY, DOMAIN, PyCupraEntity, UPDATE_CALLBACK
+from . import DATA, DATA_KEY, DOMAIN, PyCupraEntity, UPDATE_CALLBACK, async_show_pycupra_notification
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -50,10 +50,28 @@ class PyCupraLock(PyCupraEntity, LockEntity):
 
     async def async_lock(self, **kwargs):
         """Lock the car."""
-        await self.instrument.lock()
-        self.async_write_ha_state()
+        try:
+            if self.instrument.mutable:
+                await self.instrument.lock()
+            else:
+                _LOGGER.warning(f"Not locking {self.instrument.attr}, because the option \'mutable\' is deactivated.")
+                #raise Exception(f"Not locking {self.instrument.attr}, because the option \'mutable\' is deactivated.")
+                async_show_pycupra_notification(self.hass, f"Not locking {self.instrument.attr}, because the option \'mutable\' is deactivated.", title="Option mutable deactivated", id="PyCupra_mutable")
+            self.async_write_ha_state()
+        except Exception as e:
+            _LOGGER.error(f"An error occurred, while trying to lock '{self.instrument.attr}'. Error: {e}")
+            async_show_pycupra_notification(self.hass, f"An error occurred, while trying to lock '{self.instrument.attr}'. Error: {e}", title="Set switch error", id="PyCupra_set_switch_error")
 
     async def async_unlock(self, **kwargs):
         """Unlock the car."""
-        await self.instrument.unlock()
-        self.async_write_ha_state()
+        try:
+            if self.instrument.mutable:
+                await self.instrument.unlock()
+            else:
+                _LOGGER.warning(f"Not unlocking {self.instrument.attr}, because the option \'mutable\' is deactivated.")
+                #raise Exception(f"Not unlocking {self.instrument.attr}, because the option \'mutable\' is deactivated.")
+                async_show_pycupra_notification(self.hass, f"Not unlocking {self.instrument.attr}, because the option \'mutable\' is deactivated.", title="Option mutable deactivated", id="PyCupra_mutable")
+            self.async_write_ha_state()
+        except Exception as e:
+            _LOGGER.error(f"An error occurred, while trying to unlock '{self.instrument.attr}'. Error: {e}")
+            async_show_pycupra_notification(self.hass, f"An error occurred, while trying to unlock '{self.instrument.attr}'. Error: {e}", title="Set switch error", id="PyCupra_set_switch_error")

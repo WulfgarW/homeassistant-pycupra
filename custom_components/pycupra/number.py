@@ -8,7 +8,7 @@ from homeassistant.helpers.entity import EntityCategory
 from homeassistant.const import CONF_RESOURCES, STATE_UNKNOWN
 
 
-from . import DATA, DATA_KEY, DOMAIN, PyCupraEntity, UPDATE_CALLBACK, async_show_pycupra_notification
+from . import DATA, DATA_KEY, DOMAIN, PyCupraEntity, async_show_pycupra_notification
 
 _LOGGER = logging.getLogger(__name__)
 

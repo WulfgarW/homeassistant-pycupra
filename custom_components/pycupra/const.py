@@ -1,5 +1,3 @@
-from datetime import timedelta
-
 DOMAIN = "pycupra"
 DATA_KEY = DOMAIN
 

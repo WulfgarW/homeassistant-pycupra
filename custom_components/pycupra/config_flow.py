@@ -27,7 +27,7 @@ from .const import (
     MIN_SCAN_INTERVAL,
     DEFAULT_SCAN_INTERVAL,
     DOMAIN,
-    DEFAULT_DEBUG
+    #DEFAULT_DEBUG
 )
 from typing import Any, Mapping
 
@@ -86,6 +86,7 @@ class PyCupraConnectConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                 username=self._data[CONF_USERNAME],
                 password=self._data[CONF_PASSWORD],
                 fulldebug=False,
+                anonymise=True,
                 nightlyUpdateReduction= False,
                 hass= self.hass,
             )
@@ -286,6 +287,7 @@ class PyCupraConnectConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                 username=user_input[CONF_USERNAME],
                 password=user_input[CONF_PASSWORD],
                 fulldebug=False, 
+                anonymise=True,
                 nightlyUpdateReduction=False, 
                 logPrefix=None,
                 hass= self.hass,
@@ -344,7 +346,7 @@ class PyCupraConnectConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
 
         # Check if integration is already configured
         if self._async_current_entries():
-            _LOGGER.info(f"Integration is already setup, please remove yaml configuration as it is deprecated")
+            _LOGGER.info("Integration is already setup, please remove yaml configuration as it is deprecated")
 
         # Validate and convert yaml config
         if all (entry in yaml for entry in ("brand","username", "password")):
@@ -377,6 +379,7 @@ class PyCupraConnectConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
             username=self._data[CONF_USERNAME],
             password=self._data[CONF_PASSWORD],
             fulldebug=False,
+            anonymise=True,
             nightlyUpdateReduction=False,
             logPrefix=None,
             hass= self.hass,
@@ -471,7 +474,7 @@ class PyCupraConnectOptionsFlowHandler(config_entries.OptionsFlow):
                 },
             )
 
-        instruments = self._config_entry.data.get(CONF_INSTRUMENTS, {})
+        #instruments = self._config_entry.data.get(CONF_INSTRUMENTS, {})
 
         instruments_dict = dict(sorted(
             self._config_entry.data.get(
