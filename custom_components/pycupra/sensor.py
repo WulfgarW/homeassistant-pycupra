@@ -49,10 +49,13 @@ class PyCupraSensor(PyCupraEntity, SensorEntity):
         super().__init__(data, vin, component, attribute)
         # Set state_class during initialization
         if self.instrument.attr in [
-            'battery_level', 'adblue_level', 'fuel_level', 'charging_time_left', 'charging_power', 'charge_rate', 'distance',
+            'battery_level', 'adblue_level', 'fuel_level', 'charging_time_left', 'charging_power', 'charge_rate',
             'electric_range', 'combustion_range', 'combined_range', 'outside_temperature', 'climatisation_time_left'
         ]:
             self._attr_state_class = SensorStateClass.MEASUREMENT
+
+        if self.instrument.attr in [ 'distance' ]:
+            self._attr_state_class = SensorStateClass.TOTAL_INCREASING
 
     @property
     #def state(self):
