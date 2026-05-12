@@ -7,6 +7,7 @@ from homeassistant.components.climate import ClimateEntity
 from homeassistant.components.climate.const import (
     ClimateEntityFeature,
     HVACMode,
+    ATTR_HVAC_MODE,
 )
 from homeassistant.const import (
     ATTR_TEMPERATURE,
@@ -92,10 +93,19 @@ class PyCupraClimate(PyCupraEntity, ClimateEntity):
     async def async_set_temperature(self, **kwargs):
         """Set new target temperatures."""
         try:
+            #_LOGGER.debug(f"kwargs={kwargs}")
             temperature = kwargs.get(ATTR_TEMPERATURE)
+            hvac_mode = kwargs.get(ATTR_HVAC_MODE)
+            #_LOGGER.debug(f"hvacMode={hvac_mode}")
             if temperature:
                 if self.instrument.mutable:
-                    await self.instrument.set_temperature(temperature)
+                    if hvac_mode is None:
+                        await self.instrument.set_temperature(temperature)
+                    elif hvac_mode in (HVACMode.HEAT_COOL, HVACMode.AUTO):
+                        await self.instrument.set_temperature(temperature, start = True)
+                    else:
+                        _LOGGER.warning(f"Not changing status of {self.instrument.attr}, because provided hvac_mode {hvac_mode} not supported.")
+                        async_show_pycupra_notification(self.hass, f"Not changing status of {self.instrument.attr}, because provided hvac_mode {hvac_mode} not supported.", title="Set climate error", id="PyCupra_set_climate_error")
                 else:
                     _LOGGER.warning(f"Not changing temperature of {self.instrument.attr}, because the option \'mutable\' is deactivated.")
                     #raise Exception(f"Not changing temperature of {self.instrument.attr}, because the option \'mutable\' is deactivated.")

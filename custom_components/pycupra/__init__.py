@@ -22,7 +22,7 @@ from homeassistant.const import (
 from homeassistant.core import HomeAssistant
 from homeassistant.exceptions import ConfigEntryAuthFailed, ConfigEntryNotReady
 from homeassistant.helpers import config_validation as cv, device_registry
-from homeassistant.helpers.aiohttp_client import async_get_clientsession
+from homeassistant.helpers.aiohttp_client import async_create_clientsession
 from homeassistant.helpers.dispatcher import async_dispatcher_connect
 from homeassistant.helpers.entity import Entity
 from homeassistant.helpers.icon import icon_for_battery_level
@@ -197,7 +197,7 @@ COUNTER_FOR_PERSISTENT_NOTIFICATIONS=0
 
 async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     """Setup PyCupra component from a config entry."""
-    _LOGGER.debug("In async_setup_entry.")
+    _LOGGER.debug(f"In async_setup_entry for entry {entry.entry_id}.")
     hass.data.setdefault(DOMAIN, {})
 
     if entry.options.get(CONF_SCAN_INTERVAL):
@@ -1177,7 +1177,7 @@ class PyCupraCoordinator(DataUpdateCoordinator):
             self._logPrefix = None
         _LOGGER.debug(f"In PyCupraCoord.Init: logPrefix={self._logPrefix}")
         self.connection = Connection(
-            session=async_get_clientsession(hass),
+            session=async_create_clientsession(hass),
             brand=self.entry.data[CONF_BRAND],
             username=self.entry.data[CONF_USERNAME],
             password=self.entry.data[CONF_PASSWORD],
@@ -1190,7 +1190,7 @@ class PyCupraCoordinator(DataUpdateCoordinator):
         self._euda = self.entry.options.get(CONF_EUDA, self.entry.data.get(CONF_EUDA, False))
         if self._euda:
             self.eudaConnection = EUDAConnection(
-                session=async_get_clientsession(hass),
+                session=async_create_clientsession(hass),
                 brand=self.entry.data[CONF_BRAND],
                 username=self.entry.data[CONF_USERNAME],
                 password=self.entry.data[CONF_PASSWORD],
