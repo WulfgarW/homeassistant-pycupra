@@ -12,7 +12,7 @@ You are welcome to contribute to this document.
 
 ## Login problems
 
-## 
+## Some technical background information
 
 
 
@@ -38,4 +38,20 @@ If you get a page asking if you consent to marketing, then answer it (agree and 
 PyCupra should work now.
 
 ### Account locked error
+
+An account locked error means, that there have been repeated login attempts with wrong credentials and the portal has locked the account temporarily. Please don't do any reboots of HA or reloads of the PyCupra devices. Wait, until the locking period has passed and then try to login via cupraid.vwgroup.io/seatid.vwgroup.io or via the mobile phone app first. If that works, then try to reload your PyCupra vehicle.
+
+## Some technical background information
+
+### What's homeassistant-pycupra? What's pycupra?
+
+The python package 'pycupra' contains the program code that connects to the Cupra/Seat API, communicates with the API (e.g. reading information about your vehicle) and present the information gathered from the API as vehicle instruments. The 'pycupra' package is not restricted to home assistant and can also be used directly.
+The package 'homeassistant-pycupra' acts as the interface between the 'pycupra' package and home assistant, making the vehicle instruments, that the pycupra package provides available as entites in home assistant.
+So to use PyCupra in home assistant, you install the homeassistant-pycupra package in home assistant. The 'pycupra' package, that is required as well, is installed automatically by home assistant.
+
+### How do I know, which version of homeassistant-pycupra and pycupra I am using?
+
+The information, which version of homeassistant-pycupra you are currently using, can be found in HACS. Open 'HACS' in the UI, search the row for 'PyCupra' and then click on the three vertical points on the right side of this row. In the submenu choose 'Show details'.
+If you want to know, which version of the 'pycupra' package is used, then open the system log (the raw log) and search for 'pycupra'. You will find a log line containing 'Init PyCupra library, version' and this line shows the version number of the pycupra package.
+
 
