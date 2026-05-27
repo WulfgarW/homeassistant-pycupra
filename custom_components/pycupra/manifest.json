@@ -9,7 +9,7 @@
     "issue_tracker": "https://github.com/WulfgarW/homeassistant-pycupra/issues",
     "requirements": [
         "pycupra>=0.2.31",
-        "homeassistant>=2025.5.0"
+        "homeassistant>=2025.6.1"
     ],
     "version": "0.2.19"
 }
