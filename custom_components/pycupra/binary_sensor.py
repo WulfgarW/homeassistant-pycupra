@@ -1,6 +1,7 @@
 """
 Support for PyCupra.
 """
+
 import logging
 
 from homeassistant.components.binary_sensor import DEVICE_CLASSES, BinarySensorEntity
@@ -29,12 +30,17 @@ async def async_setup_entry(hass, entry, async_add_devices):
 
         async_add_devices(
             PyCupraBinarySensor(
-                data, instrument.vehicle_name, instrument.component, instrument.attr, hass.data[DOMAIN][entry.entry_id][UPDATE_CALLBACK]
+                data,
+                instrument.vehicle_name,
+                instrument.component,
+                instrument.attr,
+                hass.data[DOMAIN][entry.entry_id][UPDATE_CALLBACK],
             )
             for instrument in (
                 instrument
                 for instrument in data.instruments
-                if instrument.component == "binary_sensor" and instrument.attr in resources
+                if instrument.component == "binary_sensor"
+                and instrument.attr in resources
             )
         )
 
@@ -42,13 +48,13 @@ async def async_setup_entry(hass, entry, async_add_devices):
 
 
 class PyCupraBinarySensor(PyCupraEntity, BinarySensorEntity):
-    """Representation of a PyCupra Binary Sensor """
+    """Representation of a PyCupra Binary Sensor"""
 
     @property
     def is_on(self):
         """Return True if the binary sensor is on."""
         # Invert state for lock/window/door to get HA to display correctly
-        if self.instrument.device_class in ['lock', 'door', 'window']:
+        if self.instrument.device_class in ["lock", "door", "window"]:
             return not self.instrument.is_on
         return self.instrument.is_on
 

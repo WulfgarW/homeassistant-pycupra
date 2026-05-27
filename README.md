@@ -25,7 +25,7 @@ The car privacy settings must be set to "Share my position" for full functionali
 - Change target state of charge
 - Odometer and service info
 - Engine status
-- Fuel level, combustion range, combined range, adblue range
+- Fuel level, combustion range, cng level, cng range, combined range
 - Lock, windows, trunk, hood, sunroof and door status
 - Lock and unlock car
 - Last trip info and last cycle info (last trip = summary of last day, the vehicle was used, last cycle = summary of last month, the vehicle was used)

@@ -1,20 +1,29 @@
 """
 Support for My Cupra Platform
 """
+
 import logging
 from typing import Any, Dict, Optional
 
 from homeassistant.helpers.entity import ToggleEntity
-#from homeassistant.helpers import config_validation as cv, entity_platform, service
+
+# from homeassistant.helpers import config_validation as cv, entity_platform, service
 from homeassistant.const import CONF_RESOURCES
 
-from . import DATA, DATA_KEY, DOMAIN, PyCupraEntity, UPDATE_CALLBACK, async_show_pycupra_notification
+from . import (
+    DATA,
+    DATA_KEY,
+    DOMAIN,
+    PyCupraEntity,
+    UPDATE_CALLBACK,
+    async_show_pycupra_notification,
+)
 
 _LOGGER = logging.getLogger(__name__)
 
 
 async def async_setup_platform(hass, config, async_add_entities, discovery_info=None):
-    """ Setup the PyCupra switch."""
+    """Setup the PyCupra switch."""
     if discovery_info is None:
         return
     async_add_entities([PyCupraSwitch(hass.data[DATA_KEY], *discovery_info)])
@@ -29,17 +38,45 @@ async def async_setup_entry(hass, entry, async_add_devices):
         else:
             resources = entry.data[CONF_RESOURCES]
 
-        newDevices=[]
+        newDevices = []
         for instrument in data.instruments:
             if instrument.component == "switch" and instrument.attr in resources:
-                #_LOGGER.debug(f"In switch.py.async_setup_entry. Instrument: {instrument.attr}")
-                if instrument.attr in ('departure1','departure2','departure3','departure_profile1','departure_profile2','departure_profile3', 
-                                       'climatisation_timer1', 'climatisation_timer2', 'climatisation_timer3', 'request_flash', 'request_honkandflash'):
-                    _LOGGER.debug(f"Instrument {instrument.attr} added without callback")
-                    newDevices.append(PyCupraSwitch(data, instrument.vehicle_name, instrument.component, instrument.attr))
+                # _LOGGER.debug(f"In switch.py.async_setup_entry. Instrument: {instrument.attr}")
+                if instrument.attr in (
+                    "departure1",
+                    "departure2",
+                    "departure3",
+                    "departure_profile1",
+                    "departure_profile2",
+                    "departure_profile3",
+                    "climatisation_timer1",
+                    "climatisation_timer2",
+                    "climatisation_timer3",
+                    "request_flash",
+                    "request_honkandflash",
+                ):
+                    _LOGGER.debug(
+                        f"Instrument {instrument.attr} added without callback"
+                    )
+                    newDevices.append(
+                        PyCupraSwitch(
+                            data,
+                            instrument.vehicle_name,
+                            instrument.component,
+                            instrument.attr,
+                        )
+                    )
                 else:
                     _LOGGER.debug(f"Instrument {instrument.attr} added with callback")
-                    newDevices.append(PyCupraSwitch(data, instrument.vehicle_name, instrument.component, instrument.attr, hass.data[DOMAIN][entry.entry_id][UPDATE_CALLBACK]))
+                    newDevices.append(
+                        PyCupraSwitch(
+                            data,
+                            instrument.vehicle_name,
+                            instrument.component,
+                            instrument.attr,
+                            hass.data[DOMAIN][entry.entry_id][UPDATE_CALLBACK],
+                        )
+                    )
         async_add_devices(newDevices)
 
     return True
@@ -60,16 +97,30 @@ class PyCupraSwitch(PyCupraEntity, ToggleEntity):
             if self.instrument.mutable:
                 await self.instrument.turn_on()
             else:
-                _LOGGER.warning(f"Not turning on switch {self.instrument.attr}, because the option \'mutable\' is deactivated.")
-                #raise Exception(f"Not turning on switch {self.instrument.attr}, because the option \'mutable\' is deactivated.")
-                async_show_pycupra_notification(self.hass, f"Not turning on switch {self.instrument.attr}, because the option \'mutable\' is deactivated.", title="Option mutable deactivated", id="PyCupra_mutable")
+                _LOGGER.warning(
+                    f"Not turning on switch {self.instrument.attr}, because the option 'mutable' is deactivated."
+                )
+                # raise Exception(f"Not turning on switch {self.instrument.attr}, because the option \'mutable\' is deactivated.")
+                async_show_pycupra_notification(
+                    self.hass,
+                    f"Not turning on switch {self.instrument.attr}, because the option 'mutable' is deactivated.",
+                    title="Option mutable deactivated",
+                    id="PyCupra_mutable",
+                )
                 # Because some switches have no callback, self.coordinator.async_request_refresh() to set the switch in the UI back to its value according to PyCupra
                 if self.instrument.callback is None:
                     await self.coordinator.async_request_refresh()
             self.async_write_ha_state()
         except Exception as e:
-            _LOGGER.error(f"An error occurred, while trying to turn on '{self.instrument.attr}'. Error: {e}")
-            async_show_pycupra_notification(self.hass, f"An error occurred, while trying to turn on '{self.instrument.attr}'. Error: {e}", title="Set switch error", id="PyCupra_set_switch_error")
+            _LOGGER.error(
+                f"An error occurred, while trying to turn on '{self.instrument.attr}'. Error: {e}"
+            )
+            async_show_pycupra_notification(
+                self.hass,
+                f"An error occurred, while trying to turn on '{self.instrument.attr}'. Error: {e}",
+                title="Set switch error",
+                id="PyCupra_set_switch_error",
+            )
 
     async def async_turn_off(self, **kwargs):
         """Turn the switch off."""
@@ -78,16 +129,30 @@ class PyCupraSwitch(PyCupraEntity, ToggleEntity):
             if self.instrument.mutable:
                 await self.instrument.turn_off()
             else:
-                _LOGGER.warning(f"Not turning off switch {self.instrument.attr}, because the option \'mutable\' is deactivated.")
-                #raise Exception(f"Not turning off switch {self.instrument.attr}, because the option \'mutable\' is deactivated.")
-                async_show_pycupra_notification(self.hass, f"Not turning off switch {self.instrument.attr}, because the option \'mutable\' is deactivated.", title="Option mutable deactivated", id="PyCupra_mutable")
+                _LOGGER.warning(
+                    f"Not turning off switch {self.instrument.attr}, because the option 'mutable' is deactivated."
+                )
+                # raise Exception(f"Not turning off switch {self.instrument.attr}, because the option \'mutable\' is deactivated.")
+                async_show_pycupra_notification(
+                    self.hass,
+                    f"Not turning off switch {self.instrument.attr}, because the option 'mutable' is deactivated.",
+                    title="Option mutable deactivated",
+                    id="PyCupra_mutable",
+                )
                 # Because some switches have no callback, self.coordinator.async_request_refresh() to set the switch in the UI back to its value according to PyCupra
                 if self.instrument.callback is None:
                     await self.coordinator.async_request_refresh()
             self.async_write_ha_state()
         except Exception as e:
-            _LOGGER.error(f"An error occurred, while trying to turn off '{self.instrument.attr}'. Error: {e}")
-            async_show_pycupra_notification(self.hass, f"An error occurred, while trying to turn off '{self.instrument.attr}'. Error: {e}", title="Set switch error", id="PyCupra_set_switch_error")
+            _LOGGER.error(
+                f"An error occurred, while trying to turn off '{self.instrument.attr}'. Error: {e}"
+            )
+            async_show_pycupra_notification(
+                self.hass,
+                f"An error occurred, while trying to turn off '{self.instrument.attr}'. Error: {e}",
+                title="Set switch error",
+                id="PyCupra_set_switch_error",
+            )
 
     @property
     def assumed_state(self):

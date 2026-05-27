@@ -1,11 +1,16 @@
 """
 Support for My Cupra Platform
 """
+
 import logging
 
 from . import DATA_KEY, DOMAIN, PyCupraEntity
 from .const import DATA
-from homeassistant.components.sensor import DEVICE_CLASSES, SensorEntity, SensorStateClass
+from homeassistant.components.sensor import (
+    DEVICE_CLASSES,
+    SensorEntity,
+    SensorStateClass,
+)
 from homeassistant.const import CONF_RESOURCES
 
 _LOGGER = logging.getLogger(__name__)
@@ -49,13 +54,23 @@ class PyCupraSensor(PyCupraEntity, SensorEntity):
         super().__init__(data, vin, component, attribute)
         # Set state_class during initialization
         if self.instrument.attr in [
-            'battery_level', 'adblue_level', 'fuel_level', 'charging_time_left', 'charging_power', 'charge_rate', 'distance',
-            'electric_range', 'combustion_range', 'combined_range', 'outside_temperature', 'climatisation_time_left'
+            "battery_level",
+            "adblue_level",
+            "fuel_level",
+            "charging_time_left",
+            "charging_power",
+            "charge_rate",
+            "distance",
+            "electric_range",
+            "combustion_range",
+            "combined_range",
+            "outside_temperature",
+            "climatisation_time_left",
         ]:
             self._attr_state_class = SensorStateClass.MEASUREMENT
 
     @property
-    #def state(self):
+    # def state(self):
     def native_value(self):
         """Return the state of the sensor."""
         if self.instrument is not None:
@@ -63,7 +78,7 @@ class PyCupraSensor(PyCupraEntity, SensorEntity):
         return None
 
     @property
-    #def unit_of_measurement(self):
+    # def unit_of_measurement(self):
     def native_unit_of_measurement(self):
         """Return the unit of measurement."""
         if self.instrument is not None:
@@ -74,7 +89,7 @@ class PyCupraSensor(PyCupraEntity, SensorEntity):
     def suggested_unit_of_measurement(self):
         """Return the unit of measurement."""
         if self.instrument is not None:
-            if self.instrument.unit in ('km', 'km/h'):
+            if self.instrument.unit in ("km", "km/h"):
                 return self.instrument.unit
         return None
 
@@ -84,5 +99,3 @@ class PyCupraSensor(PyCupraEntity, SensorEntity):
         if self.instrument.device_class in DEVICE_CLASSES:
             return self.instrument.device_class
         return None
-
-

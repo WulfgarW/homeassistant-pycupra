@@ -1,6 +1,7 @@
 """
 Support for My Cupra Platform
 """
+
 import logging
 
 from homeassistant.components.number import NumberEntity
@@ -14,7 +15,7 @@ _LOGGER = logging.getLogger(__name__)
 
 
 async def async_setup_platform(hass, config, async_add_entities, discovery_info=None):
-    """ Setup the PyCupra number."""
+    """Setup the PyCupra number."""
     if discovery_info is None:
         return
     async_add_entities([PyCupraNumber(hass.data[DATA_KEY], *discovery_info)])
@@ -89,9 +90,22 @@ class PyCupraNumber(PyCupraEntity, NumberEntity):
                 await self.instrument.set_value(int(value))
                 self.async_write_ha_state()
             else:
-                _LOGGER.warning(f"Not changing value of '{self.instrument.attr}', because the option \'mutable\' is deactivated or the instrument is not changeable for your vehicle.")
-                async_show_pycupra_notification(self.hass, f"Not changing value of '{self.instrument.attr}', because the option \'mutable\' is deactivated or the instrument is not changeable for your vehicle.", title="Option mutable deactivated", id="PyCupra_mutable")
+                _LOGGER.warning(
+                    f"Not changing value of '{self.instrument.attr}', because the option 'mutable' is deactivated or the instrument is not changeable for your vehicle."
+                )
+                async_show_pycupra_notification(
+                    self.hass,
+                    f"Not changing value of '{self.instrument.attr}', because the option 'mutable' is deactivated or the instrument is not changeable for your vehicle.",
+                    title="Option mutable deactivated",
+                    id="PyCupra_mutable",
+                )
         except Exception as e:
-            _LOGGER.error(f"An error occurred, while trying to change value of '{self.instrument.attr}'. Error: {e}")
-            async_show_pycupra_notification(self.hass, f"An error occurred, while trying to change value of '{self.instrument.attr}'. Error: {e}", title="Set number error", id="PyCupra_set_number_error")
-
+            _LOGGER.error(
+                f"An error occurred, while trying to change value of '{self.instrument.attr}'. Error: {e}"
+            )
+            async_show_pycupra_notification(
+                self.hass,
+                f"An error occurred, while trying to change value of '{self.instrument.attr}'. Error: {e}",
+                title="Set number error",
+                id="PyCupra_set_number_error",
+            )

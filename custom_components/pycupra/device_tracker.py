@@ -1,6 +1,7 @@
 """
 Support for My Cupra Platform
 """
+
 import logging
 
 from homeassistant.components.device_tracker import SourceType
@@ -30,7 +31,8 @@ async def async_setup_entry(hass, entry, async_add_devices):
             for instrument in (
                 instrument
                 for instrument in data.instruments
-                if instrument.component == "device_tracker" and instrument.attr in resources
+                if instrument.component == "device_tracker"
+                and instrument.attr in resources
             )
         )
 
