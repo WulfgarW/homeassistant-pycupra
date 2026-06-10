@@ -1576,6 +1576,8 @@ class PyCupraCoordinator(DataUpdateCoordinator):
         self._euda = self.entry.options.get(
             CONF_EUDA, self.entry.data.get(CONF_EUDA, False)
         )
+        self._ola_unavailable = False
+        self.eudaConnection = None
         if self._euda:
             self.eudaConnection = EUDAConnection(
                 session=async_create_clientsession(hass),
@@ -1596,6 +1598,17 @@ class PyCupraCoordinator(DataUpdateCoordinator):
     async def _async_update_data(self):
         """Update data via library."""
         vehicle, eudaVehicle = await self.update()
+
+        if self._ola_unavailable:
+            # OLA API is unavailable (Akamai 403). Use EUDA data only.
+            if not eudaVehicle:
+                raise UpdateFailed(
+                    "OLA API unavailable and no EUDA vehicle data found. "
+                    "The Seat/Cupra OLA API may be blocked by Akamai bot protection."
+                )
+            dashboard = eudaVehicle.dashboard()
+            return dashboard.instruments
+
         if not vehicle:
             raise UpdateFailed("No vehicles found.")
 
@@ -1616,7 +1629,7 @@ class PyCupraCoordinator(DataUpdateCoordinator):
         try:
             await self.connection.terminate()
             self.connection = None
-            if self._euda:
+            if self._euda and self.eudaConnection is not None:
                 await self.eudaConnection.terminate()
                 self.eudaConnection = None
         except Exception:
@@ -1626,43 +1639,117 @@ class PyCupraCoordinator(DataUpdateCoordinator):
             return False
         return True
 
+    def _create_euda_connection(self):
+        """Create an EUDAConnection instance if not already created."""
+        if self.eudaConnection is None:
+            _LOGGER.info("Creating EUDAConnection for EU Data Act fallback")
+            self.eudaConnection = EUDAConnection(
+                session=async_create_clientsession(self.hass),
+                brand=self.entry.data[CONF_BRAND],
+                username=self.entry.data[CONF_USERNAME],
+                password=self.entry.data[CONF_PASSWORD],
+                fulldebug=self.entry.options.get(
+                    CONF_DEBUG, self.entry.data.get(CONF_DEBUG, DEFAULT_DEBUG)
+                ),
+                logPrefix=self._logPrefix,
+                hass=self.hass,
+            )
+
+    async def _login_euda(self) -> bool:
+        """Login to EUDA portal and fetch vehicles."""
+        self._create_euda_connection()
+        if not await self.eudaConnection.doLogin():
+            _LOGGER.error(
+                "Could not login to EUDA portal, please check your credentials and verify that the service is working"
+            )
+            return False
+        _LOGGER.debug("called eudaConnection.do_login")
+        await self.eudaConnection.getVehicles()
+        return True
+
     async def async_login(self) -> bool:
         """Login to Cupra/Seat portal"""
         # Check if we can login
         try:
-            # if await self.connection.doLogin(tokenFile=TOKEN_FILE_NAME_AND_PATH) is False:
-            if not await self.connection.doLogin():
+            ola_login_ok = False
+            ola_vehicles_ok = False
+            try:
+                if not await self.connection.doLogin():
+                    _LOGGER.warning(
+                        "Could not login to Cupra/Seat OLA portal, please check your credentials and verify that the service is working"
+                    )
+                else:
+                    ola_login_ok = True
+            except (PyCupraAccountLockedException, PyCupraAuthenticationException):
+                # These are real auth errors, not API availability issues - re-raise
+                raise
+            except PyCupraConfigException as e:
                 _LOGGER.warning(
-                    "Could not login to Cupra/Seat portal, please check your credentials and verify that the service is working"
+                    f"OLA API error during login: {e}. Will try EU Data Act fallback."
                 )
-                return False
-            # Get associated vehicles before we continue
-            await self.connection.get_vehicles()
-            vehicle = self.connection.vehicle(self.vin)
-            if vehicle is None:
+            except Exception as e:
                 _LOGGER.warning(
-                    f"PyCupraCoordinator.async_login() called. But vehicle with VIN ending on '{self.vin[-4:]}' was not found."
-                )
-            elif vehicle.deactivated:
-                _LOGGER.warning(
-                    "Vehicle is offline or API endpoint not responding during initialisation process. Continuing, but a lot of device entities will be unavailable. Better to check your vehicle and reload the device after solving the problem."
-                )
-                async_show_pycupra_notification(
-                    self.hass,
-                    "Vehicle is offline or API endpoint not responding during initialisation process. Continuing, but a lot of device entities will be unavailable. Better to check your vehicle and reload the device after solving the problem.",
-                    title="Vehicle offline",
-                    id="PyCupra_vehicle_offline_error",
+                    f"OLA API error during login: {e}. Will try EU Data Act fallback."
                 )
 
-            if self._euda:
-                if not await self.eudaConnection.doLogin():
-                    _LOGGER.error(
-                        "Could not login to EUDA portal, please check your credentials and verify that the service is working"
+            if ola_login_ok:
+                try:
+                    await self.connection.get_vehicles()
+                    vehicle = self.connection.vehicle(self.vin)
+                    if vehicle is not None:
+                        ola_vehicles_ok = True
+                        if vehicle.deactivated:
+                            _LOGGER.warning(
+                                "Vehicle is offline or API endpoint not responding during initialisation process. Continuing, but a lot of device entities will be unavailable."
+                            )
+                            async_show_pycupra_notification(
+                                self.hass,
+                                "Vehicle is offline or API endpoint not responding during initialisation process. Continuing, but a lot of device entities will be unavailable. Better to check your vehicle and reload the device after solving the problem.",
+                                title="Vehicle offline",
+                                id="PyCupra_vehicle_offline_error",
+                            )
+                    else:
+                        _LOGGER.warning(
+                            f"PyCupraCoordinator.async_login() called. But vehicle with VIN ending on '{self.vin[-4:]}' was not found via OLA API."
+                        )
+                except PyCupraConfigException as e:
+                    _LOGGER.warning(
+                        f"OLA API returned no vehicles: {e}. This is likely caused by Akamai bot protection (403). Will try EU Data Act fallback."
                     )
+                except Exception as e:
+                    _LOGGER.warning(
+                        f"OLA API error fetching vehicles: {e}. Will try EU Data Act fallback."
+                    )
+
+            if not ola_vehicles_ok:
+                # OLA API is unavailable or returned no vehicles.
+                # Fallback to EU Data Act portal.
+                _LOGGER.warning(
+                    "OLA API (ola.prod.code.seat.cloud.vwgroup.com) is unavailable. "
+                    "This is likely due to Akamai bot protection. "
+                    "Falling back to EU Data Act portal (eu-data-act.drivesomethinggreater.com)."
+                )
+                self._ola_unavailable = True
+                self._euda = True
+                async_show_pycupra_notification(
+                    self.hass,
+                    "The Seat/Cupra OLA API is currently blocked (likely Akamai bot protection). "
+                    "PyCupra is using the EU Data Act portal as a fallback. "
+                    "Some features (vehicle control, real-time status) will be unavailable. "
+                    "Only EUDA data (trip statistics, mileage, temperature) will be available.",
+                    title="PyCupra: OLA API unavailable, using EU Data Act fallback",
+                    id="PyCupra_ola_unavailable",
+                )
+
+                if not await self._login_euda():
                     return False
-                _LOGGER.debug("called eudaConnection.do_login")
-                # Get associated eudaVehicles before we continue
-                await self.eudaConnection.getVehicles()
+            else:
+                # OLA is working, also setup EUDA if enabled
+                if self._euda:
+                    await self._login_euda()
+
+            # Read trip statistics file if EUDA is active
+            if self._euda and self.eudaConnection is not None:
                 loop = asyncio.get_running_loop()
                 if not await loop.run_in_executor(
                     None, self.eudaConnection.readTripStatisticsFile
@@ -1686,29 +1773,35 @@ class PyCupraCoordinator(DataUpdateCoordinator):
         _LOGGER.debug("Updating data from Cupra/Seat API")
         try:
             eudaVehicle = None
-            # Get Vehicle object matching VIN number
-            vehicle = self.connection.vehicle(self.vin)
-            if vehicle is None:
-                _LOGGER.warning(
-                    "PyCupraCoordinator.update() called. But vehicle is none."
-                )
-                rc1 = False
+            vehicle = None
+            rc1 = True
+
+            if self._ola_unavailable:
+                # OLA API is down, skip OLA updates entirely
+                _LOGGER.debug("OLA API unavailable, skipping OLA vehicle update")
+                rc1 = True  # Not a failure, we just don't use OLA
             else:
-                try:
-                    if self.firebaseWanted:
-                        await vehicle.initialiseFirebase(
-                            firebaseCredentialsFileName=FIREBASE_CREDENTIALS_FILE_NAME_AND_PATH,
-                            updateCallback=self.updateCallbackForNotifications,
-                        )
-                        # newStatus = await vehicle.initialiseFirebase(firebaseCredentialsFileName=FIREBASE_CREDENTIALS_FILE_NAME_AND_PATH, updateCallback=self.updateCallbackForNotifications)
-                        # _LOGGER.debug(f"New status of firebase={newStatus}")
-                    rc1 = await vehicle.update()
-                except Exception as error:
+                # Get Vehicle object matching VIN number
+                vehicle = self.connection.vehicle(self.vin)
+                if vehicle is None:
                     _LOGGER.warning(
-                        f"An error occured while requesting update from Cupra/Seat API. Error: {error}. Continuing with old vehicle data"
+                        "PyCupraCoordinator.update() called. But vehicle is none."
                     )
-                    vehicle = self.connection.vehicle(self.vin)
                     rc1 = False
+                else:
+                    try:
+                        if self.firebaseWanted:
+                            await vehicle.initialiseFirebase(
+                                firebaseCredentialsFileName=FIREBASE_CREDENTIALS_FILE_NAME_AND_PATH,
+                                updateCallback=self.updateCallbackForNotifications,
+                            )
+                        rc1 = await vehicle.update()
+                    except Exception as error:
+                        _LOGGER.warning(
+                            f"An error occured while requesting update from Cupra/Seat API. Error: {error}. Continuing with old vehicle data"
+                        )
+                        vehicle = self.connection.vehicle(self.vin)
+                        rc1 = False
             rc2 = True
             if self._euda:
                 eudaVehicle = self.eudaConnection.vehicle(self.vin)
@@ -1760,6 +1853,10 @@ class PyCupraCoordinator(DataUpdateCoordinator):
     ) -> Union[bool, Vehicle]:
         """Update status from API (called for notifications)"""
 
+        if self._ola_unavailable:
+            _LOGGER.debug("OLA API unavailable, skipping notification-triggered update")
+            return False
+
         # Update vehicle data
         _LOGGER.debug(
             "Due to push notification, call for update of data from Cupra/Seat API"
@@ -1807,6 +1904,10 @@ class PyCupraCoordinator(DataUpdateCoordinator):
         self, whichInstrument
     ) -> Union[bool, Vehicle]:
         """Update position from My Cupra"""
+
+        if self._ola_unavailable:
+            _LOGGER.debug("OLA API unavailable, skipping selective entity update")
+            return False
 
         # Update vehicle data
         try:
