@@ -48,6 +48,7 @@ from pycupra.exceptions import (
     PyCupraLoginFailedException,
     PyCupraInvalidRequestException,
     PyCupraRequestInProgressException,
+    PyCupraClientRequestForbidden,
 )
 
 from .const import (
@@ -298,7 +299,7 @@ SERVICE_SET_PHEATER_DURATION_SCHEMA = vol.Schema(
 # PARALLEL_UPDATES = 2
 
 _LOGGER = logging.getLogger(__name__)
-# TOKEN_FILE_NAME_AND_PATH='./custom_components/pycupra/pycupra_token.json'
+TOKEN_FILE_NAME_AND_PATH='./custom_components/pycupra/pycupra_token.json'
 FIREBASE_CREDENTIALS_FILE_NAME_AND_PATH = (
     "./custom_components/pycupra/pycupra_firebase_credentials_{vin}.json"
 )
@@ -332,7 +333,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
         _LOGGER.debug(f"In async_setup_entry. Exception {e}")
         raise ConfigEntryAuthFailed(e) from e
     except Exception as e:
-        _LOGGER.debug(f"In async_setup_entry. Others exceptions. Exception {e}")
+        _LOGGER.debug(f"In async_setup_entry. Other exceptions. Exception {e}")
         raise ConfigEntryNotReady(e) from e
 
     entry.async_on_unload(
@@ -1630,8 +1631,7 @@ class PyCupraCoordinator(DataUpdateCoordinator):
         """Login to Cupra/Seat portal"""
         # Check if we can login
         try:
-            # if await self.connection.doLogin(tokenFile=TOKEN_FILE_NAME_AND_PATH) is False:
-            if not await self.connection.doLogin():
+            if not await self.connection.doLogin(tokenFile=TOKEN_FILE_NAME_AND_PATH):
                 _LOGGER.warning(
                     "Could not login to Cupra/Seat portal, please check your credentials and verify that the service is working"
                 )
@@ -1672,9 +1672,20 @@ class PyCupraCoordinator(DataUpdateCoordinator):
                     )
 
             return True
+        except (PyCupraClientRequestForbidden) as e:
+            _LOGGER.error("In async_login.except. Exception:", e)
+            _LOGGER.error("PyCupra was blocked by API. PyCupra is not working anymore. Reboot or reinstallation do not help. Please disable PyCupra.")
+            # Raise auth failed error in async_login
+            async_show_pycupra_notification(
+                self.hass,
+                f"PyCupra was blocked by API. PyCupra is not working anymore. Reboot or reinstallation do not help. Please disable PyCupra. Error: {e}",
+                title="Client blocked by API",
+                id="PyCupra_client_blocked_error",
+            )
+            raise
         except (PyCupraAccountLockedException, PyCupraAuthenticationException) as e:
             _LOGGER.error("In async_login.except. Exception:", e)
-            # Raise auth failed error in config flow
+            # Raise auth failed error in async_login
             raise
         except Exception:
             raise

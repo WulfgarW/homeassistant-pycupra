@@ -13,6 +13,10 @@ from homeassistant.core import callback
 from homeassistant.helpers.aiohttp_client import async_get_clientsession
 
 from pycupra.connection import Connection
+from pycupra.exceptions import (
+    PyCupraClientRequestForbidden,
+)
+from . import async_show_pycupra_notification
 from .const import (
     CONF_DEBUG,
     CONF_MUTABLE,
@@ -125,6 +129,15 @@ class PyCupraConnectConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
     async def _async_task_get_vehicles(self):
         try:
             result = await self._connection.get_vehicles()
+        except (PyCupraClientRequestForbidden) as e:
+            _LOGGER.error(f"Fetch vehicles failed with error: {e}")
+            _LOGGER.error("PyCupra was blocked by API. PyCupra is not working anymore. Reboot or reinstallation do not help. Please disable PyCupra.")
+            async_show_pycupra_notification(
+                self.hass,
+                f"PyCupra was blocked by API. PyCupra is not working anymore. Reboot or reinstallation do not help. Please disable PyCupra. Error: {e}",
+                title="Client blocked by API",
+                id="PyCupra_client_blocked_error",
+            )
         except Exception as e:
             _LOGGER.error(f"Fetch vehicles failed with error: {e}")
             self._errors["base"] = "cannot_connect"
@@ -407,6 +420,16 @@ class PyCupraConnectConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
             # await self._connection.doLogin(tokenFile=TOKEN_FILE_NAME_AND_PATH)
             await self._connection.doLogin()
             await self._connection.get_vehicles()
+        except (PyCupraClientRequestForbidden) as e:
+            _LOGGER.error(f"Fetch vehicles failed with error: {e}")
+            _LOGGER.error("PyCupra was blocked by API. PyCupra is not working anymore. Reboot or reinstallation do not help. Please disable PyCupra.")
+            async_show_pycupra_notification(
+                self.hass,
+                f"PyCupra was blocked by API. PyCupra is not working anymore. Reboot or reinstallation do not help. Please disable PyCupra. Error: {e}",
+                title="Client blocked by API",
+                id="PyCupra_client_blocked_error",
+            )
+            raise
         except:
             raise
 
