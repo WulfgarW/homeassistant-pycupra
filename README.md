@@ -2,6 +2,16 @@
 
 ## This is based on [Farfar/homeassistant-seatconnect](https://github.com/Farfar/homeassistant-seatconnect) modified to support new API of Cupra and Seat
 ## [Farfar/homeassistant-seatconnect] is based on [lendy007/homeassistant-skodaconnect](https://github.com/lendy007/homeassistant-skodaconnect) modified to support Seat
+
+## !!! Important information !!!
+
+Due to the API changes on June 8th 2026, PyCupra is blocked by most of the API endpoints, because it is lacking an appcheck_token, that it cannot generate itself.
+homeassistant-pycupra catches the http-403 error, that the API sends, generates an HA notification and does not try to query further API endpoints. PyCupra raises an exception to HA, and HA stops PyCupra and will only retry it, if you reboot HA or try to reload your PyCupra device.
+It is recommended, that you disable PyCupra.
+
+
+
+## What does this package?
 This integration for Home Assistant will fetch data from My Cupra/My Seat servers related to your Cupra or Seat car.
 PyCupra never fetches data directly from car, the car sends updated data to My Cupra/My Seat servers on specific events such as lock/unlock, charging events, climatisation events and when vehicle is parked. The integration will then fetch this data from the servers.
 When vehicle actions fails or return with no response, a force refresh might help. This will trigger a "wake up" call from VAG servers to the car.

@@ -22,7 +22,7 @@ from homeassistant.const import (
     EVENT_HOMEASSISTANT_STOP,
 )
 from homeassistant.core import HomeAssistant
-from homeassistant.exceptions import ConfigEntryAuthFailed, ConfigEntryNotReady
+from homeassistant.exceptions import ConfigEntryAuthFailed, ConfigEntryNotReady, ConfigEntryError
 from homeassistant.helpers import config_validation as cv, device_registry
 from homeassistant.helpers.aiohttp_client import async_create_clientsession
 from homeassistant.helpers.dispatcher import async_dispatcher_connect
@@ -332,6 +332,10 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     ) as e:
         _LOGGER.debug(f"In async_setup_entry. Exception {e}")
         raise ConfigEntryAuthFailed(e) from e
+    except PyCupraClientRequestForbidden as e:
+        _LOGGER.debug(f"In async_setup_entry. PyCupraClientRequestForbidden exception. Exception {e}")
+        _LOGGER.debug(f"Homeassistant will not try to restart PyCupra automatically.")
+        raise ConfigEntryError(e) from e
     except Exception as e:
         _LOGGER.debug(f"In async_setup_entry. Other exceptions. Exception {e}")
         raise ConfigEntryNotReady(e) from e
@@ -1631,7 +1635,11 @@ class PyCupraCoordinator(DataUpdateCoordinator):
         """Login to Cupra/Seat portal"""
         # Check if we can login
         try:
-            if not await self.connection.doLogin(tokenFile=TOKEN_FILE_NAME_AND_PATH):
+            tokenFileName= TOKEN_FILE_NAME_AND_PATH
+            if tokenFileName.find(".json")>0:
+                tokenFileName = tokenFileName[0:tokenFileName.find(".json")]+"_"+self.entry.entry_id+tokenFileName[tokenFileName.find(".json"):]
+            #_LOGGER.debug(f"tokenFileName={tokenFileName}")
+            if not await self.connection.doLogin(tokenFile=tokenFileName):
                 _LOGGER.warning(
                     "Could not login to Cupra/Seat portal, please check your credentials and verify that the service is working"
                 )
