@@ -112,6 +112,7 @@ class PyCupraConnectConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
 
     # noinspection PyBroadException
     async def _async_task_login(self):
+        result = False
         try:
             # result = await self._connection.doLogin(tokenFile=TOKEN_FILE_NAME_AND_PATH)
             result = await self._connection.doLogin()
