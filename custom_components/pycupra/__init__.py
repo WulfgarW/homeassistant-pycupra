@@ -49,6 +49,7 @@ from pycupra.exceptions import (
     PyCupraInvalidRequestException,
     PyCupraRequestInProgressException,
     PyCupraClientRequestForbidden,
+    PyCupraReadTripStatisticsFileException,
 )
 
 from .const import (
@@ -329,6 +330,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
         PyCupraAuthenticationException,
         PyCupraAccountLockedException,
         PyCupraLoginFailedException,
+        PyCupraReadTripStatisticsFileException,
     ) as e:
         _LOGGER.debug(f"In async_setup_entry. Exception {e}")
         raise ConfigEntryAuthFailed(e) from e
@@ -355,7 +357,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
         else:
             identifiers = None
         registry = device_registry.async_get(hass)
-        device = registry.async_get_device(identifiers)
+        device = registry.async_get_device_by_identifier(identifiers, DOMAIN)
         # Get user configured name for device
         if device is not None:
             name = device.name_by_user if device.name_by_user is not None else None
@@ -1673,7 +1675,7 @@ class PyCupraCoordinator(DataUpdateCoordinator):
                 await self.eudaConnection.getVehicles()
                 loop = asyncio.get_running_loop()
                 if not await loop.run_in_executor(
-                    None, self.eudaConnection.readTripStatisticsFile
+                    None, self.eudaConnection.readTripStatisticsFile, self.vin
                 ):
                     _LOGGER.warning(
                         "readTripStatisticsFile was not successful. Is there no file? Ignoring this problem."
@@ -1681,7 +1683,7 @@ class PyCupraCoordinator(DataUpdateCoordinator):
 
             return True
         except (PyCupraClientRequestForbidden) as e:
-            _LOGGER.error("In async_login.except. Exception:", e)
+            _LOGGER.error("In async_login.except. Exception: {e}")
             _LOGGER.error("PyCupra was blocked by API. PyCupra is not working anymore. Reboot or reinstallation do not help. Please disable PyCupra.")
             # Raise auth failed error in async_login
             async_show_pycupra_notification(
@@ -1692,8 +1694,18 @@ class PyCupraCoordinator(DataUpdateCoordinator):
             )
             raise
         except (PyCupraAccountLockedException, PyCupraAuthenticationException) as e:
-            _LOGGER.error("In async_login.except. Exception:", e)
+            _LOGGER.error("In async_login.except. Exception: {e}")
             # Raise auth failed error in async_login
+            raise
+        except (PyCupraReadTripStatisticsFileException) as e:
+            _LOGGER.error("In async_login.except. Exception: {e}")
+            async_show_pycupra_notification(
+                self.hass,
+                f"An error occurred while reading trip statistics file. Error: {e}. If you think, it should work again, reload your pycupra device.",
+                title="EUDA connection failed",
+                id="PyCupra_euda_error",
+            )
+            # Raise read trip statistics file exception
             raise
         except Exception:
             raise
@@ -1733,7 +1745,7 @@ class PyCupraCoordinator(DataUpdateCoordinator):
                 eudaVehicle = self.eudaConnection.vehicle(self.vin)
                 if self.eudaConnection._loginError is None:
                     try:
-                        rc2 = await self.eudaConnection.update()
+                        rc2 = await self.eudaConnection.update(self.vin)
                         if self.eudaConnection._loginError is not None:
                             _LOGGER.error(
                                 f"An error occurred in update of EU data act data. Error: {self.eudaConnection._loginError}"
@@ -1799,7 +1811,7 @@ class PyCupraCoordinator(DataUpdateCoordinator):
             rc2 = True
             if self._euda:
                 eudaVehicle = self.eudaConnection.vehicle(self.vin)
-                # rc2 = await self.eudaConnection.update() # commented out, because calling self.eudaConnection.update() during "normal" updates should be sufficient
+                # rc2 = await self.eudaConnection.update(self.vin) # commented out, because calling self.eudaConnection.update() during "normal" updates should be sufficient
             if rc1 and rc2:
                 dashboard = vehicle.dashboard(
                     mutable=self.entry.options.get(CONF_MUTABLE),
