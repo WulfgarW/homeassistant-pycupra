@@ -1681,7 +1681,7 @@ class PyCupraCoordinator(DataUpdateCoordinator):
 
             return True
         except (PyCupraClientRequestForbidden) as e:
-            _LOGGER.error("In async_login.except. Exception:", e)
+            _LOGGER.error("In async_login.except. Exception: %s", e)
             _LOGGER.error("PyCupra was blocked by API. PyCupra is not working anymore. Reboot or reinstallation do not help. Please disable PyCupra.")
             # Raise auth failed error in async_login
             async_show_pycupra_notification(
@@ -1692,7 +1692,7 @@ class PyCupraCoordinator(DataUpdateCoordinator):
             )
             raise
         except (PyCupraAccountLockedException, PyCupraAuthenticationException) as e:
-            _LOGGER.error("In async_login.except. Exception:", e)
+            _LOGGER.error("In async_login.except. Exception: %s", e)
             # Raise auth failed error in async_login
             raise
         except Exception:
